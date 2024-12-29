@@ -7,6 +7,8 @@ pub trait Individual {
 
     fn genome(&self) -> &Self::Genome;
 
+    fn genome_mut(&mut self) -> &mut Self::Genome;
+
     fn mutate<M>(self, mutator: M) -> Result<Self, M::Error>
     where
         M: Mutator<Individual = Self>,
@@ -22,12 +24,20 @@ impl<T, const N: usize> Individual for [T; N] {
     fn genome(&self) -> &Self::Genome {
         self
     }
+
+    fn genome_mut(&mut self) -> &mut Self::Genome {
+        self
+    }
 }
 
 impl<T> Individual for Vec<T> {
     type Genome = [T];
 
     fn genome(&self) -> &Self::Genome {
+        self
+    }
+
+    fn genome_mut(&mut self) -> &mut Self::Genome {
         self
     }
 }

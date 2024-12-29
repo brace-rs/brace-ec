@@ -1,3 +1,5 @@
+use crate::util::iter::Iterable;
+
 use super::individual::Individual;
 
 pub trait Population {
@@ -32,11 +34,26 @@ where
     }
 }
 
+pub trait IterablePopulation: Population + Iterable<Item = Self::Individual> {}
+
+impl<T> IterablePopulation for T where T: Population + Iterable<Item = Self::Individual> {}
+
 #[cfg(test)]
 mod tests {
-    use super::Population;
+    use crate::core::individual::Individual;
+    use crate::util::iter::Iterable;
+
+    use super::{IterablePopulation, Population};
 
     fn erase<P: Population>(population: P) -> impl Population {
+        population
+    }
+
+    fn erase_iter<I, P>(population: P) -> impl IterablePopulation<Individual = I>
+    where
+        I: Individual,
+        P: IterablePopulation<Individual = I>,
+    {
         population
     }
 
@@ -51,6 +68,15 @@ mod tests {
 
         assert!(!population.is_empty());
         assert_eq!(population.len(), 2);
+
+        let population = erase_iter([[0], [1], [2]]);
+
+        let mut iter = population.iter();
+
+        assert_eq!(iter.next(), Some(&[0]));
+        assert_eq!(iter.next(), Some(&[1]));
+        assert_eq!(iter.next(), Some(&[2]));
+        assert_eq!(iter.next(), None);
     }
 
     #[test]
@@ -69,5 +95,14 @@ mod tests {
 
         assert!(!population.is_empty());
         assert_eq!(population.len(), 2);
+
+        let population = erase_iter(vec![[0], [1], [2]]);
+
+        let mut iter = population.iter();
+
+        assert_eq!(iter.next(), Some(&[0]));
+        assert_eq!(iter.next(), Some(&[1]));
+        assert_eq!(iter.next(), Some(&[2]));
+        assert_eq!(iter.next(), None);
     }
 }

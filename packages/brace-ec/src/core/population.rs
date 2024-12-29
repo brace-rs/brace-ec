@@ -3,6 +3,7 @@ use rand::thread_rng;
 use crate::util::iter::Iterable;
 
 use super::individual::Individual;
+use super::operator::recombinator::Recombinator;
 use super::operator::selector::Selector;
 
 pub trait Population {
@@ -19,6 +20,14 @@ pub trait Population {
         S: Selector<Population = Self>,
     {
         selector.select(self, &mut thread_rng())
+    }
+
+    fn recombine<R>(self, recombinator: R) -> Result<R::Output, R::Error>
+    where
+        R: Recombinator<Parents = Self>,
+        Self: Sized,
+    {
+        recombinator.recombine(self, &mut thread_rng())
     }
 }
 

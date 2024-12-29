@@ -1,6 +1,9 @@
+use rand::thread_rng;
+
 use crate::util::iter::Iterable;
 
 use super::individual::Individual;
+use super::operator::selector::Selector;
 
 pub trait Population {
     type Individual: Individual;
@@ -9,6 +12,13 @@ pub trait Population {
 
     fn is_empty(&self) -> bool {
         self.len() == 0
+    }
+
+    fn select<S>(&self, selector: S) -> Result<S::Output, S::Error>
+    where
+        S: Selector<Population = Self>,
+    {
+        selector.select(self, &mut thread_rng())
     }
 }
 

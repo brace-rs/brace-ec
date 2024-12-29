@@ -1,0 +1,9 @@
+[package]
+name = "brace-ec"
+version = "0.0.0"
+description = "An evolutionary computation framework"
+authors = ["Daniel Balcomb <daniel.balcomb@gmail.com>"]
+homepage = "https://brace.rs"
+repository = "https://github.com/brace-rs/brace-ec"
+license = "MIT OR Apache-2.0"
+edition = "2021"

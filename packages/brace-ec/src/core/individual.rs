@@ -1,7 +1,19 @@
+use rand::thread_rng;
+
+use super::operator::mutator::Mutator;
+
 pub trait Individual {
     type Genome: ?Sized;
 
     fn genome(&self) -> &Self::Genome;
+
+    fn mutate<M>(self, mutator: M) -> Result<Self, M::Error>
+    where
+        M: Mutator<Individual = Self>,
+        Self: Sized,
+    {
+        mutator.mutate(self, &mut thread_rng())
+    }
 }
 
 impl<T, const N: usize> Individual for [T; N] {

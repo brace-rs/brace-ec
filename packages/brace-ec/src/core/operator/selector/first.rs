@@ -36,7 +36,7 @@ mod tests {
 
     #[test]
     fn test_select() {
-        let population = [[0], [1], [2], [3], [4]];
+        let population = [0, 1, 2, 3, 4];
         let individual = population.select(First).unwrap()[0];
 
         assert_eq!(population[0], individual);

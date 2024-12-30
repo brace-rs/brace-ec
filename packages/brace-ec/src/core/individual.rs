@@ -42,6 +42,26 @@ impl<T> Individual for Vec<T> {
     }
 }
 
+macro_rules! impl_individual {
+    ($($type:path),+) => {
+        $(impl Individual for $type {
+            type Genome = Self;
+
+            fn genome(&self) -> &Self::Genome {
+                self
+            }
+
+            fn genome_mut(&mut self) -> &mut Self::Genome {
+                self
+            }
+        })+
+    };
+}
+
+impl_individual!(u8, u16, u32, u64, u128, usize);
+impl_individual!(i8, i16, i32, i64, i128, isize);
+impl_individual!(f32, f64, char, bool);
+
 #[cfg(test)]
 mod tests {
     use super::Individual;

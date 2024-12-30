@@ -51,6 +51,7 @@ pub enum MutateError<S, M> {
 #[cfg(test)]
 mod tests {
     use std::convert::Infallible;
+    use std::ops::Add;
 
     use rand::Rng;
 
@@ -62,32 +63,29 @@ mod tests {
     struct Increment;
 
     impl Mutator for Increment {
-        type Individual = [u32; 2];
+        type Individual = u8;
         type Error = Infallible;
 
         fn mutate<R: Rng>(
             &self,
-            mut individual: Self::Individual,
+            individual: Self::Individual,
             _: &mut R,
         ) -> Result<Self::Individual, Self::Error> {
-            individual[0] += 1;
-            individual[1] += 1;
-
-            Ok(individual)
+            Ok(individual.add(1))
         }
     }
 
     #[test]
     fn test_mutate_selector() {
-        let population = [[0, 0]];
+        let population = [0];
         let individual = population.select(First.mutate(Increment)).unwrap()[0];
 
-        assert_eq!(individual, [1, 1]);
+        assert_eq!(individual, 1);
 
         let individual = population
             .select(First.mutate(Increment).mutate(Increment))
             .unwrap()[0];
 
-        assert_eq!(individual, [2, 2]);
+        assert_eq!(individual, 2);
     }
 }

@@ -27,8 +27,8 @@ mod tests {
     struct Swap;
 
     impl Recombinator for Swap {
-        type Parents = [[i32; 2]; 2];
-        type Output = [[i32; 2]; 2];
+        type Parents = [u8; 2];
+        type Output = [u8; 2];
         type Error = Infallible;
 
         fn recombine<R: Rng>(
@@ -42,9 +42,9 @@ mod tests {
 
     #[test]
     fn test_recombinator() {
-        let individuals = [[0, 0], [1, 1]].recombine(Swap).unwrap();
+        let individuals = [0, 1].recombine(Swap).unwrap();
 
-        assert_eq!(individuals[0], [1, 1]);
-        assert_eq!(individuals[1], [0, 0]);
+        assert_eq!(individuals[0], 1);
+        assert_eq!(individuals[1], 0);
     }
 }

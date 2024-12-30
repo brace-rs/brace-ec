@@ -41,7 +41,7 @@ mod tests {
 
     #[test]
     fn test_select() {
-        let population = [[0], [1], [2], [3], [4]];
+        let population = [0, 1, 2, 3, 4];
 
         for _ in 0..10 {
             let individual = population.select(Random).unwrap()[0];

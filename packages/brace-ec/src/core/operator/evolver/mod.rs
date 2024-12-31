@@ -1,3 +1,5 @@
+pub mod select;
+
 use crate::core::generation::Generation;
 
 pub trait Evolver {

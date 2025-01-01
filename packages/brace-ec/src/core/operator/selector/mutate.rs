@@ -59,7 +59,7 @@ mod tests {
     use crate::core::population::Population;
 
     #[test]
-    fn test_mutate_selector() {
+    fn test_select() {
         let population = [0];
         let individual = population.select(First.mutate(Add(1))).unwrap()[0];
 

@@ -47,10 +47,9 @@ pub enum AddError {
 mod tests {
     use rand::thread_rng;
 
-    use crate::core::operator::mutator::add::AddError;
     use crate::core::operator::mutator::Mutator;
 
-    use super::Add;
+    use super::{Add, AddError};
 
     #[test]
     fn test_mutate() {

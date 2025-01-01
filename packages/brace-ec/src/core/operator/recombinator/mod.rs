@@ -1,3 +1,5 @@
+pub mod sum;
+
 use rand::Rng;
 
 use crate::core::population::Population;

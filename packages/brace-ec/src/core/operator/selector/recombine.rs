@@ -61,7 +61,7 @@ mod tests {
 
     use rand::Rng;
 
-    use crate::core::operator::recombinator::Recombinator;
+    use crate::core::operator::recombinator::sum::Sum;
     use crate::core::operator::selector::Selector;
     use crate::core::population::Population;
 
@@ -84,29 +84,10 @@ mod tests {
         }
     }
 
-    struct Add;
-
-    impl Recombinator for Add {
-        type Parents = [u8; 2];
-        type Output = [u8; 1];
-        type Error = Infallible;
-
-        fn recombine<R>(
-            &self,
-            [a, b]: Self::Parents,
-            _: &mut R,
-        ) -> Result<Self::Output, Self::Error>
-        where
-            R: Rng + ?Sized,
-        {
-            Ok([a + b])
-        }
-    }
-
     #[test]
     fn test_select() {
         let population = [0, 1, 2, 3, 4];
-        let individual = population.select(LastTwo.recombine(Add)).unwrap()[0];
+        let individual = population.select(LastTwo.recombine(Sum)).unwrap()[0];
 
         assert_eq!(individual, 7);
     }

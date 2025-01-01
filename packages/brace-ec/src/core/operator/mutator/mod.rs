@@ -1,3 +1,5 @@
+pub mod add;
+
 use rand::Rng;
 
 use crate::core::individual::Individual;

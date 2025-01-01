@@ -6,11 +6,13 @@ pub trait Mutator: Sized {
     type Individual: Individual;
     type Error;
 
-    fn mutate<R: Rng>(
+    fn mutate<R>(
         &self,
         individual: Self::Individual,
         rng: &mut R,
-    ) -> Result<Self::Individual, Self::Error>;
+    ) -> Result<Self::Individual, Self::Error>
+    where
+        R: Rng + ?Sized;
 }
 
 #[cfg(test)]
@@ -29,11 +31,14 @@ mod tests {
         type Individual = [u32; 2];
         type Error = Infallible;
 
-        fn mutate<R: Rng>(
+        fn mutate<R>(
             &self,
             individual: Self::Individual,
             _: &mut R,
-        ) -> Result<Self::Individual, Self::Error> {
+        ) -> Result<Self::Individual, Self::Error>
+        where
+            R: Rng + ?Sized,
+        {
             Ok([individual[1], individual[0]])
         }
     }

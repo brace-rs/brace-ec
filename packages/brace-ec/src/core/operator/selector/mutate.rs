@@ -27,11 +27,14 @@ where
     type Output = S::Output;
     type Error = MutateError<S::Error, M::Error>;
 
-    fn select<R: Rng>(
+    fn select<R>(
         &self,
         population: &Self::Population,
         rng: &mut R,
-    ) -> Result<Self::Output, Self::Error> {
+    ) -> Result<Self::Output, Self::Error>
+    where
+        R: Rng + ?Sized,
+    {
         self.selector
             .select(population, rng)
             .map_err(MutateError::Select)?
@@ -66,11 +69,14 @@ mod tests {
         type Individual = u8;
         type Error = Infallible;
 
-        fn mutate<R: Rng>(
+        fn mutate<R>(
             &self,
             individual: Self::Individual,
             _: &mut R,
-        ) -> Result<Self::Individual, Self::Error> {
+        ) -> Result<Self::Individual, Self::Error>
+        where
+            R: Rng + ?Sized,
+        {
             Ok(individual.add(1))
         }
     }

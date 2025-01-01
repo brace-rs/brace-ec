@@ -18,7 +18,10 @@ where
     type Output = [P::Individual; 1];
     type Error = RandomError;
 
-    fn select<R: Rng>(&self, population: &P, rng: &mut R) -> Result<Self::Output, Self::Error> {
+    fn select<R>(&self, population: &P, rng: &mut R) -> Result<Self::Output, Self::Error>
+    where
+        R: Rng + ?Sized,
+    {
         Ok([population
             .iter()
             .choose(rng)

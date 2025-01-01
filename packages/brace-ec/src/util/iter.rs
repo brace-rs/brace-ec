@@ -33,3 +33,16 @@ impl<T> Iterable for Vec<T> {
         (**self).iter()
     }
 }
+
+impl<T> Iterable for Option<T> {
+    type Item = T;
+
+    type Iter<'a>
+        = std::option::Iter<'a, T>
+    where
+        Self: 'a;
+
+    fn iter(&self) -> Self::Iter<'_> {
+        self.iter()
+    }
+}

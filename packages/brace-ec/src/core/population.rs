@@ -53,6 +53,20 @@ where
     }
 }
 
+impl<T> Population for Option<T>
+where
+    T: Individual,
+{
+    type Individual = T;
+
+    fn len(&self) -> usize {
+        match self {
+            Some(_) => 1,
+            None => 0,
+        }
+    }
+}
+
 pub trait IterablePopulation: Population + Iterable<Item = Self::Individual> {}
 
 impl<T> IterablePopulation for T where T: Population + Iterable<Item = Self::Individual> {}

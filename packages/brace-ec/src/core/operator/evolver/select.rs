@@ -21,7 +21,7 @@ impl<S> Select<S> {
 
 impl<S, P> Evolver for Select<S>
 where
-    S: Selector<Population = P>,
+    S: Selector<Population = P, Output: IntoIterator<Item = P::Individual>>,
     P: Population + Clone + TryMap<Item = P::Individual>,
 {
     type Generation = (u64, S::Population);

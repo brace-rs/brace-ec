@@ -12,7 +12,7 @@ use super::mutator::Mutator;
 
 pub trait Selector: Sized {
     type Population: Population;
-    type Output: IntoIterator<Item = <Self::Population as Population>::Individual>;
+    type Output: Population<Individual = <Self::Population as Population>::Individual>;
     type Error;
 
     fn select<R: Rng>(

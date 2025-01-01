@@ -1,9 +1,12 @@
 pub mod add;
 pub mod invert;
+pub mod rate;
 
 use rand::Rng;
 
 use crate::core::individual::Individual;
+
+use self::rate::Rate;
 
 use super::repeat::Repeat;
 
@@ -18,6 +21,13 @@ pub trait Mutator: Sized {
     ) -> Result<Self::Individual, Self::Error>
     where
         R: Rng + ?Sized;
+
+    fn rate(self, rate: f64) -> Rate<Self>
+    where
+        Self: Sized,
+    {
+        Rate::new(self, rate)
+    }
 
     fn repeat(self, count: usize) -> Repeat<Self>
     where

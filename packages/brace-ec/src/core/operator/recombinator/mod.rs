@@ -7,11 +7,13 @@ pub trait Recombinator {
     type Output: Population<Individual = <Self::Parents as Population>::Individual>;
     type Error;
 
-    fn recombine<R: Rng>(
+    fn recombine<R>(
         &self,
         parents: Self::Parents,
         rng: &mut R,
-    ) -> Result<Self::Output, Self::Error>;
+    ) -> Result<Self::Output, Self::Error>
+    where
+        R: Rng + ?Sized;
 }
 
 #[cfg(test)]
@@ -31,11 +33,14 @@ mod tests {
         type Output = [u8; 2];
         type Error = Infallible;
 
-        fn recombine<R: Rng>(
+        fn recombine<R>(
             &self,
             parents: Self::Parents,
             _: &mut R,
-        ) -> Result<Self::Output, Self::Error> {
+        ) -> Result<Self::Output, Self::Error>
+        where
+            R: Rng + ?Sized,
+        {
             Ok([parents[1], parents[0]])
         }
     }

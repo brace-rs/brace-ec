@@ -15,11 +15,13 @@ pub trait Selector: Sized {
     type Output: Population<Individual = <Self::Population as Population>::Individual>;
     type Error;
 
-    fn select<R: Rng>(
+    fn select<R>(
         &self,
         population: &Self::Population,
         rng: &mut R,
-    ) -> Result<Self::Output, Self::Error>;
+    ) -> Result<Self::Output, Self::Error>
+    where
+        R: Rng + ?Sized;
 
     fn mutate<M>(self, mutator: M) -> Mutate<Self, M>
     where

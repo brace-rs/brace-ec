@@ -17,7 +17,10 @@ where
     type Output = [P::Individual; 1];
     type Error = FirstError;
 
-    fn select<R: Rng>(&self, population: &P, _: &mut R) -> Result<Self::Output, Self::Error> {
+    fn select<R>(&self, population: &P, _: &mut R) -> Result<Self::Output, Self::Error>
+    where
+        R: Rng + ?Sized,
+    {
         Ok([population.iter().next().ok_or(FirstError::Empty)?.clone()])
     }
 }

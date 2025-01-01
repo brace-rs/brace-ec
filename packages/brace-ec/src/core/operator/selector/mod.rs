@@ -12,6 +12,7 @@ use self::recombine::Recombine;
 
 use super::mutator::Mutator;
 use super::recombinator::Recombinator;
+use super::repeat::Repeat;
 
 pub trait Selector: Sized {
     type Population: Population;
@@ -38,5 +39,12 @@ pub trait Selector: Sized {
         R: Recombinator<Parents = Self::Output>,
     {
         Recombine::new(self, recombinator)
+    }
+
+    fn repeat(self, count: usize) -> Repeat<Self>
+    where
+        Self: Sized,
+    {
+        Repeat::new(self, count)
     }
 }

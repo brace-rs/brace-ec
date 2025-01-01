@@ -4,6 +4,8 @@ use rand::Rng;
 
 use crate::core::population::Population;
 
+use super::repeat::Repeat;
+
 pub trait Recombinator {
     type Parents: Population;
     type Output: Population<Individual = <Self::Parents as Population>::Individual>;
@@ -16,4 +18,11 @@ pub trait Recombinator {
     ) -> Result<Self::Output, Self::Error>
     where
         R: Rng + ?Sized;
+
+    fn repeat(self, count: usize) -> Repeat<Self>
+    where
+        Self: Sized,
+    {
+        Repeat::new(self, count)
+    }
 }

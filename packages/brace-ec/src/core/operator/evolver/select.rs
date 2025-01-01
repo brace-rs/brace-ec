@@ -77,7 +77,7 @@ mod tests {
     use super::Select;
 
     #[test]
-    fn test_select_evolver() {
+    fn test_evolve() {
         let evolver = Select::new(Random);
         let population = [0, 1, 2, 3, 4];
         let generation = evolver.evolve((0, population)).unwrap();

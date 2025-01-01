@@ -4,7 +4,7 @@ use crate::core::population::Population;
 
 pub trait Recombinator {
     type Parents: Population;
-    type Output: IntoIterator<Item = <Self::Parents as Population>::Individual>;
+    type Output: Population<Individual = <Self::Parents as Population>::Individual>;
     type Error;
 
     fn recombine<R: Rng>(

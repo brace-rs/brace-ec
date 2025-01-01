@@ -11,5 +11,6 @@ edition = "2021"
 [dependencies]
 array-util = "1.0.2"
 ghost = "0.1.18"
+num-traits = "0.2.19"
 rand = "0.8.5"
 thiserror = "2.0.9"

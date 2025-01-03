@@ -4,12 +4,15 @@ pub mod rate;
 
 use rand::Rng;
 
+use crate::core::fitness::{Fitness, FitnessMut};
 use crate::core::individual::Individual;
 
 use self::rate::Rate;
 
 use super::inspect::Inspect;
 use super::repeat::Repeat;
+use super::score::Score;
+use super::scorer::Scorer;
 
 pub trait Mutator: Sized {
     type Individual: Individual;
@@ -22,6 +25,14 @@ pub trait Mutator: Sized {
     ) -> Result<Self::Individual, Self::Error>
     where
         R: Rng + ?Sized;
+
+    fn score<S>(self, scorer: S) -> Score<Self, S>
+    where
+        S: Scorer<Individual = Self::Individual, Score = <Self::Individual as Fitness>::Value>,
+        Self::Individual: FitnessMut,
+    {
+        Score::new(self, scorer)
+    }
 
     fn rate(self, rate: f64) -> Rate<Self>
     where

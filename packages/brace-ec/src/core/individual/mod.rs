@@ -1,3 +1,5 @@
+pub mod scored;
+
 use std::cmp::Reverse;
 
 use rand::thread_rng;

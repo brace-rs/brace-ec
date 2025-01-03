@@ -1,4 +1,4 @@
-use crate::core::fitness::Fitness;
+use crate::core::fitness::{Fitness, FitnessMut};
 
 use super::Individual;
 
@@ -38,6 +38,16 @@ where
 
     fn fitness(&self) -> Self::Value {
         self.score.clone()
+    }
+}
+
+impl<T, S> FitnessMut for Scored<T, S>
+where
+    T: Individual,
+    S: Ord + Clone,
+{
+    fn set_fitness(&mut self, fitness: Self::Value) {
+        self.score = fitness;
     }
 }
 

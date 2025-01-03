@@ -52,6 +52,18 @@ macro_rules! impl_fitness {
 impl_fitness!(u8, u16, u32, u64, u128, usize);
 impl_fitness!(i8, i16, i32, i64, i128, isize);
 
+pub trait FitnessMut: Fitness {
+    fn set_fitness(&mut self, fitness: Self::Value);
+
+    fn with_fitness(mut self, fitness: Self::Value) -> Self
+    where
+        Self: Sized,
+    {
+        self.set_fitness(fitness);
+        self
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::cmp::Reverse;

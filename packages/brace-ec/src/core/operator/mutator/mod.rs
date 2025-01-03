@@ -8,6 +8,7 @@ use crate::core::individual::Individual;
 
 use self::rate::Rate;
 
+use super::inspect::Inspect;
 use super::repeat::Repeat;
 
 pub trait Mutator: Sized {
@@ -34,5 +35,13 @@ pub trait Mutator: Sized {
         Self: Sized,
     {
         Repeat::new(self, count)
+    }
+
+    fn inspect<F>(self, inspector: F) -> Inspect<Self, F>
+    where
+        F: Fn(&Self::Individual),
+        Self: Sized,
+    {
+        Inspect::new(self, inspector)
     }
 }

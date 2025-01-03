@@ -7,6 +7,8 @@ pub trait Generation {
     fn id(&self) -> &Self::Id;
 
     fn population(&self) -> &Self::Population;
+
+    fn population_mut(&mut self) -> &mut Self::Population;
 }
 
 impl<T, P> Generation for (T, P)
@@ -22,6 +24,10 @@ where
 
     fn population(&self) -> &Self::Population {
         &self.1
+    }
+
+    fn population_mut(&mut self) -> &mut Self::Population {
+        &mut self.1
     }
 }
 

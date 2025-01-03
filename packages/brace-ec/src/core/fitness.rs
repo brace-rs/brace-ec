@@ -1,5 +1,7 @@
 use std::cmp::Reverse;
 
+use ordered_float::OrderedFloat;
+
 use super::individual::Individual;
 
 pub trait Fitness: Individual {
@@ -16,6 +18,22 @@ where
 
     fn fitness(&self) -> Self::Value {
         Reverse(self.0.fitness())
+    }
+}
+
+impl Fitness for f32 {
+    type Value = OrderedFloat<Self>;
+
+    fn fitness(&self) -> Self::Value {
+        OrderedFloat(*self)
+    }
+}
+
+impl Fitness for f64 {
+    type Value = OrderedFloat<Self>;
+
+    fn fitness(&self) -> Self::Value {
+        OrderedFloat(*self)
     }
 }
 
@@ -38,6 +56,8 @@ impl_fitness!(i8, i16, i32, i64, i128, isize);
 mod tests {
     use std::cmp::Reverse;
 
+    use ordered_float::OrderedFloat;
+
     use super::Fitness;
 
     #[test]
@@ -45,9 +65,11 @@ mod tests {
         let a = 10_u8;
         let b = 100_i32;
         let c = Reverse(50_u64);
+        let d = 1.5;
 
         assert_eq!(a.fitness(), 10);
         assert_eq!(b.fitness(), 100);
         assert_eq!(c.fitness(), Reverse(50));
+        assert_eq!(d.fitness(), OrderedFloat(1.5));
     }
 }

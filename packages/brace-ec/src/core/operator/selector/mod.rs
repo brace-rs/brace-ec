@@ -3,6 +3,7 @@ pub mod first;
 pub mod mutate;
 pub mod random;
 pub mod recombine;
+pub mod tournament;
 
 use rand::Rng;
 

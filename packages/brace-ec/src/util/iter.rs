@@ -46,3 +46,44 @@ impl<T> Iterable for Option<T> {
         self.iter()
     }
 }
+
+pub trait IterableMut: Iterable {
+    type IterMut<'a>: Iterator<Item = &'a mut Self::Item>
+    where
+        Self: 'a;
+
+    fn iter_mut(&mut self) -> Self::IterMut<'_>;
+}
+
+impl<const N: usize, T> IterableMut for [T; N] {
+    type IterMut<'a>
+        = std::slice::IterMut<'a, T>
+    where
+        T: 'a;
+
+    fn iter_mut(&mut self) -> Self::IterMut<'_> {
+        self.as_mut_slice().iter_mut()
+    }
+}
+
+impl<T> IterableMut for Vec<T> {
+    type IterMut<'a>
+        = std::slice::IterMut<'a, T>
+    where
+        T: 'a;
+
+    fn iter_mut(&mut self) -> Self::IterMut<'_> {
+        (**self).iter_mut()
+    }
+}
+
+impl<T> IterableMut for Option<T> {
+    type IterMut<'a>
+        = std::option::IterMut<'a, T>
+    where
+        Self: 'a;
+
+    fn iter_mut(&mut self) -> Self::IterMut<'_> {
+        self.iter_mut()
+    }
+}

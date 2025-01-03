@@ -7,33 +7,40 @@ use crate::core::individual::Individual;
 use super::Mutator;
 
 #[derive(Clone, Copy, Debug)]
-pub struct Add<I: Individual>(pub I);
+pub struct Add<I: Individual>(pub I::Genome);
 
 impl<I> Mutator for Add<I>
 where
-    I: Individual + CheckedAdd,
+    I: Individual<Genome: CheckedAdd>,
 {
     type Individual = I;
     type Error = AddError;
 
     fn mutate<R>(
         &self,
-        individual: Self::Individual,
+        mut individual: Self::Individual,
         _: &mut R,
     ) -> Result<Self::Individual, Self::Error>
     where
         R: Rng + ?Sized,
     {
-        individual.checked_add(&self.0).ok_or(AddError::Overflow)
+        let genome = individual
+            .genome()
+            .checked_add(&self.0)
+            .ok_or(AddError::Overflow)?;
+
+        *individual.genome_mut() = genome;
+
+        Ok(individual)
     }
 }
 
 impl<I> Default for Add<I>
 where
-    I: Individual + One,
+    I: Individual<Genome: One>,
 {
     fn default() -> Self {
-        Self(I::one())
+        Self(I::Genome::one())
     }
 }
 
@@ -47,6 +54,7 @@ pub enum AddError {
 mod tests {
     use rand::thread_rng;
 
+    use crate::core::individual::scored::Scored;
     use crate::core::operator::mutator::Mutator;
 
     use super::{Add, AddError};
@@ -59,10 +67,12 @@ mod tests {
         let b = Add(2).mutate(3, &mut rng);
         let c = Add::default().mutate(5, &mut rng);
         let d = Add(1).mutate(i32::MAX, &mut rng);
+        let e = Add(5).mutate(Scored::new(10, 0), &mut rng);
 
         assert_eq!(a, Ok(2));
         assert_eq!(b, Ok(5));
         assert_eq!(c, Ok(6));
         assert_eq!(d, Err(AddError::Overflow));
+        assert_eq!(e, Ok(Scored::new(15, 0)));
     }
 }

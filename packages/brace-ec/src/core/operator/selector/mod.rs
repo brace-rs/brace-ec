@@ -5,6 +5,7 @@ pub mod recombine;
 
 use rand::Rng;
 
+use crate::core::fitness::{Fitness, FitnessMut};
 use crate::core::population::Population;
 
 use self::mutate::Mutate;
@@ -14,6 +15,8 @@ use super::inspect::Inspect;
 use super::mutator::Mutator;
 use super::recombinator::Recombinator;
 use super::repeat::Repeat;
+use super::score::Score;
+use super::scorer::Scorer;
 
 pub trait Selector: Sized {
     type Population: Population;
@@ -40,6 +43,17 @@ pub trait Selector: Sized {
         R: Recombinator<Parents = Self::Output>,
     {
         Recombine::new(self, recombinator)
+    }
+
+    fn score<S>(self, scorer: S) -> Score<Self, S>
+    where
+        S: Scorer<
+            Individual = <Self::Population as Population>::Individual,
+            Score = <<Self::Population as Population>::Individual as Fitness>::Value,
+        >,
+        <Self::Population as Population>::Individual: FitnessMut,
+    {
+        Score::new(self, scorer)
     }
 
     fn repeat(self, count: usize) -> Repeat<Self>

@@ -4,6 +4,7 @@ use rand::Rng;
 
 use crate::core::population::Population;
 
+use super::inspect::Inspect;
 use super::repeat::Repeat;
 
 pub trait Recombinator {
@@ -24,5 +25,13 @@ pub trait Recombinator {
         Self: Sized,
     {
         Repeat::new(self, count)
+    }
+
+    fn inspect<F>(self, inspector: F) -> Inspect<Self, F>
+    where
+        F: Fn(&Self::Output),
+        Self: Sized,
+    {
+        Inspect::new(self, inspector)
     }
 }

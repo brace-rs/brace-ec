@@ -10,6 +10,7 @@ use crate::core::population::Population;
 use self::mutate::Mutate;
 use self::recombine::Recombine;
 
+use super::inspect::Inspect;
 use super::mutator::Mutator;
 use super::recombinator::Recombinator;
 use super::repeat::Repeat;
@@ -46,5 +47,13 @@ pub trait Selector: Sized {
         Self: Sized,
     {
         Repeat::new(self, count)
+    }
+
+    fn inspect<F>(self, inspector: F) -> Inspect<Self, F>
+    where
+        F: Fn(&Self::Output),
+        Self: Sized,
+    {
+        Inspect::new(self, inspector)
     }
 }

@@ -2,6 +2,7 @@ pub mod select;
 
 use crate::core::generation::Generation;
 
+use super::inspect::Inspect;
 use super::repeat::Repeat;
 
 pub trait Evolver {
@@ -15,5 +16,13 @@ pub trait Evolver {
         Self: Sized,
     {
         Repeat::new(self, count)
+    }
+
+    fn inspect<F>(self, inspector: F) -> Inspect<Self, F>
+    where
+        F: Fn(&Self::Generation),
+        Self: Sized,
+    {
+        Inspect::new(self, inspector)
     }
 }

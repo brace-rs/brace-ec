@@ -1,3 +1,4 @@
+pub mod best;
 pub mod first;
 pub mod mutate;
 pub mod random;

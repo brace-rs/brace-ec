@@ -1,3 +1,5 @@
+pub mod function;
+
 use crate::core::individual::Individual;
 
 pub trait Scorer {

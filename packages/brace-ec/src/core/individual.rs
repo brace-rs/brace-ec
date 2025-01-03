@@ -1,3 +1,5 @@
+use std::cmp::Reverse;
+
 use rand::thread_rng;
 
 use super::operator::mutator::Mutator;
@@ -39,6 +41,21 @@ impl<T> Individual for Vec<T> {
 
     fn genome_mut(&mut self) -> &mut Self::Genome {
         self
+    }
+}
+
+impl<T> Individual for Reverse<T>
+where
+    T: Individual,
+{
+    type Genome = T::Genome;
+
+    fn genome(&self) -> &Self::Genome {
+        self.0.genome()
+    }
+
+    fn genome_mut(&mut self) -> &mut Self::Genome {
+        self.0.genome_mut()
     }
 }
 

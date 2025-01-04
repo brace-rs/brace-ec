@@ -1,4 +1,26 @@
-use std::ops::{Bound, Range, RangeBounds};
+use std::ops::{Add, Bound, Range, RangeBounds};
+
+use num_traits::{Bounded, One};
+
+pub fn get_range<R, T>(range: R) -> Range<T>
+where
+    R: RangeBounds<T>,
+    T: PartialOrd + Clone + One + Bounded + Add<Output = T>,
+{
+    let start = match range.start_bound() {
+        Bound::Included(start) => start.clone(),
+        Bound::Excluded(start) => start.clone() + T::one(),
+        Bound::Unbounded => T::min_value(),
+    };
+
+    let end = match range.end_bound() {
+        Bound::Included(end) => end.clone() + T::one(),
+        Bound::Excluded(end) => end.clone(),
+        Bound::Unbounded => T::max_value(),
+    };
+
+    start..end
+}
 
 pub fn get_range_to<R>(range: R, max: usize) -> Range<usize>
 where

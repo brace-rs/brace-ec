@@ -8,6 +8,7 @@ use super::inspect::Inspect;
 use super::repeat::Repeat;
 use super::score::Score;
 use super::scorer::Scorer;
+use super::then::Then;
 
 pub trait Evolver {
     type Generation: Generation;
@@ -25,6 +26,14 @@ pub trait Evolver {
         Self: Sized,
     {
         Score::new(self, scorer)
+    }
+
+    fn then<E>(self, evolver: E) -> Then<Self, E>
+    where
+        E: Evolver<Generation = Self::Generation>,
+        Self: Sized,
+    {
+        Then::new(self, evolver)
     }
 
     fn repeat(self, count: usize) -> Repeat<Self>

@@ -6,3 +6,4 @@ pub mod repeat;
 pub mod score;
 pub mod scorer;
 pub mod selector;
+pub mod then;

@@ -14,6 +14,7 @@ use super::inspect::Inspect;
 use super::repeat::Repeat;
 use super::score::Score;
 use super::scorer::Scorer;
+use super::then::Then;
 
 pub trait Mutator: Sized {
     type Individual: Individual;
@@ -33,6 +34,13 @@ pub trait Mutator: Sized {
         Self::Individual: FitnessMut,
     {
         Score::new(self, scorer)
+    }
+
+    fn then<M>(self, mutator: M) -> Then<Self, M>
+    where
+        M: Mutator<Individual = Self::Individual>,
+    {
+        Then::new(self, mutator)
     }
 
     fn rate(self, rate: f64) -> Rate<Self>

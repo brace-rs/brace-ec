@@ -9,6 +9,7 @@ use super::inspect::Inspect;
 use super::repeat::Repeat;
 use super::score::Score;
 use super::scorer::Scorer;
+use super::then::Then;
 
 pub trait Recombinator {
     type Parents: Population;
@@ -33,6 +34,14 @@ pub trait Recombinator {
         Self: Sized,
     {
         Score::new(self, scorer)
+    }
+
+    fn then<R>(self, recombinator: R) -> Then<Self, R>
+    where
+        R: Recombinator<Parents = Self::Output>,
+        Self: Sized,
+    {
+        Then::new(self, recombinator)
     }
 
     fn repeat(self, count: usize) -> Repeat<Self>

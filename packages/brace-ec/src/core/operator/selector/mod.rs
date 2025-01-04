@@ -19,6 +19,7 @@ use super::recombinator::Recombinator;
 use super::repeat::Repeat;
 use super::score::Score;
 use super::scorer::Scorer;
+use super::then::Then;
 
 pub trait Selector: Sized {
     type Population: Population;
@@ -56,6 +57,13 @@ pub trait Selector: Sized {
         <Self::Population as Population>::Individual: FitnessMut,
     {
         Score::new(self, scorer)
+    }
+
+    fn then<S>(self, selector: S) -> Then<Self, S>
+    where
+        S: Selector<Population = Self::Output>,
+    {
+        Then::new(self, selector)
     }
 
     fn repeat(self, count: usize) -> Repeat<Self>

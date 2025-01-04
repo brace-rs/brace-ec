@@ -1,5 +1,6 @@
 pub mod add;
 pub mod invert;
+pub mod noise;
 pub mod rate;
 
 use rand::Rng;

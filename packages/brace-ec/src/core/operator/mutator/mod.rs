@@ -13,6 +13,7 @@ use self::rate::Rate;
 use super::inspect::Inspect;
 use super::repeat::Repeat;
 use super::score::Score;
+use super::scorer::function::Function;
 use super::scorer::Scorer;
 use super::then::Then;
 
@@ -34,6 +35,14 @@ pub trait Mutator: Sized {
         Self::Individual: FitnessMut,
     {
         Score::new(self, scorer)
+    }
+
+    fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F, Self::Individual>>
+    where
+        F: Fn(&Self::Individual) -> Result<<Self::Individual as Fitness>::Value, E>,
+        Self::Individual: FitnessMut,
+    {
+        self.score(Function::new(scorer))
     }
 
     fn then<M>(self, mutator: M) -> Then<Self, M>

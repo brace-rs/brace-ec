@@ -203,9 +203,15 @@ mod tests {
         let b = population
             .select(First.score(Function::new(triple)))
             .unwrap()[0];
+        let c = population
+            .select(First.score_with(|individual: &Scored<i32, i32>| {
+                Ok::<_, Infallible>(individual.individual * 4)
+            }))
+            .unwrap()[0];
 
         assert_eq!(a, Scored::new(10, 20));
         assert_eq!(b, Scored::new(10, 30));
+        assert_eq!(c, Scored::new(10, 40));
     }
 
     #[test]
@@ -216,9 +222,15 @@ mod tests {
         let b = Scored::new(10, 0)
             .mutate(Add(5).score(Function::new(triple)))
             .unwrap();
+        let c = Scored::new(10, 0)
+            .mutate(Add(5).score_with(|individual: &Scored<i32, i32>| {
+                Ok::<_, Infallible>(individual.individual * 4)
+            }))
+            .unwrap();
 
         assert_eq!(a, Scored::new(15, 30));
         assert_eq!(b, Scored::new(15, 45));
+        assert_eq!(c, Scored::new(15, 60));
     }
 
     #[test]
@@ -231,9 +243,15 @@ mod tests {
         let b = population
             .recombine(Noop.score(Function::new(triple)))
             .unwrap();
+        let c = population
+            .recombine(Noop.score_with(|individual: &Scored<i32, i32>| {
+                Ok::<_, Infallible>(individual.individual * 4)
+            }))
+            .unwrap();
 
         assert_eq!(a, [Scored::new(10, 20), Scored::new(20, 40)]);
         assert_eq!(b, [Scored::new(10, 30), Scored::new(20, 60)]);
+        assert_eq!(c, [Scored::new(10, 40), Scored::new(20, 80)]);
     }
 
     #[test]
@@ -246,8 +264,15 @@ mod tests {
             .score(Function::new(triple))
             .evolve((0, [Scored::new(10, 0), Scored::new(20, 0)]))
             .unwrap();
+        let c = Select::new(First)
+            .score_with(|individual: &Scored<i32, i32>| {
+                Ok::<_, Infallible>(individual.individual * 4)
+            })
+            .evolve((0, [Scored::new(10, 0), Scored::new(20, 0)]))
+            .unwrap();
 
         assert_eq!(a, (1, [Scored::new(10, 20), Scored::new(10, 20)]));
         assert_eq!(b, (1, [Scored::new(10, 30), Scored::new(10, 30)]));
+        assert_eq!(c, (1, [Scored::new(10, 40), Scored::new(10, 40)]));
     }
 }

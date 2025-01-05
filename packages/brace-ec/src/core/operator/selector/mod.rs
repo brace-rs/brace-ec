@@ -20,6 +20,7 @@ use super::mutator::Mutator;
 use super::recombinator::Recombinator;
 use super::repeat::Repeat;
 use super::score::Score;
+use super::scorer::function::Function;
 use super::scorer::Scorer;
 use super::then::Then;
 
@@ -59,6 +60,20 @@ pub trait Selector: Sized {
         <Self::Population as Population>::Individual: FitnessMut,
     {
         Score::new(self, scorer)
+    }
+
+    fn score_with<F, E>(
+        self,
+        scorer: F,
+    ) -> Score<Self, Function<F, <Self::Population as Population>::Individual>>
+    where
+        F: Fn(
+            &<Self::Population as Population>::Individual,
+        )
+            -> Result<<<Self::Population as Population>::Individual as Fitness>::Value, E>,
+        <Self::Population as Population>::Individual: FitnessMut,
+    {
+        self.score(Function::new(scorer))
     }
 
     fn and<S>(self, selector: S) -> And<Self, S>

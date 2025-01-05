@@ -8,6 +8,7 @@ use crate::core::population::Population;
 use super::inspect::Inspect;
 use super::repeat::Repeat;
 use super::score::Score;
+use super::scorer::function::Function;
 use super::scorer::Scorer;
 use super::then::Then;
 
@@ -34,6 +35,20 @@ pub trait Recombinator {
         Self: Sized,
     {
         Score::new(self, scorer)
+    }
+
+    fn score_with<F, E>(
+        self,
+        scorer: F,
+    ) -> Score<Self, Function<F, <Self::Parents as Population>::Individual>>
+    where
+        F: Fn(
+            &<Self::Parents as Population>::Individual,
+        ) -> Result<<<Self::Parents as Population>::Individual as Fitness>::Value, E>,
+        <Self::Parents as Population>::Individual: FitnessMut,
+        Self: Sized,
+    {
+        self.score(Function::new(scorer))
     }
 
     fn then<R>(self, recombinator: R) -> Then<Self, R>

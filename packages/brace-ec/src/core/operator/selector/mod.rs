@@ -1,3 +1,4 @@
+pub mod and;
 pub mod best;
 pub mod first;
 pub mod mutate;
@@ -10,6 +11,7 @@ use rand::Rng;
 use crate::core::fitness::{Fitness, FitnessMut};
 use crate::core::population::Population;
 
+use self::and::And;
 use self::mutate::Mutate;
 use self::recombine::Recombine;
 
@@ -57,6 +59,13 @@ pub trait Selector: Sized {
         <Self::Population as Population>::Individual: FitnessMut,
     {
         Score::new(self, scorer)
+    }
+
+    fn and<S>(self, selector: S) -> And<Self, S>
+    where
+        S: Selector<Population = Self::Population>,
+    {
+        And::new(self, selector)
     }
 
     fn then<S>(self, selector: S) -> Then<Self, S>

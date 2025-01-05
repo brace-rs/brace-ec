@@ -1,0 +1,96 @@
+use rand::Rng;
+use thiserror::Error;
+
+use crate::core::population::Population;
+use crate::util::iter::TryFromIterator;
+
+use super::Selector;
+
+pub struct Take<S, const N: usize> {
+    selector: S,
+}
+
+impl<S, const N: usize> Take<S, N> {
+    pub fn new(selector: S) -> Self {
+        Self { selector }
+    }
+}
+
+impl<S, const N: usize> Selector for Take<S, N>
+where
+    S: Selector<Output: IntoIterator<Item = <S::Population as Population>::Individual>>,
+{
+    type Population = S::Population;
+    type Output = [<S::Population as Population>::Individual; N];
+    type Error = TakeError<S::Error>;
+
+    fn select<R>(
+        &self,
+        population: &Self::Population,
+        rng: &mut R,
+    ) -> Result<Self::Output, Self::Error>
+    where
+        R: Rng + ?Sized,
+    {
+        let individuals = self
+            .selector
+            .select(population, rng)
+            .map_err(TakeError::Select)?;
+
+        TryFromIterator::try_from_iter(individuals).map_err(|_| TakeError::NotEnough)
+    }
+}
+
+#[derive(Debug, Error, PartialEq, Eq)]
+pub enum TakeError<S> {
+    #[error(transparent)]
+    Select(S),
+    #[error("not enough individuals")]
+    NotEnough,
+}
+
+#[cfg(test)]
+mod tests {
+    use std::convert::Infallible;
+
+    use rand::Rng;
+
+    use crate::core::operator::recombinator::Recombinator;
+    use crate::core::operator::selector::best::Best;
+    use crate::core::operator::selector::Selector;
+    use crate::core::population::Population;
+
+    struct Swap;
+
+    impl Recombinator for Swap {
+        type Parents = [u8; 2];
+        type Output = [u8; 2];
+        type Error = Infallible;
+
+        fn recombine<R>(
+            &self,
+            parents: Self::Parents,
+            _: &mut R,
+        ) -> Result<Self::Output, Self::Error>
+        where
+            R: Rng + ?Sized,
+        {
+            Ok([parents[1], parents[0]])
+        }
+    }
+
+    #[test]
+    fn test_select() {
+        let population = [0, 1, 2, 3, 4];
+
+        let a = population.select(Best.repeat(5).take::<2>()).unwrap();
+        let b = population
+            .select(Best.repeat(3).take::<2>().recombine(Swap))
+            .unwrap();
+        let c = population.select(Best.take::<2>());
+
+        assert_eq!(a, [4, 4]);
+        assert_eq!(b, [4, 4]);
+        assert!(c.is_err());
+    }
+}

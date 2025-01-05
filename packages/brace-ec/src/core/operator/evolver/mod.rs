@@ -7,6 +7,7 @@ use crate::core::population::Population;
 use super::inspect::Inspect;
 use super::repeat::Repeat;
 use super::score::Score;
+use super::scorer::function::Function;
 use super::scorer::Scorer;
 use super::then::Then;
 
@@ -26,6 +27,22 @@ pub trait Evolver {
         Self: Sized,
     {
         Score::new(self, scorer)
+    }
+
+    #[allow(clippy::type_complexity)]
+    fn score_with<F, E>(
+        self,
+        scorer: F,
+    ) -> Score<Self, Function<F, <<Self::Generation as Generation>::Population as Population>::Individual>>
+    where
+        F: Fn(
+            &<<Self::Generation as Generation>::Population as Population>::Individual,
+        )
+            -> Result<<<<Self::Generation as Generation>::Population as Population>::Individual as Fitness>::Value, E>,
+        <<Self::Generation as Generation>::Population as Population>::Individual: FitnessMut,
+        Self: Sized,
+    {
+        self.score(Function::new(scorer))
     }
 
     fn then<E>(self, evolver: E) -> Then<Self, E>

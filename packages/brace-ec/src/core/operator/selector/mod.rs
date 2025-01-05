@@ -4,6 +4,7 @@ pub mod first;
 pub mod mutate;
 pub mod random;
 pub mod recombine;
+pub mod take;
 pub mod tournament;
 
 use rand::Rng;
@@ -14,6 +15,7 @@ use crate::core::population::Population;
 use self::and::And;
 use self::mutate::Mutate;
 use self::recombine::Recombine;
+use self::take::Take;
 
 use super::inspect::Inspect;
 use super::mutator::Mutator;
@@ -88,6 +90,13 @@ pub trait Selector: Sized {
         S: Selector<Population = Self::Output>,
     {
         Then::new(self, selector)
+    }
+
+    fn take<const N: usize>(self) -> Take<Self, N>
+    where
+        Self::Output: IntoIterator<Item = <Self::Population as Population>::Individual>,
+    {
+        Take::new(self)
     }
 
     fn repeat(self, count: usize) -> Repeat<Self>

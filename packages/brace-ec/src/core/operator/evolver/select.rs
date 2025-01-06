@@ -1,6 +1,5 @@
 use std::marker::PhantomData;
 
-use rand::thread_rng;
 use thiserror::Error;
 
 use crate::core::generation::Generation;
@@ -25,19 +24,20 @@ impl<P, S> Select<P, S> {
     }
 }
 
-impl<P, S> Evolver for Select<P, S>
+impl<P, S> Evolver<(u64, P)> for Select<P, S>
 where
     P: Population + Clone + TryMap<Item = P::Individual>,
     S: Selector<P, Output: IntoIterator<Item = P::Individual>>,
 {
-    type Generation = (u64, P);
     type Error = SelectError<S::Error>;
 
-    fn evolve(&self, mut generation: Self::Generation) -> Result<Self::Generation, Self::Error> {
-        let mut rng = thread_rng();
+    fn evolve<Rng>(&self, mut generation: (u64, P), rng: &mut Rng) -> Result<(u64, P), Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
         let mut selection = self
             .selector
-            .select(generation.population(), &mut rng)
+            .select(generation.population(), rng)
             .map_err(SelectError::Select)?
             .into_iter();
 
@@ -49,7 +49,7 @@ where
                 None => {
                     selection = self
                         .selector
-                        .select(generation.population(), &mut rng)
+                        .select(generation.population(), rng)
                         .map_err(SelectError::Select)?
                         .into_iter();
 
@@ -84,14 +84,16 @@ mod tests {
 
     #[test]
     fn test_evolve() {
+        let mut rng = rand::thread_rng();
+
         let evolver = Select::new(Random);
         let population = [0, 1, 2, 3, 4];
-        let generation = evolver.evolve((0, population)).unwrap();
+        let generation = evolver.evolve((0, population), &mut rng).unwrap();
 
         assert_eq!(generation.0, 1);
         assert!(generation.1.iter().all(|i| population.contains(i)));
 
-        let generation = evolver.evolve(generation).unwrap();
+        let generation = evolver.evolve(generation, &mut rng).unwrap();
 
         assert_eq!(generation.0, 2);
         assert!(generation.1.iter().all(|i| population.contains(i)));

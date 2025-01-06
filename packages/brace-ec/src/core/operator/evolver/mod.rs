@@ -11,34 +11,33 @@ use super::scorer::function::Function;
 use super::scorer::Scorer;
 use super::then::Then;
 
-pub trait Evolver {
-    type Generation: Generation;
+pub trait Evolver<G>: Sized
+where
+    G: Generation,
+{
     type Error;
 
-    fn evolve(&self, generation: Self::Generation) -> Result<Self::Generation, Self::Error>;
+    fn evolve<Rng>(&self, generation: G, rng: &mut Rng) -> Result<G, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized;
 
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
         S: Scorer<
-            <<Self::Generation as Generation>::Population as Population>::Individual,
-            Score = <<<Self::Generation as Generation>::Population as Population>::Individual as Fitness>::Value,
+            <G::Population as Population>::Individual,
+            Score = <<G::Population as Population>::Individual as Fitness>::Value,
         >,
-        <<Self::Generation as Generation>::Population as Population>::Individual: FitnessMut,
-        Self: Sized,
+        <G::Population as Population>::Individual: FitnessMut,
     {
         Score::new(self, scorer)
     }
 
-    fn score_with<F, E>(
-        self,
-        scorer: F,
-    ) -> Score<Self, Function<F>>
+    fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
     where
         F: Fn(
-            &<<Self::Generation as Generation>::Population as Population>::Individual,
-        )
-            -> Result<<<<Self::Generation as Generation>::Population as Population>::Individual as Fitness>::Value, E>,
-        <<Self::Generation as Generation>::Population as Population>::Individual: FitnessMut,
+            &<G::Population as Population>::Individual,
+        ) -> Result<<<G::Population as Population>::Individual as Fitness>::Value, E>,
+        <G::Population as Population>::Individual: FitnessMut,
         Self: Sized,
     {
         self.score(Function::new(scorer))
@@ -46,23 +45,18 @@ pub trait Evolver {
 
     fn then<E>(self, evolver: E) -> Then<Self, E>
     where
-        E: Evolver<Generation = Self::Generation>,
-        Self: Sized,
+        E: Evolver<G>,
     {
         Then::new(self, evolver)
     }
 
-    fn repeat(self, count: usize) -> Repeat<Self>
-    where
-        Self: Sized,
-    {
+    fn repeat(self, count: usize) -> Repeat<Self> {
         Repeat::new(self, count)
     }
 
     fn inspect<F>(self, inspector: F) -> Inspect<Self, F>
     where
-        F: Fn(&Self::Generation),
-        Self: Sized,
+        F: Fn(&G),
     {
         Inspect::new(self, inspector)
     }

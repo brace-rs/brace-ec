@@ -1,3 +1,4 @@
+use crate::core::generation::Generation;
 use crate::core::individual::Individual;
 use crate::core::population::Population;
 
@@ -78,16 +79,19 @@ where
     }
 }
 
-impl<T> Evolver for Repeat<T>
+impl<G, T> Evolver<G> for Repeat<T>
 where
-    T: Evolver,
+    G: Generation,
+    T: Evolver<G>,
 {
-    type Generation = T::Generation;
     type Error = T::Error;
 
-    fn evolve(&self, mut generation: Self::Generation) -> Result<Self::Generation, Self::Error> {
+    fn evolve<Rng>(&self, mut generation: G, rng: &mut Rng) -> Result<G, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
         for _ in 0..self.count {
-            generation = self.operator.evolve(generation)?;
+            generation = self.operator.evolve(generation, rng)?;
         }
 
         Ok(generation)
@@ -165,9 +169,11 @@ mod tests {
 
     #[test]
     fn test_evolve() {
+        let mut rng = rand::thread_rng();
+
         let a = Select::new(First)
             .repeat(2)
-            .evolve((0, [0, 1, 2, 3, 4]))
+            .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
             .unwrap();
 
         assert_eq!(a.0, 2);
@@ -175,7 +181,7 @@ mod tests {
         let b = Select::new(First)
             .repeat(2)
             .repeat(3)
-            .evolve((0, [0, 1, 2, 3, 4]))
+            .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
             .unwrap();
 
         assert_eq!(b.0, 6);

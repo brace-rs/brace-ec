@@ -1,4 +1,3 @@
-use rand::thread_rng;
 use thiserror::Error;
 
 use crate::core::fitness::FitnessMut;
@@ -102,28 +101,30 @@ where
     }
 }
 
-impl<T, S, P, I> Evolver for Score<T, S>
+impl<G, T, S, P, I> Evolver<G> for Score<T, S>
 where
-    T: Evolver<Generation: Generation<Population = P>>,
+    G: Generation<Population = P>,
+    T: Evolver<G>,
     S: Scorer<I, Score = I::Value>,
     P: Population<Individual = I> + IterableMut<Item = I>,
     I: FitnessMut,
 {
-    type Generation = T::Generation;
     type Error = ScoreError<T::Error, S::Error>;
 
-    fn evolve(&self, generation: Self::Generation) -> Result<Self::Generation, Self::Error> {
-        let mut rng = thread_rng();
+    fn evolve<Rng>(&self, generation: G, rng: &mut Rng) -> Result<G, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
         let mut generation = self
             .operator
-            .evolve(generation)
+            .evolve(generation, rng)
             .map_err(ScoreError::Operate)?;
 
         generation
             .population_mut()
             .iter_mut()
             .try_for_each(|individual| {
-                let fitness = self.scorer.score(individual, &mut rng)?;
+                let fitness = self.scorer.score(individual, rng)?;
 
                 individual.set_fitness(fitness);
 
@@ -248,19 +249,21 @@ mod tests {
 
     #[test]
     fn test_evolve() {
+        let mut rng = rand::thread_rng();
+
         let a = Select::new(First)
             .score(Function::new(double))
-            .evolve((0, [Scored::new(10, 0), Scored::new(20, 0)]))
+            .evolve((0, [Scored::new(10, 0), Scored::new(20, 0)]), &mut rng)
             .unwrap();
         let b = Select::new(First)
             .score(Function::new(triple))
-            .evolve((0, [Scored::new(10, 0), Scored::new(20, 0)]))
+            .evolve((0, [Scored::new(10, 0), Scored::new(20, 0)]), &mut rng)
             .unwrap();
         let c = Select::new(First)
             .score_with(|individual: &Scored<i32, i32>| {
                 Ok::<_, Infallible>(individual.individual * 4)
             })
-            .evolve((0, [Scored::new(10, 0), Scored::new(20, 0)]))
+            .evolve((0, [Scored::new(10, 0), Scored::new(20, 0)]), &mut rng)
             .unwrap();
 
         assert_eq!(a, (1, [Scored::new(10, 20), Scored::new(10, 20)]));

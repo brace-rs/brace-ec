@@ -1,4 +1,3 @@
-use rand::Rng;
 use thiserror::Error;
 
 use crate::core::population::Population;
@@ -16,21 +15,17 @@ impl<S, const N: usize> Take<S, N> {
     }
 }
 
-impl<S, const N: usize> Selector for Take<S, N>
+impl<P, S, const N: usize> Selector<P> for Take<S, N>
 where
-    S: Selector<Output: IntoIterator<Item = <S::Population as Population>::Individual>>,
+    P: Population,
+    S: Selector<P, Output: IntoIterator<Item = P::Individual>>,
 {
-    type Population = S::Population;
-    type Output = [<S::Population as Population>::Individual; N];
+    type Output = [P::Individual; N];
     type Error = TakeError<S::Error>;
 
-    fn select<R>(
-        &self,
-        population: &Self::Population,
-        rng: &mut R,
-    ) -> Result<Self::Output, Self::Error>
+    fn select<Rng>(&self, population: &P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         let individuals = self
             .selector

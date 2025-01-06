@@ -1,4 +1,3 @@
-use rand::Rng;
 use thiserror::Error;
 
 use crate::core::population::Population;
@@ -16,25 +15,18 @@ impl<L, R> And<L, R> {
     }
 }
 
-impl<L, R> Selector for And<L, R>
+impl<P, L, R> Selector<P> for And<L, R>
 where
-    L: Selector<Output: IntoIterator<Item = <L::Population as Population>::Individual>>,
-    R: Selector<
-        Population = L::Population,
-        Output: IntoIterator<Item = <L::Population as Population>::Individual>,
-    >,
+    P: Population,
+    L: Selector<P, Output: IntoIterator<Item = P::Individual>>,
+    R: Selector<P, Output: IntoIterator<Item = P::Individual>>,
 {
-    type Population = L::Population;
-    type Output = Vec<<L::Population as Population>::Individual>;
+    type Output = Vec<P::Individual>;
     type Error = AndError<L::Error, R::Error>;
 
-    fn select<G>(
-        &self,
-        population: &Self::Population,
-        rng: &mut G,
-    ) -> Result<Self::Output, Self::Error>
+    fn select<Rng>(&self, population: &P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        G: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         Ok(self
             .lhs

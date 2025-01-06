@@ -1,4 +1,3 @@
-use rand::Rng;
 use thiserror::Error;
 
 use crate::core::population::IterablePopulation;
@@ -9,17 +8,16 @@ use super::Selector;
 #[derive(Clone, Copy, Debug)]
 pub struct First<P: IterablePopulation>;
 
-impl<P> Selector for First<P>
+impl<P> Selector<P> for First<P>
 where
     P: IterablePopulation<Individual: Clone>,
 {
-    type Population = P;
     type Output = [P::Individual; 1];
     type Error = FirstError;
 
-    fn select<R>(&self, population: &P, _: &mut R) -> Result<Self::Output, Self::Error>
+    fn select<Rng>(&self, population: &P, _: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         Ok([population.iter().next().ok_or(FirstError::Empty)?.clone()])
     }

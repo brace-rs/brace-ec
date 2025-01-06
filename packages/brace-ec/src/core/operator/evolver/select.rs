@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 use rand::thread_rng;
 use thiserror::Error;
 
@@ -9,22 +11,26 @@ use crate::util::map::TryMap;
 use super::Evolver;
 
 #[derive(Clone, Debug, Default)]
-pub struct Select<S> {
+pub struct Select<P, S> {
     selector: S,
+    marker: PhantomData<fn() -> P>,
 }
 
-impl<S> Select<S> {
+impl<P, S> Select<P, S> {
     pub fn new(selector: S) -> Self {
-        Self { selector }
+        Self {
+            selector,
+            marker: PhantomData,
+        }
     }
 }
 
-impl<S, P> Evolver for Select<S>
+impl<P, S> Evolver for Select<P, S>
 where
-    S: Selector<Population = P, Output: IntoIterator<Item = P::Individual>>,
     P: Population + Clone + TryMap<Item = P::Individual>,
+    S: Selector<P, Output: IntoIterator<Item = P::Individual>>,
 {
-    type Generation = (u64, S::Population);
+    type Generation = (u64, P);
     type Error = SelectError<S::Error>;
 
     fn evolve(&self, mut generation: Self::Generation) -> Result<Self::Generation, Self::Error> {

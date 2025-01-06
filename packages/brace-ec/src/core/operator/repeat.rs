@@ -1,5 +1,3 @@
-use rand::Rng;
-
 use crate::core::individual::Individual;
 use crate::core::population::Population;
 
@@ -19,21 +17,17 @@ impl<T> Repeat<T> {
     }
 }
 
-impl<T> Selector for Repeat<T>
+impl<P, T> Selector<P> for Repeat<T>
 where
-    T: Selector<Output: IntoIterator<Item = <T::Population as Population>::Individual>>,
+    P: Population,
+    T: Selector<P, Output: IntoIterator<Item = P::Individual>>,
 {
-    type Population = T::Population;
-    type Output = Vec<<T::Population as Population>::Individual>;
+    type Output = Vec<P::Individual>;
     type Error = T::Error;
 
-    fn select<R>(
-        &self,
-        population: &Self::Population,
-        rng: &mut R,
-    ) -> Result<Self::Output, Self::Error>
+    fn select<Rng>(&self, population: &P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         let mut individuals = Vec::with_capacity(self.count);
 

@@ -1,4 +1,3 @@
-use rand::Rng;
 use thiserror::Error;
 
 use crate::core::fitness::Fitness;
@@ -10,17 +9,16 @@ use super::Selector;
 #[derive(Clone, Copy, Debug)]
 pub struct Best<P: Population>;
 
-impl<P> Selector for Best<P>
+impl<P> Selector<P> for Best<P>
 where
     P: IterablePopulation<Individual: Clone + Fitness>,
 {
-    type Population = P;
     type Output = [P::Individual; 1];
     type Error = BestError;
 
-    fn select<R>(&self, population: &P, _: &mut R) -> Result<Self::Output, Self::Error>
+    fn select<Rng>(&self, population: &P, _: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         Ok([population
             .iter()

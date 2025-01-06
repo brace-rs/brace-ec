@@ -17,7 +17,7 @@ pub trait Population {
 
     fn select<S>(&self, selector: S) -> Result<S::Output, S::Error>
     where
-        S: Selector<Population = Self>,
+        S: Selector<Self>,
     {
         selector.select(self, &mut thread_rng())
     }

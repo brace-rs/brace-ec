@@ -1,4 +1,3 @@
-use rand::Rng;
 use thiserror::Error;
 
 use crate::core::individual::Individual;
@@ -20,22 +19,18 @@ impl<L, R> Then<L, R> {
     }
 }
 
-impl<L, R> Selector for Then<L, R>
+impl<P, L, R> Selector<P> for Then<L, R>
 where
-    L: Selector,
-    R: Selector<Population = L::Output>,
+    P: Population,
+    L: Selector<P>,
+    R: Selector<L::Output>,
 {
-    type Population = L::Population;
     type Output = R::Output;
     type Error = ThenError<L::Error, R::Error>;
 
-    fn select<G>(
-        &self,
-        population: &Self::Population,
-        rng: &mut G,
-    ) -> Result<Self::Output, Self::Error>
+    fn select<Rng>(&self, population: &P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        G: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         let population = self.lhs.select(population, rng).map_err(ThenError::Left)?;
 
@@ -114,8 +109,6 @@ pub enum ThenError<L, R> {
 mod tests {
     use std::convert::Infallible;
 
-    use rand::Rng;
-
     use crate::core::individual::Individual;
     use crate::core::operator::evolver::select::Select;
     use crate::core::operator::evolver::Evolver;
@@ -129,18 +122,17 @@ mod tests {
 
     struct All;
 
-    impl Selector for All {
-        type Population = [i32; 5];
+    impl Selector<[i32; 5]> for All {
         type Output = [i32; 5];
         type Error = Infallible;
 
-        fn select<R>(
+        fn select<Rng>(
             &self,
-            population: &Self::Population,
-            _: &mut R,
+            population: &[i32; 5],
+            _: &mut Rng,
         ) -> Result<Self::Output, Self::Error>
         where
-            R: Rng + ?Sized,
+            Rng: rand::Rng + ?Sized,
         {
             Ok(*population)
         }

@@ -1,4 +1,4 @@
-use rand::{thread_rng, Rng};
+use rand::thread_rng;
 use thiserror::Error;
 
 use crate::core::fitness::FitnessMut;
@@ -24,23 +24,19 @@ impl<T, S> Score<T, S> {
     }
 }
 
-impl<T, S, I> Selector for Score<T, S>
+impl<P, T, S, I> Selector<P> for Score<T, S>
 where
-    T: Selector<Population: Population<Individual = I>, Output: TryMap<Item = I>>,
+    P: Population<Individual = I>,
+    T: Selector<P, Output: TryMap<Item = I>>,
     S: Scorer<I, Score = I::Value>,
     I: FitnessMut,
 {
-    type Population = T::Population;
     type Output = T::Output;
     type Error = ScoreError<T::Error, S::Error>;
 
-    fn select<R>(
-        &self,
-        population: &Self::Population,
-        rng: &mut R,
-    ) -> Result<Self::Output, Self::Error>
+    fn select<Rng>(&self, population: &P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         self.operator
             .select(population, rng)

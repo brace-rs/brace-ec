@@ -1,7 +1,6 @@
 use std::marker::PhantomData;
 
 use rand::seq::IteratorRandom;
-use rand::Rng;
 use thiserror::Error;
 
 use crate::core::fitness::Fitness;
@@ -30,21 +29,16 @@ where
     }
 }
 
-impl<P> Selector for Tournament<P>
+impl<P> Selector<P> for Tournament<P>
 where
     P: IterablePopulation<Individual: Clone + Fitness>,
 {
-    type Population = P;
     type Output = [P::Individual; 1];
     type Error = TournamentError;
 
-    fn select<R>(
-        &self,
-        population: &Self::Population,
-        rng: &mut R,
-    ) -> Result<Self::Output, Self::Error>
+    fn select<Rng>(&self, population: &P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         if self.size == 0 {
             return Err(TournamentError::Empty);

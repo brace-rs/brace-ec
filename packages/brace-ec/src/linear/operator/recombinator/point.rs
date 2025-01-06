@@ -1,7 +1,6 @@
 use std::marker::PhantomData;
 
 use rand::seq::IteratorRandom;
-use rand::Rng;
 use thiserror::Error;
 
 use crate::core::individual::Individual;
@@ -14,21 +13,20 @@ use crate::linear::crossover::Crossover;
 #[derive(Clone, Copy, Debug)]
 pub struct OnePointCrossover<P: Population>;
 
-impl<I> Recombinator for OnePointCrossover<[I; 2]>
+impl<I> Recombinator<[I; 2]> for OnePointCrossover<[I; 2]>
 where
     I: Individual<Genome: Crossover>,
 {
-    type Parents = [I; 2];
     type Output = [I; 2];
     type Error = PointCrossoverError;
 
-    fn recombine<R>(
+    fn recombine<Rng>(
         &self,
-        [mut lhs, mut rhs]: Self::Parents,
-        rng: &mut R,
+        [mut lhs, mut rhs]: [I; 2],
+        rng: &mut Rng,
     ) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         if lhs.genome().len() != rhs.genome().len() {
             return Err(PointCrossoverError::MixedLength);
@@ -51,21 +49,20 @@ where
 #[derive(Clone, Copy, Debug)]
 pub struct TwoPointCrossover<P: Population>;
 
-impl<I> Recombinator for TwoPointCrossover<[I; 2]>
+impl<I> Recombinator<[I; 2]> for TwoPointCrossover<[I; 2]>
 where
     I: Individual<Genome: Crossover>,
 {
-    type Parents = [I; 2];
     type Output = [I; 2];
     type Error = PointCrossoverError;
 
-    fn recombine<R>(
+    fn recombine<Rng>(
         &self,
-        [mut lhs, mut rhs]: Self::Parents,
-        rng: &mut R,
+        [mut lhs, mut rhs]: [I; 2],
+        rng: &mut Rng,
     ) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         if lhs.genome().len() != rhs.genome().len() {
             return Err(PointCrossoverError::MixedLength);
@@ -102,17 +99,16 @@ where
     }
 }
 
-impl<I> Recombinator for MultiPointCrossover<[I; 2]>
+impl<I> Recombinator<[I; 2]> for MultiPointCrossover<[I; 2]>
 where
     I: Individual<Genome: Crossover>,
 {
-    type Parents = [I; 2];
     type Output = [I; 2];
     type Error = PointCrossoverError;
 
-    fn recombine<R>(&self, parents: Self::Parents, rng: &mut R) -> Result<Self::Output, Self::Error>
+    fn recombine<Rng>(&self, parents: [I; 2], rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         match self.count {
             0 => Ok(parents),

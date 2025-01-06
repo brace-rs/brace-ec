@@ -2,6 +2,7 @@ use rand::Rng;
 use thiserror::Error;
 
 use crate::core::individual::Individual;
+use crate::core::population::Population;
 
 use super::evolver::Evolver;
 use super::mutator::Mutator;
@@ -63,18 +64,18 @@ where
     }
 }
 
-impl<L, R> Recombinator for Then<L, R>
+impl<P, L, R> Recombinator<P> for Then<L, R>
 where
-    L: Recombinator,
-    R: Recombinator<Parents = L::Output>,
+    P: Population,
+    L: Recombinator<P>,
+    R: Recombinator<L::Output>,
 {
-    type Parents = L::Parents;
     type Output = R::Output;
     type Error = ThenError<L::Error, R::Error>;
 
-    fn recombine<G>(&self, parents: Self::Parents, rng: &mut G) -> Result<Self::Output, Self::Error>
+    fn recombine<Rng>(&self, parents: P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        G: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         // Note: Using this form because rust-analyzer gets confused.
         Recombinator::recombine(
@@ -147,18 +148,13 @@ mod tests {
 
     struct Swap;
 
-    impl Recombinator for Swap {
-        type Parents = [u8; 2];
+    impl Recombinator<[u8; 2]> for Swap {
         type Output = [u8; 2];
         type Error = Infallible;
 
-        fn recombine<R>(
-            &self,
-            parents: Self::Parents,
-            _: &mut R,
-        ) -> Result<Self::Output, Self::Error>
+        fn recombine<Rng>(&self, parents: [u8; 2], _: &mut Rng) -> Result<Self::Output, Self::Error>
         where
-            R: Rng + ?Sized,
+            Rng: rand::Rng + ?Sized,
         {
             Ok([parents[1], parents[0]])
         }

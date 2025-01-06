@@ -1,6 +1,5 @@
 use std::marker::PhantomData;
 
-use rand::Rng;
 use thiserror::Error;
 
 use crate::core::individual::Individual;
@@ -26,21 +25,20 @@ where
     }
 }
 
-impl<I> Recombinator for UniformCrossover<[I; 2]>
+impl<I> Recombinator<[I; 2]> for UniformCrossover<[I; 2]>
 where
     I: Individual<Genome: Crossover>,
 {
-    type Parents = [I; 2];
     type Output = [I; 2];
     type Error = UniformCrossoverError;
 
-    fn recombine<R>(
+    fn recombine<Rng>(
         &self,
-        [mut lhs, mut rhs]: Self::Parents,
-        rng: &mut R,
+        [mut lhs, mut rhs]: [I; 2],
+        rng: &mut Rng,
     ) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         if lhs.genome().len() != rhs.genome().len() {
             return Err(UniformCrossoverError::MixedLength);

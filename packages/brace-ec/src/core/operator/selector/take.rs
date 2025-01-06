@@ -53,8 +53,6 @@ pub enum TakeError<S> {
 mod tests {
     use std::convert::Infallible;
 
-    use rand::Rng;
-
     use crate::core::operator::recombinator::Recombinator;
     use crate::core::operator::selector::best::Best;
     use crate::core::operator::selector::Selector;
@@ -62,18 +60,13 @@ mod tests {
 
     struct Swap;
 
-    impl Recombinator for Swap {
-        type Parents = [u8; 2];
+    impl Recombinator<[u8; 2]> for Swap {
         type Output = [u8; 2];
         type Error = Infallible;
 
-        fn recombine<R>(
-            &self,
-            parents: Self::Parents,
-            _: &mut R,
-        ) -> Result<Self::Output, Self::Error>
+        fn recombine<Rng>(&self, parents: [u8; 2], _: &mut Rng) -> Result<Self::Output, Self::Error>
         where
-            R: Rng + ?Sized,
+            Rng: rand::Rng + ?Sized,
         {
             Ok([parents[1], parents[0]])
         }

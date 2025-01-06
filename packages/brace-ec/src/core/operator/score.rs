@@ -80,19 +80,19 @@ where
     }
 }
 
-impl<T, S, I> Recombinator for Score<T, S>
+impl<P, T, S, I> Recombinator<P> for Score<T, S>
 where
-    T: Recombinator<Parents: Population<Individual = I>, Output: TryMap<Item = I>>,
+    P: Population<Individual = I>,
+    T: Recombinator<P, Output: TryMap<Item = I>>,
     S: Scorer<I, Score = I::Value>,
     I: FitnessMut,
 {
-    type Parents = T::Parents;
     type Output = T::Output;
     type Error = ScoreError<T::Error, S::Error>;
 
-    fn recombine<R>(&self, parents: Self::Parents, rng: &mut R) -> Result<Self::Output, Self::Error>
+    fn recombine<Rng>(&self, parents: P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         self.operator
             .recombine(parents, rng)
@@ -151,8 +151,6 @@ pub enum ScoreError<O, S> {
 mod tests {
     use std::convert::Infallible;
 
-    use rand::Rng;
-
     use crate::core::individual::scored::Scored;
     use crate::core::individual::Individual;
     use crate::core::operator::evolver::select::Select;
@@ -175,18 +173,17 @@ mod tests {
 
     struct Noop;
 
-    impl Recombinator for Noop {
-        type Parents = [Scored<i32, i32>; 2];
+    impl Recombinator<[Scored<i32, i32>; 2]> for Noop {
         type Output = [Scored<i32, i32>; 2];
         type Error = Infallible;
 
-        fn recombine<R>(
+        fn recombine<Rng>(
             &self,
-            parents: Self::Parents,
-            _: &mut R,
+            parents: [Scored<i32, i32>; 2],
+            _: &mut Rng,
         ) -> Result<Self::Output, Self::Error>
         where
-            R: Rng + ?Sized,
+            Rng: rand::Rng + ?Sized,
         {
             Ok(parents)
         }

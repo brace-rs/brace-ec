@@ -22,7 +22,7 @@ impl<S, R> Recombine<S, R> {
 impl<S, R> Selector for Recombine<S, R>
 where
     S: Selector,
-    R: Recombinator<Parents = S::Output>,
+    R: Recombinator<S::Output>,
 {
     type Population = S::Population;
     type Output = R::Output;

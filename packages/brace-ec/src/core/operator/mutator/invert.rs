@@ -1,8 +1,6 @@
 use std::convert::Infallible;
 use std::ops::Not;
 
-use rand::Rng;
-
 use crate::core::individual::Individual;
 
 use super::Mutator;
@@ -11,20 +9,15 @@ use super::Mutator;
 #[derive(Clone, Copy, Debug)]
 pub struct Invert<I: Individual>;
 
-impl<I> Mutator for Invert<I>
+impl<I> Mutator<I> for Invert<I>
 where
     I: Individual + Not<Output = I>,
 {
-    type Individual = I;
     type Error = Infallible;
 
-    fn mutate<R>(
-        &self,
-        individual: Self::Individual,
-        _: &mut R,
-    ) -> Result<Self::Individual, Self::Error>
+    fn mutate<Rng>(&self, individual: I, _: &mut Rng) -> Result<I, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         Ok(individual.not())
     }

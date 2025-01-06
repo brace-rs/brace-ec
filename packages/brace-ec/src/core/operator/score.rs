@@ -54,22 +54,17 @@ where
     }
 }
 
-impl<T, S, I> Mutator for Score<T, S>
+impl<T, S, I> Mutator<I> for Score<T, S>
 where
-    T: Mutator<Individual = I>,
+    T: Mutator<I>,
     S: Scorer<I, Score = I::Value>,
     I: FitnessMut,
 {
-    type Individual = T::Individual;
     type Error = ScoreError<T::Error, S::Error>;
 
-    fn mutate<R>(
-        &self,
-        individual: Self::Individual,
-        rng: &mut R,
-    ) -> Result<Self::Individual, Self::Error>
+    fn mutate<Rng>(&self, individual: I, rng: &mut Rng) -> Result<I, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         let individual = self
             .operator

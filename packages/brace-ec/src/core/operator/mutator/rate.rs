@@ -1,5 +1,3 @@
-use rand::Rng;
-
 use super::Mutator;
 
 pub struct Rate<M> {
@@ -13,20 +11,15 @@ impl<M> Rate<M> {
     }
 }
 
-impl<M> Mutator for Rate<M>
+impl<T, M> Mutator<T> for Rate<M>
 where
-    M: Mutator,
+    M: Mutator<T>,
 {
-    type Individual = M::Individual;
     type Error = M::Error;
 
-    fn mutate<R>(
-        &self,
-        individual: Self::Individual,
-        rng: &mut R,
-    ) -> Result<Self::Individual, Self::Error>
+    fn mutate<Rng>(&self, individual: T, rng: &mut Rng) -> Result<T, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         if rng.gen_bool(self.rate) {
             self.mutator.mutate(individual, rng)

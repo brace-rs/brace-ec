@@ -3,7 +3,6 @@ use std::ops::{Add, Range, RangeBounds};
 
 use num_traits::{Bounded, One, SaturatingAdd, SaturatingSub};
 use rand::distributions::uniform::SampleUniform;
-use rand::Rng;
 
 use crate::core::individual::Individual;
 use crate::util::range::get_range;
@@ -28,21 +27,16 @@ where
     }
 }
 
-impl<T> Mutator for Noise<T>
+impl<T> Mutator<T> for Noise<T>
 where
     T: Individual,
     T::Genome: Clone + PartialOrd + SaturatingAdd + SaturatingSub + SampleUniform,
 {
-    type Individual = T;
     type Error = Infallible;
 
-    fn mutate<R>(
-        &self,
-        mut individual: Self::Individual,
-        rng: &mut R,
-    ) -> Result<Self::Individual, Self::Error>
+    fn mutate<Rng>(&self, mut individual: T, rng: &mut Rng) -> Result<T, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         let genome = match rng.gen_bool(0.5) {
             true => individual

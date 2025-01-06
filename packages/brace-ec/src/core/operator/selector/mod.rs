@@ -41,7 +41,7 @@ pub trait Selector: Sized {
 
     fn mutate<M>(self, mutator: M) -> Mutate<Self, M>
     where
-        M: Mutator<Individual = <Self::Population as Population>::Individual>,
+        M: Mutator<<Self::Population as Population>::Individual>,
     {
         Mutate::new(self, mutator)
     }

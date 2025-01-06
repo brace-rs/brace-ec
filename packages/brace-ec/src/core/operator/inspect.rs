@@ -42,21 +42,16 @@ where
     }
 }
 
-impl<T, F> Mutator for Inspect<T, F>
+impl<I, T, F> Mutator<I> for Inspect<T, F>
 where
-    T: Mutator,
-    F: Fn(&T::Individual),
+    T: Mutator<I>,
+    F: Fn(&I),
 {
-    type Individual = T::Individual;
     type Error = T::Error;
 
-    fn mutate<R>(
-        &self,
-        individual: Self::Individual,
-        rng: &mut R,
-    ) -> Result<Self::Individual, Self::Error>
+    fn mutate<Rng>(&self, individual: I, rng: &mut Rng) -> Result<I, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         self.operator
             .mutate(individual, rng)

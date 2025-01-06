@@ -44,20 +44,15 @@ where
     }
 }
 
-impl<T> Mutator for Repeat<T>
+impl<I, T> Mutator<I> for Repeat<T>
 where
-    T: Mutator,
+    T: Mutator<I>,
 {
-    type Individual = T::Individual;
     type Error = T::Error;
 
-    fn mutate<R>(
-        &self,
-        mut individual: Self::Individual,
-        rng: &mut R,
-    ) -> Result<Self::Individual, Self::Error>
+    fn mutate<Rng>(&self, mut individual: I, rng: &mut Rng) -> Result<I, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         for _ in 0..self.count {
             individual = self.operator.mutate(individual, rng)?;

@@ -21,7 +21,7 @@ impl<S, M> Mutate<S, M> {
 impl<S, M> Selector for Mutate<S, M>
 where
     S: Selector<Output: TryMap<Item = <S::Population as Population>::Individual>>,
-    M: Mutator<Individual = <S::Population as Population>::Individual>,
+    M: Mutator<<S::Population as Population>::Individual>,
 {
     type Population = S::Population;
     type Output = S::Output;

@@ -3,10 +3,7 @@ pub mod invert;
 pub mod noise;
 pub mod rate;
 
-use rand::Rng;
-
-use crate::core::fitness::{Fitness, FitnessMut};
-use crate::core::individual::Individual;
+use crate::core::fitness::FitnessMut;
 
 use self::rate::Rate;
 
@@ -17,37 +14,32 @@ use super::scorer::function::Function;
 use super::scorer::Scorer;
 use super::then::Then;
 
-pub trait Mutator: Sized {
-    type Individual: Individual;
+pub trait Mutator<T>: Sized {
     type Error;
 
-    fn mutate<R>(
-        &self,
-        individual: Self::Individual,
-        rng: &mut R,
-    ) -> Result<Self::Individual, Self::Error>
+    fn mutate<Rng>(&self, individual: T, rng: &mut Rng) -> Result<T, Self::Error>
     where
-        R: Rng + ?Sized;
+        Rng: rand::Rng + ?Sized;
 
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
-        S: Scorer<Self::Individual, Score = <Self::Individual as Fitness>::Value>,
-        Self::Individual: FitnessMut,
+        S: Scorer<T, Score = T::Value>,
+        T: FitnessMut,
     {
         Score::new(self, scorer)
     }
 
     fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
     where
-        F: Fn(&Self::Individual) -> Result<<Self::Individual as Fitness>::Value, E>,
-        Self::Individual: FitnessMut,
+        F: Fn(&T) -> Result<T::Value, E>,
+        T: FitnessMut,
     {
         self.score(Function::new(scorer))
     }
 
     fn then<M>(self, mutator: M) -> Then<Self, M>
     where
-        M: Mutator<Individual = Self::Individual>,
+        M: Mutator<T>,
     {
         Then::new(self, mutator)
     }
@@ -68,7 +60,7 @@ pub trait Mutator: Sized {
 
     fn inspect<F>(self, inspector: F) -> Inspect<Self, F>
     where
-        F: Fn(&Self::Individual),
+        F: Fn(&T),
         Self: Sized,
     {
         Inspect::new(self, inspector)

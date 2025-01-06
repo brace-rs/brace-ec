@@ -1,5 +1,4 @@
 use num_traits::{CheckedAdd, One};
-use rand::Rng;
 use thiserror::Error;
 
 use crate::core::individual::Individual;
@@ -9,20 +8,15 @@ use super::Mutator;
 #[derive(Clone, Copy, Debug)]
 pub struct Add<I: Individual>(pub I::Genome);
 
-impl<I> Mutator for Add<I>
+impl<I> Mutator<I> for Add<I>
 where
     I: Individual<Genome: CheckedAdd>,
 {
-    type Individual = I;
     type Error = AddError;
 
-    fn mutate<R>(
-        &self,
-        mut individual: Self::Individual,
-        _: &mut R,
-    ) -> Result<Self::Individual, Self::Error>
+    fn mutate<Rng>(&self, mut individual: I, _: &mut Rng) -> Result<I, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         let genome = individual
             .genome()

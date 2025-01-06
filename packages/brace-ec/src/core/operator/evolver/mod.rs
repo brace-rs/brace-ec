@@ -20,7 +20,7 @@ pub trait Evolver {
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
         S: Scorer<
-            Individual = <<Self::Generation as Generation>::Population as Population>::Individual,
+            <<Self::Generation as Generation>::Population as Population>::Individual,
             Score = <<<Self::Generation as Generation>::Population as Population>::Individual as Fitness>::Value,
         >,
         <<Self::Generation as Generation>::Population as Population>::Individual: FitnessMut,
@@ -29,11 +29,10 @@ pub trait Evolver {
         Score::new(self, scorer)
     }
 
-    #[allow(clippy::type_complexity)]
     fn score_with<F, E>(
         self,
         scorer: F,
-    ) -> Score<Self, Function<F, <<Self::Generation as Generation>::Population as Population>::Individual>>
+    ) -> Score<Self, Function<F>>
     where
         F: Fn(
             &<<Self::Generation as Generation>::Population as Population>::Individual,

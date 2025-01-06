@@ -56,7 +56,7 @@ pub trait Selector: Sized {
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
         S: Scorer<
-            Individual = <Self::Population as Population>::Individual,
+            <Self::Population as Population>::Individual,
             Score = <<Self::Population as Population>::Individual as Fitness>::Value,
         >,
         <Self::Population as Population>::Individual: FitnessMut,
@@ -64,10 +64,7 @@ pub trait Selector: Sized {
         Score::new(self, scorer)
     }
 
-    fn score_with<F, E>(
-        self,
-        scorer: F,
-    ) -> Score<Self, Function<F, <Self::Population as Population>::Individual>>
+    fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
     where
         F: Fn(
             &<Self::Population as Population>::Individual,

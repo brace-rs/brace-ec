@@ -28,7 +28,7 @@ pub trait Recombinator {
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
         S: Scorer<
-            Individual = <Self::Parents as Population>::Individual,
+            <Self::Parents as Population>::Individual,
             Score = <<Self::Parents as Population>::Individual as Fitness>::Value,
         >,
         <Self::Parents as Population>::Individual: FitnessMut,
@@ -37,10 +37,7 @@ pub trait Recombinator {
         Score::new(self, scorer)
     }
 
-    fn score_with<F, E>(
-        self,
-        scorer: F,
-    ) -> Score<Self, Function<F, <Self::Parents as Population>::Individual>>
+    fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
     where
         F: Fn(
             &<Self::Parents as Population>::Individual,

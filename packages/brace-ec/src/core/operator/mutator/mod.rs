@@ -31,13 +31,13 @@ pub trait Mutator: Sized {
 
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
-        S: Scorer<Individual = Self::Individual, Score = <Self::Individual as Fitness>::Value>,
+        S: Scorer<Self::Individual, Score = <Self::Individual as Fitness>::Value>,
         Self::Individual: FitnessMut,
     {
         Score::new(self, scorer)
     }
 
-    fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F, Self::Individual>>
+    fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
     where
         F: Fn(&Self::Individual) -> Result<<Self::Individual as Fitness>::Value, E>,
         Self::Individual: FitnessMut,

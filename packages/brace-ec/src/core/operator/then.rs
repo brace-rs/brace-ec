@@ -1,5 +1,6 @@
 use thiserror::Error;
 
+use crate::core::generation::Generation;
 use crate::core::individual::Individual;
 use crate::core::population::Population;
 
@@ -82,17 +83,23 @@ where
     }
 }
 
-impl<L, R> Evolver for Then<L, R>
+impl<G, L, R> Evolver<G> for Then<L, R>
 where
-    L: Evolver,
-    R: Evolver<Generation = L::Generation>,
+    G: Generation,
+    L: Evolver<G>,
+    R: Evolver<G>,
 {
-    type Generation = L::Generation;
     type Error = ThenError<L::Error, R::Error>;
 
-    fn evolve(&self, generation: Self::Generation) -> Result<Self::Generation, Self::Error> {
+    fn evolve<Rng>(&self, generation: G, rng: &mut Rng) -> Result<G, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
         self.rhs
-            .evolve(self.lhs.evolve(generation).map_err(ThenError::Left)?)
+            .evolve(
+                self.lhs.evolve(generation, rng).map_err(ThenError::Left)?,
+                rng,
+            )
             .map_err(ThenError::Right)
     }
 }
@@ -187,14 +194,16 @@ mod tests {
 
     #[test]
     fn test_evolve() {
+        let mut rng = rand::thread_rng();
+
         let a = Select::new(Best)
             .then(Select::new(First))
-            .evolve((0, [0, 1, 2, 3, 4]))
+            .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
             .unwrap();
 
         let b = Select::new(First)
             .then(Select::new(Best))
-            .evolve((0, [0, 1, 2, 3, 4]))
+            .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
             .unwrap();
 
         assert_eq!(a, (2, [4, 4, 4, 4, 4]));

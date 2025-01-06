@@ -1,3 +1,4 @@
+use crate::core::generation::Generation;
 use crate::core::individual::Individual;
 use crate::core::population::Population;
 
@@ -76,17 +77,20 @@ where
     }
 }
 
-impl<T, F> Evolver for Inspect<T, F>
+impl<G, T, F> Evolver<G> for Inspect<T, F>
 where
-    T: Evolver,
-    F: Fn(&T::Generation),
+    G: Generation,
+    T: Evolver<G>,
+    F: Fn(&G),
 {
-    type Generation = T::Generation;
     type Error = T::Error;
 
-    fn evolve(&self, generation: Self::Generation) -> Result<Self::Generation, Self::Error> {
+    fn evolve<Rng>(&self, generation: G, rng: &mut Rng) -> Result<G, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
         self.operator
-            .evolve(generation)
+            .evolve(generation, rng)
             .inspect(|generation| (self.inspector)(generation))
     }
 }
@@ -126,12 +130,14 @@ mod tests {
 
     #[test]
     fn test_evolve() {
+        let mut rng = rand::thread_rng();
+
         Select::new(First)
-            .evolve((0, [0, 1, 2, 3, 4]))
             .inspect(|(i, population)| {
                 assert_eq!(i, &1);
                 assert_eq!(population, &[0, 0, 0, 0, 0]);
             })
+            .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
             .unwrap();
     }
 }

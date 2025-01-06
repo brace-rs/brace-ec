@@ -1,4 +1,4 @@
-use rand::Rng;
+use rand::{thread_rng, Rng};
 use thiserror::Error;
 
 use crate::core::fitness::FitnessMut;
@@ -27,7 +27,7 @@ impl<T, S> Score<T, S> {
 impl<T, S, I> Selector for Score<T, S>
 where
     T: Selector<Population: Population<Individual = I>, Output: TryMap<Item = I>>,
-    S: Scorer<Individual = I, Score = I::Value>,
+    S: Scorer<I, Score = I::Value>,
     I: FitnessMut,
 {
     type Population = T::Population;
@@ -46,7 +46,7 @@ where
             .select(population, rng)
             .map_err(ScoreError::Operate)?
             .try_map(|individual| {
-                let fitness = self.scorer.score(&individual)?;
+                let fitness = self.scorer.score(&individual, rng)?;
 
                 Ok(individual.with_fitness(fitness))
             })
@@ -57,7 +57,7 @@ where
 impl<T, S, I> Mutator for Score<T, S>
 where
     T: Mutator<Individual = I>,
-    S: Scorer<Individual = I, Score = I::Value>,
+    S: Scorer<I, Score = I::Value>,
     I: FitnessMut,
 {
     type Individual = T::Individual;
@@ -76,7 +76,10 @@ where
             .mutate(individual, rng)
             .map_err(ScoreError::Operate)?;
 
-        let fitness = self.scorer.score(&individual).map_err(ScoreError::Score)?;
+        let fitness = self
+            .scorer
+            .score(&individual, rng)
+            .map_err(ScoreError::Score)?;
 
         Ok(individual.with_fitness(fitness))
     }
@@ -85,7 +88,7 @@ where
 impl<T, S, I> Recombinator for Score<T, S>
 where
     T: Recombinator<Parents: Population<Individual = I>, Output: TryMap<Item = I>>,
-    S: Scorer<Individual = I, Score = I::Value>,
+    S: Scorer<I, Score = I::Value>,
     I: FitnessMut,
 {
     type Parents = T::Parents;
@@ -100,7 +103,7 @@ where
             .recombine(parents, rng)
             .map_err(ScoreError::Operate)?
             .try_map(|individual| {
-                let fitness = self.scorer.score(&individual)?;
+                let fitness = self.scorer.score(&individual, rng)?;
 
                 Ok(individual.with_fitness(fitness))
             })
@@ -111,7 +114,7 @@ where
 impl<T, S, P, I> Evolver for Score<T, S>
 where
     T: Evolver<Generation: Generation<Population = P>>,
-    S: Scorer<Individual = I, Score = I::Value>,
+    S: Scorer<I, Score = I::Value>,
     P: Population<Individual = I> + IterableMut<Item = I>,
     I: FitnessMut,
 {
@@ -119,6 +122,7 @@ where
     type Error = ScoreError<T::Error, S::Error>;
 
     fn evolve(&self, generation: Self::Generation) -> Result<Self::Generation, Self::Error> {
+        let mut rng = thread_rng();
         let mut generation = self
             .operator
             .evolve(generation)
@@ -128,7 +132,7 @@ where
             .population_mut()
             .iter_mut()
             .try_for_each(|individual| {
-                let fitness = self.scorer.score(individual)?;
+                let fitness = self.scorer.score(individual, &mut rng)?;
 
                 individual.set_fitness(fitness);
 

@@ -1,6 +1,8 @@
 use rand::Rng;
 use thiserror::Error;
 
+use crate::core::individual::Individual;
+
 use super::evolver::Evolver;
 use super::mutator::Mutator;
 use super::recombinator::Recombinator;
@@ -42,6 +44,7 @@ where
 
 impl<T, L, R> Mutator<T> for Then<L, R>
 where
+    T: Individual,
     L: Mutator<T>,
     R: Mutator<T>,
 {

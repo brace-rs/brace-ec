@@ -1,5 +1,6 @@
 use rand::Rng;
 
+use crate::core::individual::Individual;
 use crate::core::population::Population;
 
 use super::evolver::Evolver;
@@ -47,6 +48,7 @@ where
 impl<I, T> Mutator<I> for Repeat<T>
 where
     T: Mutator<I>,
+    I: Individual,
 {
     type Error = T::Error;
 

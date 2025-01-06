@@ -1,5 +1,7 @@
 use rand::Rng;
 
+use crate::core::individual::Individual;
+
 use super::evolver::Evolver;
 use super::mutator::Mutator;
 use super::recombinator::Recombinator;
@@ -44,6 +46,7 @@ where
 
 impl<I, T, F> Mutator<I> for Inspect<T, F>
 where
+    I: Individual,
     T: Mutator<I>,
     F: Fn(&I),
 {

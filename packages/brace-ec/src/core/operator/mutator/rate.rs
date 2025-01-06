@@ -1,3 +1,5 @@
+use crate::core::individual::Individual;
+
 use super::Mutator;
 
 pub struct Rate<M> {
@@ -14,6 +16,7 @@ impl<M> Rate<M> {
 impl<T, M> Mutator<T> for Rate<M>
 where
     M: Mutator<T>,
+    T: Individual,
 {
     type Error = M::Error;
 

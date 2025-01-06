@@ -4,6 +4,7 @@ pub mod noise;
 pub mod rate;
 
 use crate::core::fitness::FitnessMut;
+use crate::core::individual::Individual;
 
 use self::rate::Rate;
 
@@ -14,7 +15,10 @@ use super::scorer::function::Function;
 use super::scorer::Scorer;
 use super::then::Then;
 
-pub trait Mutator<T>: Sized {
+pub trait Mutator<T>: Sized
+where
+    T: Individual,
+{
     type Error;
 
     fn mutate<Rng>(&self, individual: T, rng: &mut Rng) -> Result<T, Self::Error>

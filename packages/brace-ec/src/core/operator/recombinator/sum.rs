@@ -1,4 +1,3 @@
-use rand::Rng;
 use thiserror::Error;
 
 use crate::core::population::Population;
@@ -10,17 +9,16 @@ use super::Recombinator;
 #[derive(Clone, Copy, Debug)]
 pub struct Sum<P: Population>;
 
-impl<P> Recombinator for Sum<P>
+impl<P> Recombinator<P> for Sum<P>
 where
     P: Population + CheckedSum<P::Individual>,
 {
-    type Parents = P;
     type Output = [P::Individual; 1];
     type Error = SumError;
 
-    fn recombine<R>(&self, parents: Self::Parents, _: &mut R) -> Result<Self::Output, Self::Error>
+    fn recombine<Rng>(&self, parents: P, _: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         Ok([parents.checked_sum().ok_or(SumError::Overflow)?])
     }

@@ -64,22 +64,17 @@ where
     }
 }
 
-impl<T, P> Recombinator for Repeat<T>
+impl<T, P> Recombinator<P> for Repeat<T>
 where
-    T: Recombinator<Parents = P, Output = P>,
+    T: Recombinator<P, Output = P>,
     P: Population,
 {
-    type Parents = P;
     type Output = P;
     type Error = T::Error;
 
-    fn recombine<R>(
-        &self,
-        mut parents: Self::Parents,
-        rng: &mut R,
-    ) -> Result<Self::Output, Self::Error>
+    fn recombine<Rng>(&self, mut parents: P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         for _ in 0..self.count {
             parents = self.operator.recombine(parents, rng)?;
@@ -109,8 +104,6 @@ where
 mod tests {
     use std::convert::Infallible;
 
-    use rand::Rng;
-
     use crate::core::individual::Individual;
     use crate::core::operator::evolver::select::Select;
     use crate::core::operator::evolver::Evolver;
@@ -123,18 +116,13 @@ mod tests {
 
     struct Swap;
 
-    impl Recombinator for Swap {
-        type Parents = [u8; 2];
+    impl Recombinator<[u8; 2]> for Swap {
         type Output = [u8; 2];
         type Error = Infallible;
 
-        fn recombine<R>(
-            &self,
-            parents: Self::Parents,
-            _: &mut R,
-        ) -> Result<Self::Output, Self::Error>
+        fn recombine<Rng>(&self, parents: [u8; 2], _: &mut Rng) -> Result<Self::Output, Self::Error>
         where
-            R: Rng + ?Sized,
+            Rng: rand::Rng + ?Sized,
         {
             Ok([parents[1], parents[0]])
         }

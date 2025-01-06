@@ -48,7 +48,7 @@ pub trait Selector: Sized {
 
     fn recombine<R>(self, recombinator: R) -> Recombine<Self, R>
     where
-        R: Recombinator<Parents = Self::Output>,
+        R: Recombinator<Self::Output>,
     {
         Recombine::new(self, recombinator)
     }

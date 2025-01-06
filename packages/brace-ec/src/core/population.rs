@@ -24,7 +24,7 @@ pub trait Population {
 
     fn recombine<R>(self, recombinator: R) -> Result<R::Output, R::Error>
     where
-        R: Recombinator<Parents = Self>,
+        R: Recombinator<Self>,
         Self: Sized,
     {
         recombinator.recombine(self, &mut thread_rng())

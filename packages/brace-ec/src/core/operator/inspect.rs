@@ -1,6 +1,7 @@
 use rand::Rng;
 
 use crate::core::individual::Individual;
+use crate::core::population::Population;
 
 use super::evolver::Evolver;
 use super::mutator::Mutator;
@@ -62,18 +63,18 @@ where
     }
 }
 
-impl<T, F> Recombinator for Inspect<T, F>
+impl<P, T, F> Recombinator<P> for Inspect<T, F>
 where
-    T: Recombinator,
+    P: Population,
+    T: Recombinator<P>,
     F: Fn(&T::Output),
 {
-    type Parents = T::Parents;
     type Output = T::Output;
     type Error = T::Error;
 
-    fn recombine<R>(&self, parents: Self::Parents, rng: &mut R) -> Result<Self::Output, Self::Error>
+    fn recombine<Rng>(&self, parents: P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         self.operator
             .recombine(parents, rng)

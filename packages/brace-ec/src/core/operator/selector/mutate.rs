@@ -1,4 +1,3 @@
-use rand::Rng;
 use thiserror::Error;
 
 use crate::core::operator::mutator::Mutator;
@@ -18,22 +17,18 @@ impl<S, M> Mutate<S, M> {
     }
 }
 
-impl<S, M> Selector for Mutate<S, M>
+impl<P, S, M> Selector<P> for Mutate<S, M>
 where
-    S: Selector<Output: TryMap<Item = <S::Population as Population>::Individual>>,
-    M: Mutator<<S::Population as Population>::Individual>,
+    P: Population,
+    S: Selector<P, Output: TryMap<Item = P::Individual>>,
+    M: Mutator<P::Individual>,
 {
-    type Population = S::Population;
     type Output = S::Output;
     type Error = MutateError<S::Error, M::Error>;
 
-    fn select<R>(
-        &self,
-        population: &Self::Population,
-        rng: &mut R,
-    ) -> Result<Self::Output, Self::Error>
+    fn select<Rng>(&self, population: &P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         self.selector
             .select(population, rng)

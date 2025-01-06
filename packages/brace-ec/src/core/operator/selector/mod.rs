@@ -7,8 +7,6 @@ pub mod recombine;
 pub mod take;
 pub mod tournament;
 
-use rand::Rng;
-
 use crate::core::fitness::{Fitness, FitnessMut};
 use crate::core::population::Population;
 
@@ -26,22 +24,20 @@ use super::scorer::function::Function;
 use super::scorer::Scorer;
 use super::then::Then;
 
-pub trait Selector: Sized {
-    type Population: Population;
-    type Output: Population<Individual = <Self::Population as Population>::Individual>;
+pub trait Selector<P>: Sized
+where
+    P: Population + ?Sized,
+{
+    type Output: Population<Individual = P::Individual>;
     type Error;
 
-    fn select<R>(
-        &self,
-        population: &Self::Population,
-        rng: &mut R,
-    ) -> Result<Self::Output, Self::Error>
+    fn select<Rng>(&self, population: &P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized;
+        Rng: rand::Rng + ?Sized;
 
     fn mutate<M>(self, mutator: M) -> Mutate<Self, M>
     where
-        M: Mutator<<Self::Population as Population>::Individual>,
+        M: Mutator<P::Individual>,
     {
         Mutate::new(self, mutator)
     }
@@ -55,43 +51,37 @@ pub trait Selector: Sized {
 
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
-        S: Scorer<
-            <Self::Population as Population>::Individual,
-            Score = <<Self::Population as Population>::Individual as Fitness>::Value,
-        >,
-        <Self::Population as Population>::Individual: FitnessMut,
+        S: Scorer<P::Individual, Score = <P::Individual as Fitness>::Value>,
+        P::Individual: FitnessMut,
     {
         Score::new(self, scorer)
     }
 
     fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
     where
-        F: Fn(
-            &<Self::Population as Population>::Individual,
-        )
-            -> Result<<<Self::Population as Population>::Individual as Fitness>::Value, E>,
-        <Self::Population as Population>::Individual: FitnessMut,
+        F: Fn(&P::Individual) -> Result<<P::Individual as Fitness>::Value, E>,
+        P::Individual: FitnessMut,
     {
         self.score(Function::new(scorer))
     }
 
     fn and<S>(self, selector: S) -> And<Self, S>
     where
-        S: Selector<Population = Self::Population>,
+        S: Selector<P>,
     {
         And::new(self, selector)
     }
 
     fn then<S>(self, selector: S) -> Then<Self, S>
     where
-        S: Selector<Population = Self::Output>,
+        S: Selector<Self::Output>,
     {
         Then::new(self, selector)
     }
 
     fn take<const N: usize>(self) -> Take<Self, N>
     where
-        Self::Output: IntoIterator<Item = <Self::Population as Population>::Individual>,
+        Self::Output: IntoIterator<Item = P::Individual>,
     {
         Take::new(self)
     }

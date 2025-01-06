@@ -1,5 +1,3 @@
-use rand::Rng;
-
 use crate::core::individual::Individual;
 use crate::core::population::Population;
 
@@ -22,22 +20,18 @@ impl<T, F> Inspect<T, F> {
     }
 }
 
-impl<T, F> Selector for Inspect<T, F>
+impl<P, T, F> Selector<P> for Inspect<T, F>
 where
-    T: Selector,
+    P: Population,
+    T: Selector<P>,
     F: Fn(&T::Output),
 {
-    type Population = T::Population;
     type Output = T::Output;
     type Error = T::Error;
 
-    fn select<R>(
-        &self,
-        population: &Self::Population,
-        rng: &mut R,
-    ) -> Result<Self::Output, Self::Error>
+    fn select<Rng>(&self, population: &P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         self.operator
             .select(population, rng)

@@ -1,7 +1,7 @@
-use rand::Rng;
 use thiserror::Error;
 
 use crate::core::operator::recombinator::Recombinator;
+use crate::core::population::Population;
 
 use super::Selector;
 
@@ -19,22 +19,18 @@ impl<S, R> Recombine<S, R> {
     }
 }
 
-impl<S, R> Selector for Recombine<S, R>
+impl<P, S, R> Selector<P> for Recombine<S, R>
 where
-    S: Selector,
+    P: Population,
+    S: Selector<P>,
     R: Recombinator<S::Output>,
 {
-    type Population = S::Population;
     type Output = R::Output;
     type Error = RecombineError<S::Error, R::Error>;
 
-    fn select<G>(
-        &self,
-        population: &Self::Population,
-        rng: &mut G,
-    ) -> Result<Self::Output, Self::Error>
+    fn select<Rng>(&self, population: &P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
-        G: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         let parents = self
             .selector
@@ -59,26 +55,23 @@ pub enum RecombineError<S, R> {
 mod tests {
     use std::convert::Infallible;
 
-    use rand::Rng;
-
     use crate::core::operator::recombinator::sum::Sum;
     use crate::core::operator::selector::Selector;
     use crate::core::population::Population;
 
     struct LastTwo;
 
-    impl Selector for LastTwo {
-        type Population = [u8; 5];
+    impl Selector<[u8; 5]> for LastTwo {
         type Output = [u8; 2];
         type Error = Infallible;
 
-        fn select<R>(
+        fn select<Rng>(
             &self,
-            population: &Self::Population,
-            _: &mut R,
+            population: &[u8; 5],
+            _: &mut Rng,
         ) -> Result<Self::Output, Self::Error>
         where
-            R: Rng + ?Sized,
+            Rng: rand::Rng + ?Sized,
         {
             Ok([population[3], population[4]])
         }

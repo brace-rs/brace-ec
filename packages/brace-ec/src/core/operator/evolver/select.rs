@@ -1,5 +1,3 @@
-use std::marker::PhantomData;
-
 use thiserror::Error;
 
 use crate::core::generation::Generation;
@@ -10,21 +8,17 @@ use crate::util::map::TryMap;
 use super::Evolver;
 
 #[derive(Clone, Debug, Default)]
-pub struct Select<P, S> {
+pub struct Select<S> {
     selector: S,
-    marker: PhantomData<fn() -> P>,
 }
 
-impl<P, S> Select<P, S> {
+impl<S> Select<S> {
     pub fn new(selector: S) -> Self {
-        Self {
-            selector,
-            marker: PhantomData,
-        }
+        Self { selector }
     }
 }
 
-impl<P, S> Evolver<(u64, P)> for Select<P, S>
+impl<P, S> Evolver<(u64, P)> for Select<S>
 where
     P: Population + Clone + TryMap<Item = P::Individual>,
     S: Selector<P, Output: IntoIterator<Item = P::Individual>>,

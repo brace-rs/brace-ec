@@ -48,24 +48,17 @@ where
         Then::new(self, mutator)
     }
 
-    fn rate(self, rate: f64) -> Rate<Self>
-    where
-        Self: Sized,
-    {
+    fn rate(self, rate: f64) -> Rate<Self> {
         Rate::new(self, rate)
     }
 
-    fn repeat(self, count: usize) -> Repeat<Self>
-    where
-        Self: Sized,
-    {
+    fn repeat(self, count: usize) -> Repeat<Self> {
         Repeat::new(self, count)
     }
 
     fn inspect<F>(self, inspector: F) -> Inspect<Self, F>
     where
         F: Fn(&T),
-        Self: Sized,
     {
         Inspect::new(self, inspector)
     }

@@ -1,6 +1,8 @@
 use rand::Rng;
 use thiserror::Error;
 
+use crate::core::individual::Individual;
+
 use super::evolver::Evolver;
 use super::mutator::Mutator;
 use super::recombinator::Recombinator;
@@ -40,21 +42,17 @@ where
     }
 }
 
-impl<L, R> Mutator for Then<L, R>
+impl<T, L, R> Mutator<T> for Then<L, R>
 where
-    L: Mutator,
-    R: Mutator<Individual = L::Individual>,
+    T: Individual,
+    L: Mutator<T>,
+    R: Mutator<T>,
 {
-    type Individual = L::Individual;
     type Error = ThenError<L::Error, R::Error>;
 
-    fn mutate<G>(
-        &self,
-        individual: Self::Individual,
-        rng: &mut G,
-    ) -> Result<Self::Individual, Self::Error>
+    fn mutate<Rng>(&self, individual: T, rng: &mut Rng) -> Result<T, Self::Error>
     where
-        G: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         self.rhs
             .mutate(

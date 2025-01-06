@@ -1,5 +1,6 @@
 use rand::Rng;
 
+use crate::core::individual::Individual;
 use crate::core::population::Population;
 
 use super::evolver::Evolver;
@@ -44,20 +45,16 @@ where
     }
 }
 
-impl<T> Mutator for Repeat<T>
+impl<I, T> Mutator<I> for Repeat<T>
 where
-    T: Mutator,
+    T: Mutator<I>,
+    I: Individual,
 {
-    type Individual = T::Individual;
     type Error = T::Error;
 
-    fn mutate<R>(
-        &self,
-        mut individual: Self::Individual,
-        rng: &mut R,
-    ) -> Result<Self::Individual, Self::Error>
+    fn mutate<Rng>(&self, mut individual: I, rng: &mut Rng) -> Result<I, Self::Error>
     where
-        R: Rng + ?Sized,
+        Rng: rand::Rng + ?Sized,
     {
         for _ in 0..self.count {
             individual = self.operator.mutate(individual, rng)?;

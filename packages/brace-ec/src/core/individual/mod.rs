@@ -15,7 +15,7 @@ pub trait Individual {
 
     fn mutate<M>(self, mutator: M) -> Result<Self, M::Error>
     where
-        M: Mutator<Individual = Self>,
+        M: Mutator<Self>,
         Self: Sized,
     {
         mutator.mutate(self, &mut thread_rng())

@@ -6,6 +6,7 @@ pub mod random;
 pub mod recombine;
 pub mod take;
 pub mod tournament;
+pub mod worst;
 
 use crate::core::fitness::{Fitness, FitnessMut};
 use crate::core::population::Population;

@@ -102,3 +102,40 @@ where
         Inspect::new(self, inspector)
     }
 }
+
+pub trait DynSelector<P, O = Vec<<P as Population>::Individual>, E = Box<dyn std::error::Error>>
+where
+    P: Population,
+    O: Population<Individual = P::Individual>,
+{
+    fn dyn_select(&self, population: &P, rng: &mut dyn rand::RngCore) -> Result<O, E>;
+}
+
+impl<P, O, E, T> DynSelector<P, O, E> for T
+where
+    P: Population,
+    O: Population<Individual = P::Individual>,
+    T: Selector<P, Output: Into<O>, Error: Into<E>>,
+{
+    fn dyn_select(&self, population: &P, rng: &mut dyn rand::RngCore) -> Result<O, E> {
+        self.select(population, rng)
+            .map(Into::into)
+            .map_err(Into::into)
+    }
+}
+
+impl<P, O, E> Selector<P> for Box<dyn DynSelector<P, O, E>>
+where
+    P: Population,
+    O: Population<Individual = P::Individual>,
+{
+    type Output = O;
+    type Error = E;
+
+    fn select<Rng>(&self, population: &P, mut rng: &mut Rng) -> Result<Self::Output, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        (**self).dyn_select(population, &mut rng)
+    }
+}

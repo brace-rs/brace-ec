@@ -7,3 +7,4 @@ pub mod score;
 pub mod scorer;
 pub mod selector;
 pub mod then;
+pub mod weighted;

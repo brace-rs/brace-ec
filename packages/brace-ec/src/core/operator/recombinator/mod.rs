@@ -55,3 +55,40 @@ where
         Inspect::new(self, inspector)
     }
 }
+
+pub trait DynRecombinator<P, O = Vec<<P as Population>::Individual>, E = Box<dyn std::error::Error>>
+where
+    P: Population,
+    O: Population<Individual = P::Individual>,
+{
+    fn dyn_recombine(&self, population: P, rng: &mut dyn rand::RngCore) -> Result<O, E>;
+}
+
+impl<P, O, E, T> DynRecombinator<P, O, E> for T
+where
+    P: Population,
+    O: Population<Individual = P::Individual>,
+    T: Recombinator<P, Output: Into<O>, Error: Into<E>>,
+{
+    fn dyn_recombine(&self, population: P, rng: &mut dyn rand::RngCore) -> Result<O, E> {
+        self.recombine(population, rng)
+            .map(Into::into)
+            .map_err(Into::into)
+    }
+}
+
+impl<P, O, E> Recombinator<P> for Box<dyn DynRecombinator<P, O, E>>
+where
+    P: Population,
+    O: Population<Individual = P::Individual>,
+{
+    type Output = O;
+    type Error = E;
+
+    fn recombine<Rng>(&self, population: P, mut rng: &mut Rng) -> Result<Self::Output, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        (**self).dyn_recombine(population, &mut rng)
+    }
+}

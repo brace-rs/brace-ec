@@ -63,3 +63,34 @@ where
         Inspect::new(self, inspector)
     }
 }
+
+pub trait DynMutator<I, E = Box<dyn std::error::Error>>
+where
+    I: Individual,
+{
+    fn dyn_mutate(&self, individual: I, rng: &mut dyn rand::RngCore) -> Result<I, E>;
+}
+
+impl<I, E, T> DynMutator<I, E> for T
+where
+    I: Individual,
+    T: Mutator<I, Error: Into<E>>,
+{
+    fn dyn_mutate(&self, individual: I, rng: &mut dyn rand::RngCore) -> Result<I, E> {
+        self.mutate(individual, rng).map_err(Into::into)
+    }
+}
+
+impl<I, E> Mutator<I> for Box<dyn DynMutator<I, E>>
+where
+    I: Individual,
+{
+    type Error = E;
+
+    fn mutate<Rng>(&self, individual: I, mut rng: &mut Rng) -> Result<I, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        (**self).dyn_mutate(individual, &mut rng)
+    }
+}

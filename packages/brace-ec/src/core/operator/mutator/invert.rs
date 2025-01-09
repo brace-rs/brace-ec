@@ -11,7 +11,7 @@ pub struct Invert<I: Individual>;
 
 impl<I> Mutator<I> for Invert<I>
 where
-    I: Individual + Not<Output = I>,
+    I: Individual<Genome: Not<Output = I::Genome> + Clone> + From<I::Genome>,
 {
     type Error = Infallible;
 
@@ -19,7 +19,7 @@ where
     where
         Rng: rand::Rng + ?Sized,
     {
-        Ok(individual.not())
+        Ok(individual.genome().clone().not().into())
     }
 }
 
@@ -27,6 +27,7 @@ where
 mod tests {
     use rand::thread_rng;
 
+    use crate::core::individual::scored::Scored;
     use crate::core::operator::mutator::Mutator;
 
     use super::Invert;
@@ -37,8 +38,10 @@ mod tests {
 
         let a = Invert.mutate(true, &mut rng).unwrap();
         let b = Invert.mutate(false, &mut rng).unwrap();
+        let c = Invert.mutate(Scored::new(true, 0), &mut rng).unwrap();
 
         assert!(!a);
         assert!(b);
+        assert_eq!(c, Scored::new(false, 0));
     }
 }

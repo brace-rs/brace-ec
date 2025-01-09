@@ -1,18 +1,31 @@
 use num_traits::{CheckedAdd, Zero};
 
-use super::iter::Iterable;
-
-pub trait CheckedSum<T> {
-    fn checked_sum(&self) -> Option<T>;
+pub trait CheckedSum<T = Self>: Sized {
+    fn checked_sum<I>(iter: I) -> Option<Self>
+    where
+        I: Iterator<Item = T>;
 }
 
-impl<T, I> CheckedSum<T> for I
+impl<T> CheckedSum<T> for T
 where
     T: CheckedAdd + Zero,
-    I: Iterable<Item = T>,
 {
-    fn checked_sum(&self) -> Option<T> {
-        self.iter()
-            .try_fold(T::zero(), |acc, value| acc.checked_add(value))
+    fn checked_sum<I>(mut iter: I) -> Option<Self>
+    where
+        I: Iterator<Item = T>,
+    {
+        iter.try_fold(T::zero(), |acc, value| acc.checked_add(&value))
+    }
+}
+
+impl<'a, T> CheckedSum<&'a T> for T
+where
+    T: CheckedAdd + Zero,
+{
+    fn checked_sum<I>(mut iter: I) -> Option<Self>
+    where
+        I: Iterator<Item = &'a T>,
+    {
+        iter.try_fold(T::zero(), |acc, value| acc.checked_add(value))
     }
 }

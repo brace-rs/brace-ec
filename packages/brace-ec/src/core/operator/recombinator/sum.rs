@@ -1,17 +1,19 @@
 use thiserror::Error;
 
-use crate::core::population::Population;
+use crate::core::individual::Individual;
+use crate::core::population::IterablePopulation;
 use crate::util::sum::CheckedSum;
 
 use super::Recombinator;
 
 #[ghost::phantom]
 #[derive(Clone, Copy, Debug)]
-pub struct Sum<P: Population>;
+pub struct Sum<P: IterablePopulation>;
 
-impl<P> Recombinator<P> for Sum<P>
+impl<P, G> Recombinator<P> for Sum<P>
 where
-    P: Population + CheckedSum<P::Individual>,
+    P: IterablePopulation<Individual: Individual<Genome = G> + From<G>>,
+    G: for<'a> CheckedSum<&'a G>,
 {
     type Output = [P::Individual; 1];
     type Error = SumError;
@@ -20,7 +22,9 @@ where
     where
         Rng: rand::Rng + ?Sized,
     {
-        Ok([parents.checked_sum().ok_or(SumError::Overflow)?])
+        Ok([G::checked_sum(parents.iter().map(Individual::genome))
+            .ok_or(SumError::Overflow)?
+            .into()])
     }
 }
 
@@ -34,6 +38,7 @@ pub enum SumError {
 mod tests {
     use rand::thread_rng;
 
+    use crate::core::individual::scored::Scored;
     use crate::core::operator::recombinator::Recombinator;
 
     use super::{Sum, SumError};
@@ -45,9 +50,11 @@ mod tests {
         let a = Sum.recombine([0, 0], &mut rng);
         let b = Sum.recombine([1, 2], &mut rng);
         let c = Sum.recombine([1, i32::MAX], &mut rng);
+        let d = Sum.recombine([Scored::new(3, 0), Scored::new(4, 0)], &mut rng);
 
         assert_eq!(a, Ok([0]));
         assert_eq!(b, Ok([3]));
         assert_eq!(c, Err(SumError::Overflow));
+        assert_eq!(d, Ok([Scored::new(7, 0)]));
     }
 }

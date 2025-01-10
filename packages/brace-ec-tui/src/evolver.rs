@@ -22,7 +22,7 @@ impl<G, E, R> Evolver<G> for Terminal<E, R>
 where
     G: Generation,
     E: Evolver<G>,
-    R: Renderer<Generation = G>,
+    R: Renderer<G>,
 {
     type Error = TerminalError<E::Error>;
 

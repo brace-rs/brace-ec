@@ -25,10 +25,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 pub struct NoiseRenderer;
 
-impl Renderer for NoiseRenderer {
-    type Generation = (u64, Vec<u8>);
-
-    fn render(&self, generation: &Self::Generation, frame: &mut Frame) {
+impl Renderer<(u64, Vec<u8>)> for NoiseRenderer {
+    fn render(&self, generation: &(u64, Vec<u8>), frame: &mut Frame) {
         let help = Text::from("P = Pause, Esc = Exit").left_aligned();
         let generation_id = Text::from(generation.id().to_string()).right_aligned();
 

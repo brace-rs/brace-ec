@@ -1,7 +1,5 @@
 use ratatui::Frame;
 
-pub trait Renderer {
-    type Generation;
-
-    fn render(&self, generation: &Self::Generation, frame: &mut Frame);
+pub trait Renderer<G> {
+    fn render(&self, generation: &G, frame: &mut Frame);
 }

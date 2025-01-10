@@ -1,0 +1,16 @@
+[package]
+name = "brace-ec-tui"
+version = "0.0.0"
+description = "An evolutionary computation framework terminal user interface"
+authors = ["Daniel Balcomb <daniel.balcomb@gmail.com>"]
+homepage = "https://brace.rs"
+repository = "https://github.com/brace-rs/brace-ec"
+license = "MIT OR Apache-2.0"
+edition = "2021"
+
+[dependencies]
+brace-ec = { path = "../brace-ec" }
+crossterm = "0.28.1"
+rand = "0.8.5"
+ratatui = "0.29.0"
+thiserror = "2.0.9"

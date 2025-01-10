@@ -1,3 +1,4 @@
+pub mod average;
 pub mod sum;
 
 use crate::core::fitness::{Fitness, FitnessMut};

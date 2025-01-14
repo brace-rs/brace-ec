@@ -1,6 +1,7 @@
 use thiserror::Error;
 
 use crate::core::generation::Generation;
+use crate::core::operator::selector::fill::{Fill, FillError};
 use crate::core::operator::selector::Selector;
 use crate::core::population::Population;
 use crate::util::map::TryMap;
@@ -9,12 +10,14 @@ use super::Evolver;
 
 #[derive(Clone, Debug, Default)]
 pub struct Select<S> {
-    selector: S,
+    selector: Fill<S>,
 }
 
 impl<S> Select<S> {
     pub fn new(selector: S) -> Self {
-        Self { selector }
+        Self {
+            selector: Fill::new(selector),
+        }
     }
 }
 
@@ -29,30 +32,13 @@ where
     where
         Rng: rand::Rng + ?Sized,
     {
-        let mut selection = self
-            .selector
-            .select(generation.population(), rng)
-            .map_err(SelectError::Select)?
-            .into_iter();
-
-        let population = generation
-            .population()
-            .clone()
-            .try_map(|_| match selection.next() {
-                Some(individual) => Ok(individual),
-                None => {
-                    selection = self
-                        .selector
-                        .select(generation.population(), rng)
-                        .map_err(SelectError::Select)?
-                        .into_iter();
-
-                    match selection.next() {
-                        Some(individual) => Ok(individual),
-                        None => Err(SelectError::NotEnough),
-                    }
-                }
-            })?;
+        let population =
+            self.selector
+                .select(generation.population(), rng)
+                .map_err(|err| match err {
+                    FillError::NotEnough => SelectError::NotEnough,
+                    FillError::Select(err) => SelectError::Select(err),
+                })?;
 
         generation.0 += 1;
         generation.1 = population;

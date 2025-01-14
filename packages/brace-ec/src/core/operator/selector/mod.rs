@@ -1,5 +1,6 @@
 pub mod and;
 pub mod best;
+pub mod fill;
 pub mod first;
 pub mod mutate;
 pub mod random;
@@ -12,6 +13,7 @@ use crate::core::fitness::{Fitness, FitnessMut};
 use crate::core::population::Population;
 
 use self::and::And;
+use self::fill::Fill;
 use self::mutate::Mutate;
 use self::recombine::Recombine;
 use self::take::Take;
@@ -78,6 +80,10 @@ where
         S: Selector<Self::Output>,
     {
         Then::new(self, selector)
+    }
+
+    fn fill(self) -> Fill<Self> {
+        Fill::new(self)
     }
 
     fn take<const N: usize>(self) -> Take<Self, N>

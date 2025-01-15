@@ -19,7 +19,7 @@ impl<S, M> Mutate<S, M> {
 
 impl<P, S, M> Selector<P> for Mutate<S, M>
 where
-    P: Population,
+    P: Population + ?Sized,
     S: Selector<P, Output: TryMap<Item = P::Individual>>,
     M: Mutator<P::Individual>,
 {

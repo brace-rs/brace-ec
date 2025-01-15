@@ -7,11 +7,11 @@ use super::Selector;
 
 #[ghost::phantom]
 #[derive(Clone, Copy, Debug)]
-pub struct Worst<P: Population>;
+pub struct Worst<P: Population + ?Sized>;
 
 impl<P> Selector<P> for Worst<P>
 where
-    P: IterablePopulation<Individual: Clone + Fitness>,
+    P: IterablePopulation<Individual: Clone + Fitness> + ?Sized,
 {
     type Output = [P::Individual; 1];
     type Error = WorstError;

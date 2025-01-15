@@ -31,6 +31,17 @@ pub trait Population {
     }
 }
 
+impl<T> Population for [T]
+where
+    T: Individual,
+{
+    type Individual = T;
+
+    fn len(&self) -> usize {
+        self.len()
+    }
+}
+
 impl<T, const N: usize> Population for [T; N]
 where
     T: Individual,
@@ -69,7 +80,7 @@ where
 
 pub trait IterablePopulation: Population + Iterable<Item = Self::Individual> {}
 
-impl<T> IterablePopulation for T where T: Population + Iterable<Item = Self::Individual> {}
+impl<T> IterablePopulation for T where T: Population + Iterable<Item = Self::Individual> + ?Sized {}
 
 #[cfg(test)]
 mod tests {

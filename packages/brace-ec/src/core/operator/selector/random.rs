@@ -7,11 +7,11 @@ use super::Selector;
 
 #[ghost::phantom]
 #[derive(Clone, Copy, Debug)]
-pub struct Random<P: IterablePopulation>;
+pub struct Random<P: IterablePopulation + ?Sized>;
 
 impl<P> Selector<P> for Random<P>
 where
-    P: IterablePopulation<Individual: Clone>,
+    P: IterablePopulation<Individual: Clone> + ?Sized,
 {
     type Output = [P::Individual; 1];
     type Error = RandomError;

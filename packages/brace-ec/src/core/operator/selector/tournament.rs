@@ -8,14 +8,14 @@ use crate::core::population::{IterablePopulation, Population};
 
 use super::Selector;
 
-pub struct Tournament<P: Population> {
+pub struct Tournament<P: Population + ?Sized> {
     size: usize,
     marker: PhantomData<fn() -> P>,
 }
 
 impl<P> Tournament<P>
 where
-    P: Population,
+    P: Population + ?Sized,
 {
     pub fn new(size: usize) -> Self {
         Self {
@@ -31,7 +31,7 @@ where
 
 impl<P> Selector<P> for Tournament<P>
 where
-    P: IterablePopulation<Individual: Clone + Fitness>,
+    P: IterablePopulation<Individual: Clone + Fitness> + ?Sized,
 {
     type Output = [P::Individual; 1];
     type Error = TournamentError;

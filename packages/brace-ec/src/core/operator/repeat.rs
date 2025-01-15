@@ -20,7 +20,7 @@ impl<T> Repeat<T> {
 
 impl<P, T> Selector<P> for Repeat<T>
 where
-    P: Population,
+    P: Population + ?Sized,
     T: Selector<P, Output: IntoIterator<Item = P::Individual>>,
 {
     type Output = Vec<P::Individual>;

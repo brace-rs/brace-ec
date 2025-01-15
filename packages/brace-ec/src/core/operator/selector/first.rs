@@ -6,11 +6,11 @@ use super::Selector;
 
 #[ghost::phantom]
 #[derive(Clone, Copy, Debug)]
-pub struct First<P: IterablePopulation>;
+pub struct First<P: IterablePopulation + ?Sized>;
 
 impl<P> Selector<P> for First<P>
 where
-    P: IterablePopulation<Individual: Clone>,
+    P: IterablePopulation<Individual: Clone> + ?Sized,
 {
     type Output = [P::Individual; 1];
     type Error = FirstError;

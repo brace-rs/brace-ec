@@ -17,7 +17,7 @@ impl<L, R> And<L, R> {
 
 impl<P, L, R> Selector<P> for And<L, R>
 where
-    P: Population,
+    P: Population + ?Sized,
     L: Selector<P, Output: IntoIterator<Item = P::Individual>>,
     R: Selector<P, Output: IntoIterator<Item = P::Individual>>,
 {

@@ -22,7 +22,7 @@ impl<L, R> Then<L, R> {
 
 impl<P, L, R> Selector<P> for Then<L, R>
 where
-    P: Population,
+    P: Population + ?Sized,
     L: Selector<P>,
     R: Selector<L::Output>,
 {

@@ -21,7 +21,7 @@ impl<S, R> Recombine<S, R> {
 
 impl<P, S, R> Selector<P> for Recombine<S, R>
 where
-    P: Population,
+    P: Population + ?Sized,
     S: Selector<P>,
     R: Recombinator<S::Output>,
 {

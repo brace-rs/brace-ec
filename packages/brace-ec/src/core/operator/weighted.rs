@@ -21,7 +21,7 @@ where
 
 impl<P, O> Weighted<dyn DynSelector<P, O>>
 where
-    P: Population,
+    P: Population + ?Sized,
     O: Population<Individual = P::Individual>,
 {
     pub fn selector<S>(selector: S, weight: u64) -> Self

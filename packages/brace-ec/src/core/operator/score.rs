@@ -25,7 +25,7 @@ impl<T, S> Score<T, S> {
 
 impl<P, T, S, I> Selector<P> for Score<T, S>
 where
-    P: Population<Individual = I>,
+    P: Population<Individual = I> + ?Sized,
     T: Selector<P, Output: TryMap<Item = I>>,
     S: Scorer<I, Score = I::Value>,
     I: FitnessMut,

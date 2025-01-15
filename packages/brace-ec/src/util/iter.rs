@@ -12,6 +12,19 @@ pub trait Iterable {
     fn iter(&self) -> Self::Iter<'_>;
 }
 
+impl<T> Iterable for [T] {
+    type Item = T;
+
+    type Iter<'a>
+        = std::slice::Iter<'a, T>
+    where
+        Self: 'a;
+
+    fn iter(&self) -> Self::Iter<'_> {
+        self.iter()
+    }
+}
+
 impl<const N: usize, T> Iterable for [T; N] {
     type Item = T;
 
@@ -57,6 +70,17 @@ pub trait IterableMut: Iterable {
         Self: 'a;
 
     fn iter_mut(&mut self) -> Self::IterMut<'_>;
+}
+
+impl<T> IterableMut for [T] {
+    type IterMut<'a>
+        = std::slice::IterMut<'a, T>
+    where
+        T: 'a;
+
+    fn iter_mut(&mut self) -> Self::IterMut<'_> {
+        self.iter_mut()
+    }
 }
 
 impl<const N: usize, T> IterableMut for [T; N] {

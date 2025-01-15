@@ -23,7 +23,7 @@ impl<T, F> Inspect<T, F> {
 
 impl<P, T, F> Selector<P> for Inspect<T, F>
 where
-    P: Population,
+    P: Population + ?Sized,
     T: Selector<P>,
     F: Fn(&T::Output),
 {

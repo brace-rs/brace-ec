@@ -111,7 +111,7 @@ where
 
 pub trait DynSelector<P, O = Vec<<P as Population>::Individual>, E = Box<dyn std::error::Error>>
 where
-    P: Population,
+    P: Population + ?Sized,
     O: Population<Individual = P::Individual>,
 {
     fn dyn_select(&self, population: &P, rng: &mut dyn rand::RngCore) -> Result<O, E>;
@@ -119,7 +119,7 @@ where
 
 impl<P, O, E, T> DynSelector<P, O, E> for T
 where
-    P: Population,
+    P: Population + ?Sized,
     O: Population<Individual = P::Individual>,
     T: Selector<P, Output: Into<O>, Error: Into<E>>,
 {
@@ -132,7 +132,7 @@ where
 
 impl<P, O, E> Selector<P> for Box<dyn DynSelector<P, O, E>>
 where
-    P: Population,
+    P: Population + ?Sized,
     O: Population<Individual = P::Individual>,
 {
     type Output = O;

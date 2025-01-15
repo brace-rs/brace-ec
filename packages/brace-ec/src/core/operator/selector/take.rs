@@ -17,7 +17,7 @@ impl<S, const N: usize> Take<S, N> {
 
 impl<P, S, const N: usize> Selector<P> for Take<S, N>
 where
-    P: Population,
+    P: Population + ?Sized,
     S: Selector<P, Output: IntoIterator<Item = P::Individual>>,
 {
     type Output = [P::Individual; N];

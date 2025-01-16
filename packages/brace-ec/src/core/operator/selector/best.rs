@@ -28,7 +28,7 @@ where
     }
 }
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, PartialEq, Eq)]
 pub enum BestError {
     #[error("empty population")]
     Empty,

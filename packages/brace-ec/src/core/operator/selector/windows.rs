@@ -106,14 +106,12 @@ where
             .as_ref()
             .windows(N)
             .map(|window| {
-                let window: &[T; N] = window.try_into().expect("window");
-
                 self.selector
-                    .select(window, rng)
-                    .map_err(WindowsError::Select)
+                    .select(window.try_into().expect("window"), rng)
             })
             .flatten_ok()
             .collect::<Result<Vec<_>, _>>()
+            .map_err(WindowsError::Select)
     }
 }
 

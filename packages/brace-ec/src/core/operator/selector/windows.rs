@@ -280,9 +280,13 @@ mod tests {
         let c = population
             .select(ArrayWindows::new(Both.recombine(Sum)))
             .unwrap();
+        let d = population
+            .select(ArrayWindows::new(Best::<[_; 3]>))
+            .unwrap();
 
         assert_eq!(a, [24]);
         assert_eq!(b, [24]);
         assert_eq!(c, [3, 5, 7, 9]);
+        assert_eq!(d, [3, 4, 5]);
     }
 }

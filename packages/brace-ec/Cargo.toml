@@ -11,6 +11,7 @@ edition = "2021"
 [dependencies]
 array-util = "1.0.2"
 ghost = "0.1.18"
+itertools = "0.14.0"
 num-traits = "0.2.19"
 ordered-float = "4.6.0"
 rand = "0.8.5"

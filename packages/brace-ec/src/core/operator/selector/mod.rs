@@ -7,6 +7,7 @@ pub mod random;
 pub mod recombine;
 pub mod take;
 pub mod tournament;
+pub mod windows;
 pub mod worst;
 
 use crate::core::fitness::{Fitness, FitnessMut};
@@ -17,6 +18,7 @@ use self::fill::Fill;
 use self::mutate::Mutate;
 use self::recombine::Recombine;
 use self::take::Take;
+use self::windows::Windows;
 
 use super::inspect::Inspect;
 use super::mutator::Mutator;
@@ -84,6 +86,14 @@ where
 
     fn fill(self) -> Fill<Self> {
         Fill::new(self)
+    }
+
+    fn windows<T>(self, count: usize) -> Windows<Self, T>
+    where
+        T: AsRef<[P::Individual]> + ?Sized,
+        Self: Selector<[P::Individual]>,
+    {
+        Windows::new(self, count)
     }
 
     fn take<const N: usize>(self) -> Take<Self, N>

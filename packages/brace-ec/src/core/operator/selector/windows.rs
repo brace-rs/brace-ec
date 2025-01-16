@@ -61,6 +61,60 @@ where
     }
 }
 
+pub struct ArrayWindows<const N: usize, S, P>
+where
+    P: ?Sized,
+{
+    selector: S,
+    marker: PhantomData<fn() -> P>,
+}
+
+impl<const N: usize, S, P> ArrayWindows<N, S, P>
+where
+    P: ?Sized,
+{
+    pub fn new(selector: S) -> Self {
+        Self {
+            selector,
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<const N: usize, P, S, T> Selector<P> for ArrayWindows<N, S, P>
+where
+    P: Population<Individual = T> + AsRef<[T]> + ?Sized,
+    S: Selector<[T; N], Output: IntoIterator<Item = T>>,
+    T: Individual,
+{
+    type Output = Vec<T>;
+    type Error = WindowsError<S::Error>;
+
+    fn select<Rng>(&self, population: &P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        if N == 0 {
+            return Err(WindowsError::Empty);
+        }
+
+        if population.len() < N {
+            return Err(WindowsError::TooLarge);
+        }
+
+        population
+            .as_ref()
+            .windows(N)
+            .map(|window| {
+                self.selector
+                    .select(window.try_into().expect("window"), rng)
+            })
+            .flatten_ok()
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(WindowsError::Select)
+    }
+}
+
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum WindowsError<S> {
     #[error(transparent)]
@@ -73,6 +127,8 @@ pub enum WindowsError<S> {
 
 #[cfg(test)]
 mod tests {
+    use std::convert::Infallible;
+
     use crate::core::operator::mutator::add::Add;
     use crate::core::operator::recombinator::sum::Sum;
     use crate::core::operator::selector::best::Best;
@@ -80,10 +136,10 @@ mod tests {
     use crate::core::operator::selector::Selector;
     use crate::core::population::Population;
 
-    use super::{Windows, WindowsError};
+    use super::{ArrayWindows, Windows, WindowsError};
 
     #[test]
-    fn test_select() {
+    fn test_select_windows() {
         let population = [1, 2, 3, 4, 5];
 
         let a = population
@@ -126,7 +182,7 @@ mod tests {
     }
 
     #[test]
-    fn test_populations() {
+    fn test_populations_windows() {
         let a = [1, 2, 3, 4].select(Best.windows(1)).unwrap();
         let b = vec![1, 2, 3, 4].select(Best.windows(1)).unwrap();
         let c = [1, 2, 3, 4].as_slice().select(Best.windows(1)).unwrap();
@@ -134,5 +190,101 @@ mod tests {
         assert_eq!(a, [1, 2, 3, 4]);
         assert_eq!(b, [1, 2, 3, 4]);
         assert_eq!(c, [1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn test_select_array_windows() {
+        let population = [1, 2, 3, 4, 5];
+
+        let a = population
+            .select(ArrayWindows::<2, _, _>::new(Best).mutate(Add(1)))
+            .unwrap();
+        let b = population
+            .select(ArrayWindows::<3, _, _>::new(Best).mutate(Add(1)))
+            .unwrap();
+        let c = population
+            .select(ArrayWindows::<4, _, _>::new(Best).mutate(Add(1)))
+            .unwrap();
+        let d = population
+            .select(ArrayWindows::<5, _, _>::new(Best).mutate(Add(1)))
+            .unwrap();
+        let e = population
+            .select(ArrayWindows::<2, _, _>::new(Worst).mutate(Add(1)))
+            .unwrap();
+        let f = population
+            .select(ArrayWindows::<2, _, _>::new(Best.and(Worst)).mutate(Add(1)))
+            .unwrap();
+        let g = population
+            .select(ArrayWindows::new(Best::<[_; 4]>.and(Worst)).mutate(Add(1)))
+            .unwrap();
+        let h = population
+            .select(ArrayWindows::<4, _, _>::new(Best.and(Worst).recombine(Sum)).mutate(Add(1)))
+            .unwrap();
+        let i = population.select(ArrayWindows::<0, _, _>::new(Best));
+        let j = population.select(ArrayWindows::<6, _, _>::new(Best));
+
+        assert_eq!(a, [3, 4, 5, 6]);
+        assert_eq!(b, [4, 5, 6]);
+        assert_eq!(c, [5, 6]);
+        assert_eq!(d, [6]);
+        assert_eq!(e, [2, 3, 4, 5]);
+        assert_eq!(f, [3, 2, 4, 3, 5, 4, 6, 5]);
+        assert_eq!(g, [5, 2, 6, 3]);
+        assert_eq!(h, [6, 8]);
+        assert_eq!(i, Err(WindowsError::Empty));
+        assert_eq!(j, Err(WindowsError::TooLarge));
+    }
+
+    #[test]
+    fn test_populations_array_windows() {
+        let a = [1, 2, 3, 4].select(Best.array_windows::<1, _>()).unwrap();
+        let b = vec![1, 2, 3, 4]
+            .select(Best.array_windows::<1, _>())
+            .unwrap();
+        let c = [1, 2, 3, 4]
+            .as_slice()
+            .select(Best.array_windows::<1, _>())
+            .unwrap();
+
+        assert_eq!(a, [1, 2, 3, 4]);
+        assert_eq!(b, [1, 2, 3, 4]);
+        assert_eq!(c, [1, 2, 3, 4]);
+    }
+
+    struct Both;
+
+    impl Selector<[i32; 2]> for Both {
+        type Output = [i32; 2];
+        type Error = Infallible;
+
+        fn select<Rng>(&self, &[a, b]: &[i32; 2], _: &mut Rng) -> Result<Self::Output, Self::Error>
+        where
+            Rng: rand::Rng + ?Sized,
+        {
+            Ok([a, b])
+        }
+    }
+
+    #[test]
+    fn test_inference_array_windows() {
+        let population = [1, 2, 3, 4, 5];
+
+        let a = population
+            .select(Both.array_windows().recombine(Sum))
+            .unwrap();
+        let b = population
+            .select(ArrayWindows::new(Both).recombine(Sum))
+            .unwrap();
+        let c = population
+            .select(ArrayWindows::new(Both.recombine(Sum)))
+            .unwrap();
+        let d = population
+            .select(ArrayWindows::new(Best::<[_; 3]>))
+            .unwrap();
+
+        assert_eq!(a, [24]);
+        assert_eq!(b, [24]);
+        assert_eq!(c, [3, 5, 7, 9]);
+        assert_eq!(d, [3, 4, 5]);
     }
 }

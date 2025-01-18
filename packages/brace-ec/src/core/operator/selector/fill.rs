@@ -1,4 +1,4 @@
-use rayon::iter::{IntoParallelRefMutIterator, ParallelIterator};
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use thiserror::Error;
 
 use crate::core::population::Population;
@@ -68,11 +68,9 @@ impl<S> ParFill<S> {
 
 impl<P, S> Selector<P> for ParFill<S>
 where
-    P: Population<Individual: Send>
-        + for<'a> IntoParallelRefMutIterator<'a, Item = &'a mut P::Individual>
-        + Clone
-        + Sync,
+    P: Population<Individual: Send> + Clone + Sync,
     S: Selector<P, Output = [P::Individual; 1], Error: Send> + Sync,
+    for<'a> &'a mut P: IntoParallelIterator<Item = &'a mut P::Individual>,
 {
     type Output = P;
     type Error = FillError<S::Error>;
@@ -83,7 +81,7 @@ where
     {
         let mut pop = population.clone();
 
-        pop.par_iter_mut()
+        pop.into_par_iter()
             .map_init(rand::thread_rng, |rng, individual| {
                 let [out] = self.selector.select(population, rng)?;
 

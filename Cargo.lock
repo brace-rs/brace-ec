@@ -171,6 +171,7 @@ dependencies = [
  "num-traits",
  "ordered-float",
  "rand",
+ "rayon",
  "thiserror 2.0.9",
 ]
 

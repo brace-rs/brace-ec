@@ -14,7 +14,7 @@ use crate::core::fitness::{Fitness, FitnessMut};
 use crate::core::population::Population;
 
 use self::and::And;
-use self::fill::Fill;
+use self::fill::{Fill, ParFill};
 use self::mutate::Mutate;
 use self::recombine::Recombine;
 use self::take::Take;
@@ -86,6 +86,10 @@ where
 
     fn fill(self) -> Fill<Self> {
         Fill::new(self)
+    }
+
+    fn par_fill(self) -> ParFill<Self> {
+        ParFill::new(self)
     }
 
     fn windows<T>(self, count: usize) -> Windows<Self, T>

@@ -172,6 +172,60 @@ where
     }
 }
 
+pub struct ParArrayWindows<const N: usize, S, P>
+where
+    P: ?Sized,
+{
+    selector: S,
+    marker: PhantomData<fn() -> P>,
+}
+
+impl<const N: usize, S, P> ParArrayWindows<N, S, P>
+where
+    P: ?Sized,
+{
+    pub fn new(selector: S) -> Self {
+        Self {
+            selector,
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<const N: usize, P, S, T> Selector<P> for ParArrayWindows<N, S, P>
+where
+    P: Population<Individual = T> + AsRef<[T]> + ?Sized,
+    S: Selector<[T; N], Output: IntoIterator<Item = T> + Send, Error: Send> + Sync,
+    T: Individual + Send + Sync,
+{
+    type Output = Vec<T>;
+    type Error = WindowsError<S::Error>;
+
+    fn select<Rng>(&self, population: &P, _: &mut Rng) -> Result<Self::Output, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        if N == 0 {
+            return Err(WindowsError::Empty);
+        }
+
+        if population.len() < N {
+            return Err(WindowsError::TooLarge);
+        }
+
+        population
+            .as_ref()
+            .par_windows(N)
+            .map_init(rand::thread_rng, |rng, window| {
+                self.selector
+                    .select(window.try_into().expect("window"), rng)
+            })
+            .flat_map_iter(|result| std::iter::once(result).flatten_ok())
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(WindowsError::Select)
+    }
+}
+
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum WindowsError<S> {
     #[error(transparent)]
@@ -193,7 +247,7 @@ mod tests {
     use crate::core::operator::selector::Selector;
     use crate::core::population::Population;
 
-    use super::{ArrayWindows, ParWindows, Windows, WindowsError};
+    use super::{ArrayWindows, ParArrayWindows, ParWindows, Windows, WindowsError};
 
     #[test]
     fn test_select_windows() {
@@ -391,6 +445,90 @@ mod tests {
             .unwrap();
         let d = population
             .select(ArrayWindows::new(Best::<[_; 3]>))
+            .unwrap();
+
+        assert_eq!(a, [24]);
+        assert_eq!(b, [24]);
+        assert_eq!(c, [3, 5, 7, 9]);
+        assert_eq!(d, [3, 4, 5]);
+    }
+
+    #[test]
+    fn test_select_par_array_windows() {
+        let population = [1, 2, 3, 4, 5];
+
+        let a = population
+            .select(ParArrayWindows::<2, _, _>::new(Best).mutate(Add(1)))
+            .unwrap();
+        let b = population
+            .select(ParArrayWindows::<3, _, _>::new(Best).mutate(Add(1)))
+            .unwrap();
+        let c = population
+            .select(ParArrayWindows::<4, _, _>::new(Best).mutate(Add(1)))
+            .unwrap();
+        let d = population
+            .select(ParArrayWindows::<5, _, _>::new(Best).mutate(Add(1)))
+            .unwrap();
+        let e = population
+            .select(ParArrayWindows::<2, _, _>::new(Worst).mutate(Add(1)))
+            .unwrap();
+        let f = population
+            .select(ParArrayWindows::<2, _, _>::new(Best.and(Worst)).mutate(Add(1)))
+            .unwrap();
+        let g = population
+            .select(ParArrayWindows::new(Best::<[_; 4]>.and(Worst)).mutate(Add(1)))
+            .unwrap();
+        let h = population
+            .select(ParArrayWindows::<4, _, _>::new(Best.and(Worst).recombine(Sum)).mutate(Add(1)))
+            .unwrap();
+        let i = population.select(ParArrayWindows::<0, _, _>::new(Best));
+        let j = population.select(ParArrayWindows::<6, _, _>::new(Best));
+
+        assert_eq!(a, [3, 4, 5, 6]);
+        assert_eq!(b, [4, 5, 6]);
+        assert_eq!(c, [5, 6]);
+        assert_eq!(d, [6]);
+        assert_eq!(e, [2, 3, 4, 5]);
+        assert_eq!(f, [3, 2, 4, 3, 5, 4, 6, 5]);
+        assert_eq!(g, [5, 2, 6, 3]);
+        assert_eq!(h, [6, 8]);
+        assert_eq!(i, Err(WindowsError::Empty));
+        assert_eq!(j, Err(WindowsError::TooLarge));
+    }
+
+    #[test]
+    fn test_populations_par_array_windows() {
+        let a = [1, 2, 3, 4]
+            .select(Best.par_array_windows::<1, _>())
+            .unwrap();
+        let b = vec![1, 2, 3, 4]
+            .select(Best.par_array_windows::<1, _>())
+            .unwrap();
+        let c = [1, 2, 3, 4]
+            .as_slice()
+            .select(Best.par_array_windows::<1, _>())
+            .unwrap();
+
+        assert_eq!(a, [1, 2, 3, 4]);
+        assert_eq!(b, [1, 2, 3, 4]);
+        assert_eq!(c, [1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn test_inference_par_array_windows() {
+        let population = [1, 2, 3, 4, 5];
+
+        let a = population
+            .select(Both.par_array_windows().recombine(Sum))
+            .unwrap();
+        let b = population
+            .select(ParArrayWindows::new(Both).recombine(Sum))
+            .unwrap();
+        let c = population
+            .select(ParArrayWindows::new(Both.recombine(Sum)))
+            .unwrap();
+        let d = population
+            .select(ParArrayWindows::new(Best::<[_; 3]>))
             .unwrap();
 
         assert_eq!(a, [24]);

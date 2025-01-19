@@ -22,4 +22,8 @@ pub struct Args {
     /// The mutation rate.
     #[arg(long, default_value_t = 0.1)]
     pub rate: f64,
+
+    /// Enable parallel selection.
+    #[arg(long)]
+    pub parallel: bool,
 }

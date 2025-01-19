@@ -52,7 +52,7 @@ fn main() -> Result<(), Error> {
     }
 
     let evolver = Terminal::new(
-        ImageEvolver::new(scorer, args.rate),
+        ImageEvolver::new(scorer, args.rate, args.parallel),
         ImageRenderer::new(Image::new(image)),
     );
 

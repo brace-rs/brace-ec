@@ -17,13 +17,13 @@ pub enum ImageSelector {
     Serial(
         And<
             First<[Scored<Image, u64>]>,
-            Score<ArrayWindows<2, ImageWindowsSelector, [Scored<Image, u64>]>, ImageScorer>,
+            ArrayWindows<2, Score<ImageWindowsSelector, ImageScorer>, [Scored<Image, u64>]>,
         >,
     ),
     Parallel(
         And<
             First<[Scored<Image, u64>]>,
-            Score<ParArrayWindows<2, ImageWindowsSelector, [Scored<Image, u64>]>, ImageScorer>,
+            ParArrayWindows<2, Score<ImageWindowsSelector, ImageScorer>, [Scored<Image, u64>]>,
         >,
     ),
 }
@@ -34,15 +34,15 @@ impl ImageSelector {
             false => Self::Serial(
                 First.and(
                     ImageWindowsSelector::new(rate)
-                        .array_windows()
-                        .score(scorer),
+                        .score(scorer)
+                        .array_windows(),
                 ),
             ),
             true => Self::Parallel(
                 First.and(
                     ImageWindowsSelector::new(rate)
-                        .par_array_windows()
-                        .score(scorer),
+                        .score(scorer)
+                        .par_array_windows(),
                 ),
             ),
         }
@@ -75,7 +75,7 @@ impl Selector<Vec<Scored<Image, u64>>> for ImageSelector {
 #[derive(Debug, Error)]
 #[error(transparent)]
 pub struct ImageSelectorError(
-    AndError<FirstError, ScoreError<WindowsError<Infallible>, Infallible>>,
+    AndError<FirstError, WindowsError<ScoreError<Infallible, Infallible>>>,
 );
 
 pub struct ImageWindowsSelector {

@@ -12,55 +12,20 @@ pub trait Iterable {
     fn iter(&self) -> Self::Iter<'_>;
 }
 
-impl<T> Iterable for [T] {
-    type Item = T;
+impl<T, U> Iterable for T
+where
+    T: ?Sized,
+    for<'a> &'a T: IntoIterator<Item = &'a U>,
+{
+    type Item = U;
 
     type Iter<'a>
-        = std::slice::Iter<'a, T>
+        = <&'a T as IntoIterator>::IntoIter
     where
         Self: 'a;
 
     fn iter(&self) -> Self::Iter<'_> {
-        self.iter()
-    }
-}
-
-impl<const N: usize, T> Iterable for [T; N] {
-    type Item = T;
-
-    type Iter<'a>
-        = std::slice::Iter<'a, T>
-    where
-        T: 'a;
-
-    fn iter(&self) -> Self::Iter<'_> {
-        self.as_slice().iter()
-    }
-}
-
-impl<T> Iterable for Vec<T> {
-    type Item = T;
-
-    type Iter<'a>
-        = std::slice::Iter<'a, T>
-    where
-        T: 'a;
-
-    fn iter(&self) -> Self::Iter<'_> {
-        (**self).iter()
-    }
-}
-
-impl<T> Iterable for Option<T> {
-    type Item = T;
-
-    type Iter<'a>
-        = std::option::Iter<'a, T>
-    where
-        Self: 'a;
-
-    fn iter(&self) -> Self::Iter<'_> {
-        self.iter()
+        self.into_iter()
     }
 }
 
@@ -72,47 +37,18 @@ pub trait IterableMut: Iterable {
     fn iter_mut(&mut self) -> Self::IterMut<'_>;
 }
 
-impl<T> IterableMut for [T] {
+impl<T> IterableMut for T
+where
+    T: Iterable + ?Sized,
+    for<'a> &'a mut T: IntoIterator<Item = &'a mut T::Item>,
+{
     type IterMut<'a>
-        = std::slice::IterMut<'a, T>
-    where
-        T: 'a;
-
-    fn iter_mut(&mut self) -> Self::IterMut<'_> {
-        self.iter_mut()
-    }
-}
-
-impl<const N: usize, T> IterableMut for [T; N] {
-    type IterMut<'a>
-        = std::slice::IterMut<'a, T>
-    where
-        T: 'a;
-
-    fn iter_mut(&mut self) -> Self::IterMut<'_> {
-        self.as_mut_slice().iter_mut()
-    }
-}
-
-impl<T> IterableMut for Vec<T> {
-    type IterMut<'a>
-        = std::slice::IterMut<'a, T>
-    where
-        T: 'a;
-
-    fn iter_mut(&mut self) -> Self::IterMut<'_> {
-        (**self).iter_mut()
-    }
-}
-
-impl<T> IterableMut for Option<T> {
-    type IterMut<'a>
-        = std::option::IterMut<'a, T>
+        = <&'a mut T as IntoIterator>::IntoIter
     where
         Self: 'a;
 
     fn iter_mut(&mut self) -> Self::IterMut<'_> {
-        self.iter_mut()
+        self.into_iter()
     }
 }
 

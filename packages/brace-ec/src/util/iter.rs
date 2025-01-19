@@ -1,5 +1,6 @@
 use std::convert::Infallible;
 
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use thiserror::Error;
 
 pub trait Iterable {
@@ -49,6 +50,57 @@ where
 
     fn iter_mut(&mut self) -> Self::IterMut<'_> {
         self.into_iter()
+    }
+}
+
+pub trait ParIterable {
+    type Item: Send;
+
+    type ParIter<'a>: ParallelIterator<Item = &'a Self::Item>
+    where
+        Self: 'a;
+
+    fn par_iter(&self) -> Self::ParIter<'_>;
+}
+
+impl<T, U> ParIterable for T
+where
+    T: ?Sized,
+    U: Send,
+    for<'a> &'a T: IntoParallelIterator<Item = &'a U>,
+{
+    type Item = U;
+
+    type ParIter<'a>
+        = <&'a T as IntoParallelIterator>::Iter
+    where
+        Self: 'a;
+
+    fn par_iter(&self) -> Self::ParIter<'_> {
+        self.into_par_iter()
+    }
+}
+
+pub trait ParIterableMut: ParIterable {
+    type ParIterMut<'a>: ParallelIterator<Item = &'a mut Self::Item>
+    where
+        Self: 'a;
+
+    fn par_iter_mut(&mut self) -> Self::ParIterMut<'_>;
+}
+
+impl<T> ParIterableMut for T
+where
+    T: ParIterable + ?Sized,
+    for<'a> &'a mut T: IntoParallelIterator<Item = &'a mut T::Item>,
+{
+    type ParIterMut<'a>
+        = <&'a mut T as IntoParallelIterator>::Iter
+    where
+        Self: 'a;
+
+    fn par_iter_mut(&mut self) -> Self::ParIterMut<'_> {
+        self.into_par_iter()
     }
 }
 

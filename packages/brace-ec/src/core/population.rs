@@ -103,6 +103,16 @@ impl<T> ParIterableMutPopulation for T where
 {
 }
 
+pub trait ToOwnedPopulation:
+    Population + ToOwned<Owned: Population<Individual = Self::Individual>>
+{
+}
+
+impl<T> ToOwnedPopulation for T where
+    T: Population + ToOwned<Owned: Population<Individual = Self::Individual>> + ?Sized
+{
+}
+
 #[cfg(test)]
 mod tests {
     use crate::core::individual::Individual;

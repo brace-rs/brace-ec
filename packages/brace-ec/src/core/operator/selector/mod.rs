@@ -18,7 +18,7 @@ use self::fill::{Fill, ParFill};
 use self::mutate::Mutate;
 use self::recombine::Recombine;
 use self::take::Take;
-use self::windows::{ArrayWindows, Windows};
+use self::windows::{ArrayWindows, ParWindows, Windows};
 
 use super::inspect::Inspect;
 use super::mutator::Mutator;
@@ -92,12 +92,20 @@ where
         ParFill::new(self)
     }
 
-    fn windows<T>(self, count: usize) -> Windows<Self, T>
+    fn windows<T>(self, size: usize) -> Windows<Self, T>
     where
         T: AsRef<[P::Individual]> + ?Sized,
         Self: Selector<[P::Individual]>,
     {
-        Windows::new(self, count)
+        Windows::new(self, size)
+    }
+
+    fn par_windows<T>(self, size: usize) -> ParWindows<Self, T>
+    where
+        T: AsRef<[P::Individual]> + ?Sized,
+        Self: Selector<[P::Individual]>,
+    {
+        ParWindows::new(self, size)
     }
 
     fn array_windows<const N: usize, T>(self) -> ArrayWindows<N, Self, T>

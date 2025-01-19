@@ -13,9 +13,9 @@ pub struct ImageEvolver {
 }
 
 impl ImageEvolver {
-    pub fn new(scorer: ImageScorer, rate: f64) -> Self {
+    pub fn new(scorer: ImageScorer, rate: f64, parallel: bool) -> Self {
         Self {
-            selector: ImageSelector::new(scorer, rate),
+            selector: ImageSelector::new(scorer, rate, parallel),
         }
     }
 }

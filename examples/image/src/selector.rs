@@ -5,7 +5,7 @@ use brace_ec::core::individual::Individual;
 use brace_ec::core::operator::score::{Score, ScoreError};
 use brace_ec::core::operator::selector::and::{And, AndError};
 use brace_ec::core::operator::selector::first::{First, FirstError};
-use brace_ec::core::operator::selector::windows::{ArrayWindows, WindowsError};
+use brace_ec::core::operator::selector::windows::{ArrayWindows, ParArrayWindows, WindowsError};
 use brace_ec::core::operator::selector::Selector;
 use thiserror::Error;
 
@@ -13,22 +13,39 @@ use crate::individual::Image;
 use crate::scorer::ImageScorer;
 
 #[allow(clippy::type_complexity)]
-pub struct ImageSelector(
-    And<
-        First<[Scored<Image, u64>]>,
-        Score<ArrayWindows<2, ImageWindowsSelector, [Scored<Image, u64>]>, ImageScorer>,
-    >,
-);
+pub enum ImageSelector {
+    Serial(
+        And<
+            First<[Scored<Image, u64>]>,
+            Score<ArrayWindows<2, ImageWindowsSelector, [Scored<Image, u64>]>, ImageScorer>,
+        >,
+    ),
+    Parallel(
+        And<
+            First<[Scored<Image, u64>]>,
+            Score<ParArrayWindows<2, ImageWindowsSelector, [Scored<Image, u64>]>, ImageScorer>,
+        >,
+    ),
+}
 
 impl ImageSelector {
-    pub fn new(scorer: ImageScorer, rate: f64) -> Self {
-        Self(
-            First.and(
-                ImageWindowsSelector::new(rate)
-                    .array_windows()
-                    .score(scorer),
+    pub fn new(scorer: ImageScorer, rate: f64, parallel: bool) -> Self {
+        match parallel {
+            false => Self::Serial(
+                First.and(
+                    ImageWindowsSelector::new(rate)
+                        .array_windows()
+                        .score(scorer),
+                ),
             ),
-        )
+            true => Self::Parallel(
+                First.and(
+                    ImageWindowsSelector::new(rate)
+                        .par_array_windows()
+                        .score(scorer),
+                ),
+            ),
+        }
     }
 }
 
@@ -44,9 +61,14 @@ impl Selector<Vec<Scored<Image, u64>>> for ImageSelector {
     where
         Rng: rand::Rng + ?Sized,
     {
-        self.0
-            .select(population.as_slice(), rng)
-            .map_err(ImageSelectorError)
+        match self {
+            Self::Serial(serial) => serial
+                .select(population.as_slice(), rng)
+                .map_err(ImageSelectorError),
+            Self::Parallel(parallel) => parallel
+                .select(population.as_slice(), rng)
+                .map_err(ImageSelectorError),
+        }
     }
 }
 
@@ -56,7 +78,7 @@ pub struct ImageSelectorError(
     AndError<FirstError, ScoreError<WindowsError<Infallible>, Infallible>>,
 );
 
-struct ImageWindowsSelector {
+pub struct ImageWindowsSelector {
     rate: f64,
 }
 

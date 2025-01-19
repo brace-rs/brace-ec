@@ -3,8 +3,7 @@ use thiserror::Error;
 use crate::core::generation::Generation;
 use crate::core::operator::selector::fill::{Fill, FillError};
 use crate::core::operator::selector::Selector;
-use crate::core::population::Population;
-use crate::util::map::TryMap;
+use crate::core::population::IterableMutPopulation;
 
 use super::Evolver;
 
@@ -23,7 +22,7 @@ impl<S> Select<S> {
 
 impl<P, S> Evolver<(u64, P)> for Select<S>
 where
-    P: Population + Clone + TryMap<Item = P::Individual>,
+    P: IterableMutPopulation + Clone,
     S: Selector<P, Output: IntoIterator<Item = P::Individual>>,
 {
     type Error = SelectError<S::Error>;

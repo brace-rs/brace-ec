@@ -1,8 +1,8 @@
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use rayon::iter::ParallelIterator;
 use thiserror::Error;
 
-use crate::core::population::Population;
-use crate::util::map::TryMap;
+use crate::core::population::{IterableMutPopulation, ParIterableMutPopulation, ToOwnedPopulation};
+use crate::util::iter::{IterableMut, ParIterableMut};
 
 use super::Selector;
 
@@ -19,39 +19,51 @@ impl<S> Fill<S> {
 
 impl<P, S> Selector<P> for Fill<S>
 where
-    P: Population + Clone + TryMap<Item = P::Individual>,
+    P: ToOwnedPopulation<Owned: IterableMutPopulation> + ?Sized,
     S: Selector<P, Output: IntoIterator<Item = P::Individual>>,
 {
-    type Output = P;
+    type Output = P::Owned;
     type Error = FillError<S::Error>;
 
     fn select<Rng>(&self, population: &P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
         Rng: rand::Rng + ?Sized,
     {
-        let mut selection = self
+        let mut iter = self
             .selector
             .select(population, rng)
             .map_err(FillError::Select)?
             .into_iter();
 
-        let population = population.clone().try_map(|_| match selection.next() {
-            Some(individual) => Ok(individual),
-            None => {
-                selection = self
-                    .selector
-                    .select(population, rng)
-                    .map_err(FillError::Select)?
-                    .into_iter();
+        let mut selection = population.to_owned();
 
-                match selection.next() {
-                    Some(individual) => Ok(individual),
-                    None => Err(FillError::NotEnough),
+        selection
+            .iter_mut()
+            .try_for_each(|individual| match iter.next() {
+                Some(item) => {
+                    *individual = item;
+
+                    Ok(())
                 }
-            }
-        })?;
+                None => {
+                    iter = self
+                        .selector
+                        .select(population, rng)
+                        .map_err(FillError::Select)?
+                        .into_iter();
 
-        Ok(population)
+                    match iter.next() {
+                        Some(item) => {
+                            *individual = item;
+
+                            Ok(())
+                        }
+                        None => Err(FillError::NotEnough),
+                    }
+                }
+            })?;
+
+        Ok(selection)
     }
 }
 
@@ -68,31 +80,29 @@ impl<S> ParFill<S> {
 
 impl<P, S> Selector<P> for ParFill<S>
 where
-    P: Population<Individual: Send> + Clone + Sync,
+    P: ToOwnedPopulation<Individual: Send, Owned: ParIterableMutPopulation> + Sync + ?Sized,
     S: Selector<P, Output = [P::Individual; 1], Error: Send> + Sync,
-    for<'a> &'a mut P: IntoParallelIterator<Item = &'a mut P::Individual>,
 {
-    type Output = P;
-    type Error = FillError<S::Error>;
+    type Output = P::Owned;
+    type Error = S::Error;
 
     fn select<Rng>(&self, population: &P, _: &mut Rng) -> Result<Self::Output, Self::Error>
     where
         Rng: rand::Rng + ?Sized,
     {
-        let mut pop = population.clone();
+        let mut selection = population.to_owned();
 
-        pop.into_par_iter()
-            .map_init(rand::thread_rng, |rng, individual| {
-                let [out] = self.selector.select(population, rng)?;
+        selection
+            .par_iter_mut()
+            .try_for_each_init(rand::thread_rng, |rng, individual| {
+                let [item] = self.selector.select(population, rng)?;
 
-                *individual = out;
+                *individual = item;
 
                 Ok(())
-            })
-            .collect::<Result<(), S::Error>>()
-            .map_err(FillError::Select)?;
+            })?;
 
-        Ok(pop)
+        Ok(selection)
     }
 }
 
@@ -118,10 +128,12 @@ mod tests {
         let a = population.select(Best.fill()).unwrap();
         let b = population.select(Worst.fill()).unwrap();
         let c = population.select(Best.and(Worst).fill()).unwrap();
+        let d = population.as_slice().select(Best.fill()).unwrap();
 
         assert_eq!(a, [5; 5]);
         assert_eq!(b, [1; 5]);
         assert_eq!(c, [5, 1, 5, 1, 5]);
+        assert_eq!(d, [5; 5]);
     }
 
     #[test]
@@ -133,9 +145,11 @@ mod tests {
         let c = population
             .select(Best.and(Worst).take::<1>().par_fill())
             .unwrap();
+        let d = population.as_slice().select(Best.par_fill()).unwrap();
 
         assert_eq!(a, [5; 5]);
         assert_eq!(b, [1; 5]);
         assert_eq!(c, [5; 5]);
+        assert_eq!(d, [5; 5]);
     }
 }

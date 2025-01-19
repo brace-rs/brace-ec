@@ -1,6 +1,6 @@
 use rand::thread_rng;
 
-use crate::util::iter::Iterable;
+use crate::util::iter::{Iterable, IterableMut, ParIterable, ParIterableMut};
 
 use super::individual::Individual;
 use super::operator::recombinator::Recombinator;
@@ -81,6 +81,27 @@ where
 pub trait IterablePopulation: Population + Iterable<Item = Self::Individual> {}
 
 impl<T> IterablePopulation for T where T: Population + Iterable<Item = Self::Individual> + ?Sized {}
+
+pub trait IterableMutPopulation: Population + IterableMut<Item = Self::Individual> {}
+
+impl<T> IterableMutPopulation for T where
+    T: Population + IterableMut<Item = Self::Individual> + ?Sized
+{
+}
+
+pub trait ParIterablePopulation: Population + ParIterable<Item = Self::Individual> {}
+
+impl<T> ParIterablePopulation for T where
+    T: Population + ParIterable<Item = Self::Individual> + ?Sized
+{
+}
+
+pub trait ParIterableMutPopulation: Population + ParIterableMut<Item = Self::Individual> {}
+
+impl<T> ParIterableMutPopulation for T where
+    T: Population + ParIterableMut<Item = Self::Individual> + ?Sized
+{
+}
 
 #[cfg(test)]
 mod tests {

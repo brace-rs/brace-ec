@@ -1,6 +1,8 @@
 use std::marker::PhantomData;
 
 use itertools::Itertools;
+use rayon::iter::ParallelIterator;
+use rayon::slice::ParallelSlice;
 use thiserror::Error;
 
 use crate::core::individual::Individual;
@@ -56,6 +58,61 @@ where
             .windows(self.size)
             .map(|window| self.selector.select(window, rng))
             .flatten_ok()
+            .collect::<Result<Vec<_>, _>>()
+            .map_err(WindowsError::Select)
+    }
+}
+
+pub struct ParWindows<S, P>
+where
+    P: ?Sized,
+{
+    selector: S,
+    size: usize,
+    marker: PhantomData<fn() -> P>,
+}
+
+impl<S, P> ParWindows<S, P>
+where
+    P: ?Sized,
+{
+    pub fn new(selector: S, size: usize) -> Self {
+        Self {
+            selector,
+            size,
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<P, S, T> Selector<P> for ParWindows<S, P>
+where
+    P: Population<Individual = T> + AsRef<[T]> + ?Sized,
+    S: Selector<[T], Output: IntoIterator<Item = T> + Send, Error: Send> + Sync,
+    T: Individual + Send + Sync,
+{
+    type Output = Vec<T>;
+    type Error = WindowsError<S::Error>;
+
+    fn select<Rng>(&self, population: &P, _: &mut Rng) -> Result<Self::Output, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        if self.size == 0 {
+            return Err(WindowsError::Empty);
+        }
+
+        if population.len() < self.size {
+            return Err(WindowsError::TooLarge);
+        }
+
+        population
+            .as_ref()
+            .par_windows(self.size)
+            .map_init(rand::thread_rng, |rng, window| {
+                self.selector.select(window, rng)
+            })
+            .flat_map_iter(|result| std::iter::once(result).flatten_ok())
             .collect::<Result<Vec<_>, _>>()
             .map_err(WindowsError::Select)
     }
@@ -136,7 +193,7 @@ mod tests {
     use crate::core::operator::selector::Selector;
     use crate::core::population::Population;
 
-    use super::{ArrayWindows, Windows, WindowsError};
+    use super::{ArrayWindows, ParWindows, Windows, WindowsError};
 
     #[test]
     fn test_select_windows() {
@@ -186,6 +243,60 @@ mod tests {
         let a = [1, 2, 3, 4].select(Best.windows(1)).unwrap();
         let b = vec![1, 2, 3, 4].select(Best.windows(1)).unwrap();
         let c = [1, 2, 3, 4].as_slice().select(Best.windows(1)).unwrap();
+
+        assert_eq!(a, [1, 2, 3, 4]);
+        assert_eq!(b, [1, 2, 3, 4]);
+        assert_eq!(c, [1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn test_select_par_windows() {
+        let population = [1, 2, 3, 4, 5];
+
+        let a = population
+            .select(ParWindows::new(Best, 2).mutate(Add(1)))
+            .unwrap();
+        let b = population
+            .select(ParWindows::new(Best, 3).mutate(Add(1)))
+            .unwrap();
+        let c = population
+            .select(ParWindows::new(Best, 4).mutate(Add(1)))
+            .unwrap();
+        let d = population
+            .select(ParWindows::new(Best, 5).mutate(Add(1)))
+            .unwrap();
+        let e = population
+            .select(ParWindows::new(Worst, 2).mutate(Add(1)))
+            .unwrap();
+        let f = population
+            .select(ParWindows::new(Best.and(Worst), 2).mutate(Add(1)))
+            .unwrap();
+        let g = population
+            .select(ParWindows::new(Best.and(Worst), 4).mutate(Add(1)))
+            .unwrap();
+        let h = population
+            .select(ParWindows::new(Best.and(Worst).recombine(Sum), 4).mutate(Add(1)))
+            .unwrap();
+        let i = population.select(ParWindows::new(Best, 0));
+        let j = population.select(ParWindows::new(Best, 6));
+
+        assert_eq!(a, [3, 4, 5, 6]);
+        assert_eq!(b, [4, 5, 6]);
+        assert_eq!(c, [5, 6]);
+        assert_eq!(d, [6]);
+        assert_eq!(e, [2, 3, 4, 5]);
+        assert_eq!(f, [3, 2, 4, 3, 5, 4, 6, 5]);
+        assert_eq!(g, [5, 2, 6, 3]);
+        assert_eq!(h, [6, 8]);
+        assert_eq!(i, Err(WindowsError::Empty));
+        assert_eq!(j, Err(WindowsError::TooLarge));
+    }
+
+    #[test]
+    fn test_populations_par_windows() {
+        let a = [1, 2, 3, 4].select(Best.par_windows(1)).unwrap();
+        let b = vec![1, 2, 3, 4].select(Best.par_windows(1)).unwrap();
+        let c = [1, 2, 3, 4].as_slice().select(Best.par_windows(1)).unwrap();
 
         assert_eq!(a, [1, 2, 3, 4]);
         assert_eq!(b, [1, 2, 3, 4]);

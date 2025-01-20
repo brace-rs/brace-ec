@@ -171,14 +171,14 @@ mod tests {
     fn test_evolve() {
         let mut rng = rand::thread_rng();
 
-        let a = Select::new(First)
+        let a = Select::fill(First)
             .repeat(2)
             .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
             .unwrap();
 
         assert_eq!(a.0, 2);
 
-        let b = Select::new(First)
+        let b = Select::fill(First)
             .repeat(2)
             .repeat(3)
             .evolve((0, [0, 1, 2, 3, 4]), &mut rng)

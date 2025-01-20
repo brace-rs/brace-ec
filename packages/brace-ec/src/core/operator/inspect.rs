@@ -132,7 +132,7 @@ mod tests {
     fn test_evolve() {
         let mut rng = rand::thread_rng();
 
-        Select::new(First)
+        Select::fill(First)
             .inspect(|(i, population)| {
                 assert_eq!(i, &1);
                 assert_eq!(population, &[0, 0, 0, 0, 0]);

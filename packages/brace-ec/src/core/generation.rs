@@ -1,3 +1,7 @@
+use std::ops::AddAssign;
+
+use num_traits::One;
+
 use super::population::Population;
 
 pub trait Generation {
@@ -9,10 +13,13 @@ pub trait Generation {
     fn population(&self) -> &Self::Population;
 
     fn population_mut(&mut self) -> &mut Self::Population;
+
+    fn advance(&mut self, population: Self::Population) -> Self::Population;
 }
 
 impl<T, P> Generation for (T, P)
 where
+    T: AddAssign + One,
     P: Population,
 {
     type Id = T;
@@ -28,6 +35,12 @@ where
 
     fn population_mut(&mut self) -> &mut Self::Population {
         &mut self.1
+    }
+
+    fn advance(&mut self, population: Self::Population) -> Self::Population {
+        self.0 += T::one();
+
+        std::mem::replace(self.population_mut(), population)
     }
 }
 

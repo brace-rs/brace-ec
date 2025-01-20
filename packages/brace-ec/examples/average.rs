@@ -19,7 +19,7 @@ pub fn main() {
 
     print_generation(&generation);
 
-    Select::new(selector)
+    Select::fill(selector)
         .repeat(10)
         .inspect(print_generation)
         .repeat(10)

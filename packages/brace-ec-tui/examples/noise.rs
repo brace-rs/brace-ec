@@ -16,7 +16,7 @@ use ratatui::Frame;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let selector = Tournament::binary().mutate(Noise(1..5).rate(0.25));
-    let evolver = Terminal::new(Select::new(selector), NoiseRenderer);
+    let evolver = Terminal::new(Select::fill(selector), NoiseRenderer);
 
     evolver.evolve((0, vec![0; 500]), &mut rand::thread_rng())?;
 

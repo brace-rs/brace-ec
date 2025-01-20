@@ -311,16 +311,16 @@ mod tests {
         let mut rng = rand::thread_rng();
 
         for _ in 0..10 {
-            let a = Weighted::evolver(Select::new(Best), 1)
-                .with_evolver(Select::new(Worst), 1)
+            let a = Weighted::evolver(Select::fill(Best), 1)
+                .with_evolver(Select::fill(Worst), 1)
                 .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
                 .unwrap();
-            let b = Weighted::evolver(Select::new(Best), 1)
-                .with_evolver(Select::new(Worst), 0)
+            let b = Weighted::evolver(Select::fill(Best), 1)
+                .with_evolver(Select::fill(Worst), 0)
                 .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
                 .unwrap();
-            let c = Weighted::evolver(Select::new(Best), 0)
-                .with_evolver(Select::new(Worst), 1)
+            let c = Weighted::evolver(Select::fill(Best), 0)
+                .with_evolver(Select::fill(Worst), 1)
                 .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
                 .unwrap();
 

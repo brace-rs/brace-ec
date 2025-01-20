@@ -251,15 +251,15 @@ mod tests {
     fn test_evolve() {
         let mut rng = rand::thread_rng();
 
-        let a = Select::new(First)
+        let a = Select::fill(First)
             .score(Function::new(double))
             .evolve((0, [Scored::new(10, 0), Scored::new(20, 0)]), &mut rng)
             .unwrap();
-        let b = Select::new(First)
+        let b = Select::fill(First)
             .score(Function::new(triple))
             .evolve((0, [Scored::new(10, 0), Scored::new(20, 0)]), &mut rng)
             .unwrap();
-        let c = Select::new(First)
+        let c = Select::fill(First)
             .score_with(|individual: &Scored<i32, i32>| {
                 Ok::<_, Infallible>(individual.individual * 4)
             })

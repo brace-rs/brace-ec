@@ -1,57 +1,61 @@
-use thiserror::Error;
+use std::marker::PhantomData;
 
 use crate::core::generation::Generation;
-use crate::core::operator::selector::fill::{Fill, FillError};
+use crate::core::operator::selector::fill::{Fill, ParFill};
 use crate::core::operator::selector::Selector;
-use crate::core::population::IterableMutPopulation;
+use crate::core::population::Population;
 
 use super::Evolver;
 
 #[derive(Clone, Debug, Default)]
-pub struct Select<S> {
-    selector: Fill<S>,
+pub struct Select<S, G> {
+    selector: S,
+    marker: PhantomData<fn() -> G>,
 }
 
-impl<S> Select<S> {
+impl<S, G> Select<S, G> {
     pub fn new(selector: S) -> Self {
         Self {
-            selector: Fill::new(selector),
+            selector,
+            marker: PhantomData,
         }
     }
 }
 
-impl<P, S> Evolver<(u64, P)> for Select<S>
-where
-    P: IterableMutPopulation + Clone,
-    S: Selector<P, Output: IntoIterator<Item = P::Individual>>,
-{
-    type Error = SelectError<S::Error>;
-
-    fn evolve<Rng>(&self, mut generation: (u64, P), rng: &mut Rng) -> Result<(u64, P), Self::Error>
-    where
-        Rng: rand::Rng + ?Sized,
-    {
-        let population =
-            self.selector
-                .select(generation.population(), rng)
-                .map_err(|err| match err {
-                    FillError::NotEnough => SelectError::NotEnough,
-                    FillError::Select(err) => SelectError::Select(err),
-                })?;
-
-        generation.0 += 1;
-        generation.1 = population;
-
-        Ok(generation)
+impl<S, G> Select<Fill<S>, G> {
+    pub fn fill(selector: S) -> Self {
+        Self {
+            selector: Fill::new(selector),
+            marker: PhantomData,
+        }
     }
 }
 
-#[derive(Debug, Error)]
-pub enum SelectError<S> {
-    #[error("unable to fill population from selector")]
-    NotEnough,
-    #[error(transparent)]
-    Select(S),
+impl<S, G> Select<ParFill<S>, G> {
+    pub fn par_fill(selector: S) -> Self {
+        Self {
+            selector: ParFill::new(selector),
+            marker: PhantomData,
+        }
+    }
+}
+
+impl<P, G, S> Evolver<G> for Select<S, G>
+where
+    P: Population,
+    G: Generation<Population = P>,
+    S: Selector<P, Output: Into<P>>,
+{
+    type Error = S::Error;
+
+    fn evolve<Rng>(&self, generation: G, rng: &mut Rng) -> Result<G, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        let population = self.selector.select(generation.population(), rng)?;
+
+        Ok(generation.advanced_with(population))
+    }
 }
 
 #[cfg(test)]
@@ -65,7 +69,7 @@ mod tests {
     fn test_evolve() {
         let mut rng = rand::thread_rng();
 
-        let evolver = Select::new(Random);
+        let evolver = Select::fill(Random);
         let population = [0, 1, 2, 3, 4];
         let generation = evolver.evolve((0, population), &mut rng).unwrap();
 

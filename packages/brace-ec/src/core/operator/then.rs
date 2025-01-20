@@ -196,13 +196,13 @@ mod tests {
     fn test_evolve() {
         let mut rng = rand::thread_rng();
 
-        let a = Select::new(Best)
-            .then(Select::new(First))
+        let a = Select::fill(Best)
+            .then(Select::fill(First))
             .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
             .unwrap();
 
-        let b = Select::new(First)
-            .then(Select::new(Best))
+        let b = Select::fill(First)
+            .then(Select::fill(Best))
             .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
             .unwrap();
 

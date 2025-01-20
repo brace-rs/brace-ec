@@ -62,6 +62,7 @@ where
 mod tests {
     use crate::core::operator::evolver::Evolver;
     use crate::core::operator::selector::random::Random;
+    use crate::core::operator::selector::Selector;
 
     use super::Select;
 
@@ -79,6 +80,18 @@ mod tests {
         let generation = evolver.evolve(generation, &mut rng).unwrap();
 
         assert_eq!(generation.0, 2);
+        assert!(generation.1.iter().all(|i| population.contains(i)));
+
+        let population = [1, 2, 3, 4, 5];
+        let generation = Random
+            .fill()
+            .evolver()
+            .repeat(2)
+            .evolve((0, population), &mut rng)
+            .unwrap();
+
+        assert_eq!(generation.0, 2);
+        assert_eq!(generation.1.len(), 5);
         assert!(generation.1.iter().all(|i| population.contains(i)));
     }
 }

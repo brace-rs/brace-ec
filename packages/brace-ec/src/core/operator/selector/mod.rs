@@ -11,6 +11,7 @@ pub mod windows;
 pub mod worst;
 
 use crate::core::fitness::{Fitness, FitnessMut};
+use crate::core::generation::Generation;
 use crate::core::population::Population;
 
 use self::and::And;
@@ -20,6 +21,7 @@ use self::recombine::Recombine;
 use self::take::Take;
 use self::windows::{ArrayWindows, ParArrayWindows, ParWindows, Windows};
 
+use super::evolver::select::Select;
 use super::inspect::Inspect;
 use super::mutator::Mutator;
 use super::recombinator::Recombinator;
@@ -68,6 +70,13 @@ where
         P::Individual: FitnessMut,
     {
         self.score(Function::new(scorer))
+    }
+
+    fn evolver<G>(self) -> Select<Self, G>
+    where
+        G: Generation<Population = P>,
+    {
+        Select::new(self)
     }
 
     fn and<S>(self, selector: S) -> And<Self, S>

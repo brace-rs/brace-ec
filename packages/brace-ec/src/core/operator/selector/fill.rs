@@ -1,7 +1,6 @@
 use rayon::iter::ParallelIterator;
 use thiserror::Error;
 
-use crate::core::operator::evolver::select::Select;
 use crate::core::population::{IterableMutPopulation, ParIterableMutPopulation, ToOwnedPopulation};
 use crate::util::iter::{IterableMut, ParIterableMut};
 
@@ -15,10 +14,6 @@ pub struct Fill<S> {
 impl<S> Fill<S> {
     pub fn new(selector: S) -> Self {
         Self { selector }
-    }
-
-    pub fn evolver<G>(self) -> Select<Self, G> {
-        Select::new(self)
     }
 }
 
@@ -80,10 +75,6 @@ pub struct ParFill<S> {
 impl<S> ParFill<S> {
     pub fn new(selector: S) -> Self {
         Self { selector }
-    }
-
-    pub fn evolver<G>(self) -> Select<Self, G> {
-        Select::new(self)
     }
 }
 

@@ -1,3 +1,5 @@
+pub mod uniform;
+
 pub trait Generator<T>: Sized {
     type Error;
 

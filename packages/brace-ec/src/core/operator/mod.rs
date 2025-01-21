@@ -1,4 +1,5 @@
 pub mod evolver;
+pub mod generator;
 pub mod inspect;
 pub mod mutator;
 pub mod recombinator;

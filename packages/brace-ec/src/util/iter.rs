@@ -1,6 +1,6 @@
 use std::convert::Infallible;
 
-use itertools::Itertools;
+use itertools::process_results;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use thiserror::Error;
 
@@ -161,11 +161,7 @@ where
     where
         I: IntoIterator<Item = Result<T, E>>,
     {
-        let res = iter
-            .into_iter()
-            .process_results(|iter| U::try_from_iter(iter));
-
-        Ok(match res {
+        Ok(match process_results(iter, |it: _| U::try_from_iter(it)) {
             Ok(res) => Ok(res?),
             Err(err) => Err(err),
         })

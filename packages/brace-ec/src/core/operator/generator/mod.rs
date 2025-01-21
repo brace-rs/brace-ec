@@ -1,4 +1,10 @@
+pub mod populate;
 pub mod uniform;
+
+use crate::core::population::Population;
+use crate::util::iter::TryFromIterator;
+
+use self::populate::Populate;
 
 pub trait Generator<T>: Sized {
     type Error;
@@ -6,6 +12,13 @@ pub trait Generator<T>: Sized {
     fn generate<Rng>(&self, rng: &mut Rng) -> Result<T, Self::Error>
     where
         Rng: rand::Rng + ?Sized;
+
+    fn populate<P>(self, size: usize) -> Populate<Self, P>
+    where
+        P: Population<Individual = T> + TryFromIterator<T>,
+    {
+        Populate::new(self, size)
+    }
 }
 
 #[cfg(test)]

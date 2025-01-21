@@ -1,5 +1,6 @@
 use std::convert::Infallible;
 
+use itertools::Itertools;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use thiserror::Error;
 
@@ -147,6 +148,27 @@ impl<T> TryFromIterator<T> for Option<T> {
         I: IntoIterator<Item = T>,
     {
         Ok(iter.into_iter().next())
+    }
+}
+
+impl<T, U, E> TryFromIterator<Result<T, E>> for Result<U, E>
+where
+    U: TryFromIterator<T>,
+{
+    type Error = U::Error;
+
+    fn try_from_iter<I>(iter: I) -> Result<Self, Self::Error>
+    where
+        I: IntoIterator<Item = Result<T, E>>,
+    {
+        let res = iter
+            .into_iter()
+            .process_results(|iter| U::try_from_iter(iter));
+
+        Ok(match res {
+            Ok(res) => Ok(res?),
+            Err(err) => Err(err),
+        })
     }
 }
 

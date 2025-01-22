@@ -1,11 +1,15 @@
 pub mod populate;
 pub mod uniform;
 
+use crate::core::fitness::FitnessMut;
 use crate::core::population::Population;
 use crate::util::iter::TryFromIterator;
 
 use self::populate::Populate;
 
+use super::score::Score;
+use super::scorer::function::Function;
+use super::scorer::Scorer;
 use super::selector::generate::Generate;
 
 pub trait Generator<T>: Sized {
@@ -20,6 +24,22 @@ pub trait Generator<T>: Sized {
         P: Population<Individual = T> + TryFromIterator<T>,
     {
         Populate::new(self, size)
+    }
+
+    fn score<S>(self, scorer: S) -> Score<Self, S>
+    where
+        S: Scorer<T, Score = T::Value>,
+        T: FitnessMut,
+    {
+        Score::new(self, scorer)
+    }
+
+    fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
+    where
+        F: Fn(&T) -> Result<T::Value, E>,
+        T: FitnessMut,
+    {
+        self.score(Function::new(scorer))
     }
 
     fn selector<P>(self) -> Generate<Self, P>

@@ -6,6 +6,8 @@ use crate::util::iter::TryFromIterator;
 
 use self::populate::Populate;
 
+use super::selector::generate::Generate;
+
 pub trait Generator<T>: Sized {
     type Error;
 
@@ -18,6 +20,13 @@ pub trait Generator<T>: Sized {
         P: Population<Individual = T> + TryFromIterator<T>,
     {
         Populate::new(self, size)
+    }
+
+    fn selector<P>(self) -> Generate<Self, P>
+    where
+        P: Population<Individual = T>,
+    {
+        Generate::new(self)
     }
 }
 

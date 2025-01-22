@@ -7,6 +7,7 @@ use crate::util::iter::IterableMut;
 use crate::util::map::TryMap;
 
 use super::evolver::Evolver;
+use super::generator::Generator;
 use super::mutator::Mutator;
 use super::recombinator::Recombinator;
 use super::scorer::Scorer;
@@ -136,6 +137,29 @@ where
     }
 }
 
+impl<T, G, S> Generator<T> for Score<G, S>
+where
+    T: FitnessMut,
+    G: Generator<T>,
+    S: Scorer<T, Score = T::Value>,
+{
+    type Error = ScoreError<G::Error, S::Error>;
+
+    fn generate<Rng>(&self, rng: &mut Rng) -> Result<T, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        let individual = self.operator.generate(rng).map_err(ScoreError::Operate)?;
+
+        let fitness = self
+            .scorer
+            .score(&individual, rng)
+            .map_err(ScoreError::Score)?;
+
+        Ok(individual.with_fitness(fitness))
+    }
+}
+
 #[derive(Debug, Error, PartialEq, Eq)]
 pub enum ScoreError<O, S> {
     #[error(transparent)]
@@ -152,6 +176,7 @@ mod tests {
     use crate::core::individual::Individual;
     use crate::core::operator::evolver::select::Select;
     use crate::core::operator::evolver::Evolver;
+    use crate::core::operator::generator::Generator;
     use crate::core::operator::mutator::add::Add;
     use crate::core::operator::mutator::Mutator;
     use crate::core::operator::recombinator::Recombinator;
@@ -183,6 +208,19 @@ mod tests {
             Rng: rand::Rng + ?Sized,
         {
             Ok(parents)
+        }
+    }
+
+    struct Make;
+
+    impl Generator<Scored<i32, i32>> for Make {
+        type Error = Infallible;
+
+        fn generate<Rng>(&self, _: &mut Rng) -> Result<Scored<i32, i32>, Self::Error>
+        where
+            Rng: rand::Rng + ?Sized,
+        {
+            Ok(Scored::new(100, 0))
         }
     }
 
@@ -269,5 +307,29 @@ mod tests {
         assert_eq!(a, (1, [Scored::new(10, 20), Scored::new(10, 20)]));
         assert_eq!(b, (1, [Scored::new(10, 30), Scored::new(10, 30)]));
         assert_eq!(c, (1, [Scored::new(10, 40), Scored::new(10, 40)]));
+    }
+
+    #[test]
+    fn test_generate() {
+        let mut rng = rand::thread_rng();
+
+        let a = Make
+            .score(Function::new(double))
+            .generate(&mut rng)
+            .unwrap();
+        let b = Make
+            .score(Function::new(triple))
+            .generate(&mut rng)
+            .unwrap();
+        let c = Make
+            .score_with(|individual: &Scored<i32, i32>| {
+                Ok::<_, Infallible>(individual.individual * 4)
+            })
+            .generate(&mut rng)
+            .unwrap();
+
+        assert_eq!(a, Scored::new(100, 200));
+        assert_eq!(b, Scored::new(100, 300));
+        assert_eq!(c, Scored::new(100, 400));
     }
 }

@@ -7,11 +7,14 @@ use rand::distributions::{
     Alphanumeric, Bernoulli, BernoulliError, Distribution, Standard, Uniform,
 };
 
+use crate::core::individual::Individual;
+
 use super::Generator;
 
 pub struct Random<T, D, E = Infallible>
 where
-    D: Distribution<T>,
+    T: Individual<Genome: Sized> + From<T::Genome>,
+    D: Distribution<T::Genome>,
 {
     distribution: Result<D, E>,
     marker: PhantomData<fn() -> T>,
@@ -19,7 +22,8 @@ where
 
 impl<T, D> Random<T, D>
 where
-    D: Distribution<T>,
+    T: Individual<Genome: Sized> + From<T::Genome>,
+    D: Distribution<T::Genome>,
 {
     pub fn new(distribution: D) -> Self {
         Self {
@@ -31,7 +35,8 @@ where
 
 impl<T> Random<T, Standard>
 where
-    Standard: Distribution<T>,
+    T: Individual<Genome: Sized> + From<T::Genome>,
+    Standard: Distribution<T::Genome>,
 {
     pub fn standard() -> Self {
         Self::new(Standard)
@@ -40,30 +45,32 @@ where
 
 impl<T> Random<T, Alphanumeric>
 where
-    Alphanumeric: Distribution<T>,
+    T: Individual<Genome: Sized> + From<T::Genome>,
+    Alphanumeric: Distribution<T::Genome>,
 {
     pub fn alphanumeric() -> Self {
         Self::new(Alphanumeric)
     }
 }
 
-impl<T> Random<T, Uniform<T>>
+impl<T> Random<T, Uniform<T::Genome>>
 where
-    T: SampleUniform,
-    Uniform<T>: Distribution<T>,
+    T: Individual<Genome: SampleUniform> + From<T::Genome>,
+    Uniform<T::Genome>: Distribution<T::Genome>,
 {
-    pub fn uniform(range: Range<T>) -> Self {
+    pub fn uniform(range: Range<T::Genome>) -> Self {
         Self::new(Uniform::from(range))
     }
 
-    pub fn uniform_inclusive(range: RangeInclusive<T>) -> Self {
+    pub fn uniform_inclusive(range: RangeInclusive<T::Genome>) -> Self {
         Self::new(Uniform::from(range))
     }
 }
 
 impl<T> Random<T, Bernoulli, BernoulliError>
 where
-    Bernoulli: Distribution<T>,
+    T: Individual<Genome: Sized> + From<T::Genome>,
+    Bernoulli: Distribution<T::Genome>,
 {
     pub fn bernoulli(probability: f64) -> Self {
         Self {
@@ -75,7 +82,8 @@ where
 
 impl<T, D, E> Generator<T> for Random<T, D, E>
 where
-    D: Distribution<T>,
+    T: Individual<Genome: Sized> + From<T::Genome>,
+    D: Distribution<T::Genome>,
     E: Clone,
 {
     type Error = E;
@@ -86,27 +94,27 @@ where
     {
         self.distribution
             .as_ref()
-            .map(|distribution| distribution.sample(rng))
+            .map(|distribution| distribution.sample(rng).into())
             .map_err(Clone::clone)
     }
 }
 
-impl<T> From<Range<T>> for Random<T, Uniform<T>>
+impl<T> From<Range<T::Genome>> for Random<T, Uniform<T::Genome>>
 where
-    T: SampleUniform,
-    Uniform<T>: Distribution<T>,
+    T: Individual<Genome: SampleUniform> + From<T::Genome>,
+    Uniform<T::Genome>: Distribution<T::Genome>,
 {
-    fn from(range: Range<T>) -> Self {
+    fn from(range: Range<T::Genome>) -> Self {
         Self::uniform(range)
     }
 }
 
-impl<T> From<RangeInclusive<T>> for Random<T, Uniform<T>>
+impl<T> From<RangeInclusive<T::Genome>> for Random<T, Uniform<T::Genome>>
 where
-    T: SampleUniform,
-    Uniform<T>: Distribution<T>,
+    T: Individual<Genome: SampleUniform> + From<T::Genome>,
+    Uniform<T::Genome>: Distribution<T::Genome>,
 {
-    fn from(range: RangeInclusive<T>) -> Self {
+    fn from(range: RangeInclusive<T::Genome>) -> Self {
         Self::uniform_inclusive(range)
     }
 }
@@ -115,6 +123,7 @@ where
 mod tests {
     use rand::distributions::BernoulliError;
 
+    use crate::core::individual::scored::Scored;
     use crate::core::operator::generator::Generator;
 
     use super::Random;
@@ -127,9 +136,13 @@ mod tests {
         let _: u8 = Random::alphanumeric().generate(&mut rng).unwrap();
         let _: bool = Random::bernoulli(0.5).generate(&mut rng).unwrap();
 
+        let _: Scored<u8, u8> = Random::standard().generate(&mut rng).unwrap();
+        let _: Scored<u8, usize> = Random::alphanumeric().generate(&mut rng).unwrap();
+        let _: Scored<bool, i32> = Random::bernoulli(0.5).generate(&mut rng).unwrap();
+
         let a = Random::bernoulli(0.0).generate(&mut rng);
         let b = Random::bernoulli(1.0).generate(&mut rng);
-        let c = Random::bernoulli(100.0).generate(&mut rng);
+        let c = Random::<bool, _, _>::bernoulli(100.0).generate(&mut rng);
 
         assert_eq!(a, Ok(false));
         assert_eq!(b, Ok(true));

@@ -6,6 +6,7 @@ use brace_ec::core::operator::scorer::Scorer;
 
 use crate::individual::Image;
 
+#[derive(Clone)]
 pub struct ImageScorer {
     image: Image,
 }

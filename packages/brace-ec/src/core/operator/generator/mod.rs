@@ -1,5 +1,5 @@
 pub mod populate;
-pub mod uniform;
+pub mod random;
 
 use crate::core::fitness::FitnessMut;
 use crate::core::population::Population;

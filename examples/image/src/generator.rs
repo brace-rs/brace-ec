@@ -1,7 +1,7 @@
 use std::convert::Infallible;
 
 use brace_ec::core::individual::scored::Scored;
-use brace_ec::core::operator::generator::uniform::Uniform;
+use brace_ec::core::operator::generator::random::Random;
 use brace_ec::core::operator::generator::Generator;
 use image::GrayImage;
 
@@ -25,7 +25,7 @@ impl Generator<Scored<Image, u64>> for ImageGenerator {
     where
         Rng: rand::Rng + ?Sized,
     {
-        let pixels = Uniform::from(0..=255)
+        let pixels = Random::from(0..=255)
             .populate(self.width as usize * self.height as usize)
             .generate(rng)
             .expect("infallible");

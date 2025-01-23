@@ -53,16 +53,16 @@ pub enum PopulateError<C, G> {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::operator::generator::uniform::Uniform;
+    use crate::core::operator::generator::random::Random;
     use crate::core::operator::generator::Generator;
 
     #[test]
     fn test_generate() {
         let mut rng = rand::thread_rng();
 
-        let a: Vec<u8> = Uniform::from(1..2).populate(5).generate(&mut rng).unwrap();
-        let b: [u8; 5] = Uniform::from(1..2).populate(5).generate(&mut rng).unwrap();
-        let c: [[u8; 2]; 3] = Uniform::from(1..2)
+        let a: Vec<u8> = Random::from(1..2).populate(5).generate(&mut rng).unwrap();
+        let b: [u8; 5] = Random::from(1..2).populate(5).generate(&mut rng).unwrap();
+        let c: [[u8; 2]; 3] = Random::from(1..2)
             .populate(2)
             .populate(3)
             .generate(&mut rng)

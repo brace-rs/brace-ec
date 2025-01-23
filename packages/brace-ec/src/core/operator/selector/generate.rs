@@ -37,7 +37,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::core::operator::generator::uniform::Uniform;
+    use crate::core::operator::generator::random::Random;
     use crate::core::operator::generator::Generator;
     use crate::core::population::Population;
 
@@ -45,8 +45,8 @@ mod tests {
     fn test_select() {
         let population = [1, 2, 3, 4, 5];
 
-        let a = population.select(Uniform::from(6..10).selector()).unwrap();
-        let b = population.select(Uniform::from(1..2).selector()).unwrap();
+        let a = population.select(Random::from(6..10).selector()).unwrap();
+        let b = population.select(Random::from(1..2).selector()).unwrap();
 
         assert!(a[0] >= 6 && a[0] < 10);
         assert_eq!(b, [1]);

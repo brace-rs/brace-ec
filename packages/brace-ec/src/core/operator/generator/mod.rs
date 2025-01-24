@@ -50,6 +50,30 @@ pub trait Generator<T>: Sized {
     }
 }
 
+pub trait DynGenerator<T, E = Box<dyn std::error::Error>> {
+    fn dyn_generate(&self, rng: &mut dyn rand::RngCore) -> Result<T, E>;
+}
+
+impl<T, E, G> DynGenerator<T, E> for G
+where
+    G: Generator<T, Error: Into<E>>,
+{
+    fn dyn_generate(&self, rng: &mut dyn rand::RngCore) -> Result<T, E> {
+        self.generate(rng).map_err(Into::into)
+    }
+}
+
+impl<T, E> Generator<T> for Box<dyn DynGenerator<T, E>> {
+    type Error = E;
+
+    fn generate<Rng>(&self, mut rng: &mut Rng) -> Result<T, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        (**self).dyn_generate(&mut rng)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::cell::Cell;

@@ -7,6 +7,7 @@ use crate::core::individual::Individual;
 use crate::core::population::Population;
 
 use super::evolver::{DynEvolver, Evolver};
+use super::generator::{DynGenerator, Generator};
 use super::mutator::{DynMutator, Mutator};
 use super::recombinator::{DynRecombinator, Recombinator};
 use super::scorer::{DynScorer, Scorer};
@@ -228,12 +229,48 @@ where
     }
 }
 
+impl<T> Weighted<dyn DynGenerator<T>> {
+    pub fn generator<G>(generator: G, weight: u64) -> Self
+    where
+        G: Generator<T, Error: Error + 'static> + 'static,
+    {
+        Self {
+            operators: vec![(Box::new(generator), weight)],
+        }
+    }
+
+    pub fn with_generator<G>(mut self, generator: G, weight: u64) -> Self
+    where
+        G: Generator<T, Error: Error + 'static> + 'static,
+    {
+        self.operators.push((Box::new(generator), weight));
+        self
+    }
+}
+
+impl<T, E> Generator<T> for Weighted<dyn DynGenerator<T, E>> {
+    type Error = E;
+
+    fn generate<Rng>(&self, rng: &mut Rng) -> Result<T, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        self.operators
+            .choose_weighted(rng, |(_, weight)| *weight)
+            .expect("cannot construct without at least 1 operator")
+            .0
+            .generate(rng)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::convert::Infallible;
 
     use crate::core::operator::evolver::select::Select;
     use crate::core::operator::evolver::Evolver;
+    use crate::core::operator::generator::random::Random;
+    use crate::core::operator::generator::Generator;
     use crate::core::operator::mutator::add::Add;
     use crate::core::operator::mutator::Mutator;
     use crate::core::operator::recombinator::sum::Sum;
@@ -359,6 +396,30 @@ mod tests {
             assert!(a == 1 || a == 2);
             assert_eq!(b, 1);
             assert_eq!(c, 2);
+        }
+    }
+
+    #[test]
+    fn test_generate() {
+        let mut rng = rand::thread_rng();
+
+        for _ in 0..10 {
+            let a: u8 = Weighted::generator(Random::uniform(0..1), 1)
+                .with_generator(Random::uniform(1..2), 1)
+                .generate(&mut rng)
+                .unwrap();
+            let b: u8 = Weighted::generator(Random::uniform(0..1), 1)
+                .with_generator(Random::uniform(1..2), 0)
+                .generate(&mut rng)
+                .unwrap();
+            let c: u8 = Weighted::generator(Random::uniform(0..1), 0)
+                .with_generator(Random::uniform(1..2), 1)
+                .generate(&mut rng)
+                .unwrap();
+
+            assert!(a == 0 || a == 1);
+            assert_eq!(b, 0);
+            assert_eq!(c, 1);
         }
     }
 }

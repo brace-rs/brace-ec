@@ -4,6 +4,8 @@ use std::cmp::Reverse;
 
 use rand::thread_rng;
 
+use self::scored::Scored;
+
 use super::operator::mutator::Mutator;
 
 pub trait Individual {
@@ -19,6 +21,14 @@ pub trait Individual {
         Self: Sized,
     {
         mutator.mutate(self, &mut thread_rng())
+    }
+
+    fn scored<S>(self) -> Scored<Self, S>
+    where
+        S: Default,
+        Self: Sized,
+    {
+        Scored::from(self)
     }
 }
 

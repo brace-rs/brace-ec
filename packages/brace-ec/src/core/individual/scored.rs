@@ -69,14 +69,28 @@ mod tests {
 
     #[test]
     fn test_individual() {
-        let mut individual = Scored::<_, i32>::from([1, 0]);
+        let mut a = Scored::<_, i32>::from([1, 0]);
+        let mut b = [1, 0].scored();
+        let mut c = [1, 0].scored::<u8>();
 
-        assert_eq!(individual.genome(), [1, 0]);
-        assert_eq!(individual.fitness(), 0);
+        assert_eq!(a.genome(), [1, 0]);
+        assert_eq!(b.genome(), [1, 0]);
+        assert_eq!(c.genome(), [1, 0]);
 
-        individual.score = 10;
+        assert_eq!(a.fitness(), 0);
+        assert_eq!(b.fitness(), 0);
+        assert_eq!(c.fitness(), 0);
 
-        assert_eq!(individual.genome(), [1, 0]);
-        assert_eq!(individual.fitness(), 10);
+        a.score = 10;
+        b.score = 10;
+        c.score = 10;
+
+        assert_eq!(a.genome(), [1, 0]);
+        assert_eq!(b.genome(), [1, 0]);
+        assert_eq!(c.genome(), [1, 0]);
+
+        assert_eq!(a.fitness(), 10);
+        assert_eq!(b.fitness(), 10);
+        assert_eq!(c.fitness(), 10);
     }
 }

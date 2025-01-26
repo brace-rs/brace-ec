@@ -1,8 +1,11 @@
+pub mod limit;
 pub mod select;
 
 use crate::core::fitness::{Fitness, FitnessMut};
 use crate::core::generation::Generation;
 use crate::core::population::Population;
+
+use self::limit::Limit;
 
 use super::inspect::Inspect;
 use super::repeat::Repeat;
@@ -52,6 +55,10 @@ where
 
     fn repeat(self, count: usize) -> Repeat<Self> {
         Repeat::new(self, count)
+    }
+
+    fn limit(self, generation: G::Id) -> Limit<G, Self> {
+        Limit::new(self, generation)
     }
 
     fn inspect<F>(self, inspector: F) -> Inspect<Self, F>

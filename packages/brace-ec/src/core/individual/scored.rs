@@ -32,22 +32,22 @@ where
 impl<T, S> Fitness for Scored<T, S>
 where
     T: Individual,
-    S: Ord + Clone,
+    S: Ord,
 {
     type Value = S;
 
-    fn fitness(&self) -> Self::Value {
-        self.score.clone()
+    fn fitness(&self) -> &Self::Value {
+        &self.score
     }
 }
 
 impl<T, S> FitnessMut for Scored<T, S>
 where
     T: Individual,
-    S: Ord + Clone,
+    S: Ord,
 {
-    fn set_fitness(&mut self, fitness: Self::Value) {
-        self.score = fitness;
+    fn fitness_mut(&mut self) -> &mut Self::Value {
+        &mut self.score
     }
 }
 
@@ -77,9 +77,9 @@ mod tests {
         assert_eq!(b.genome(), [1, 0]);
         assert_eq!(c.genome(), [1, 0]);
 
-        assert_eq!(a.fitness(), 0);
-        assert_eq!(b.fitness(), 0);
-        assert_eq!(c.fitness(), 0);
+        assert_eq!(*a.fitness(), 0);
+        assert_eq!(*b.fitness(), 0);
+        assert_eq!(*c.fitness(), 0);
 
         a.score = 10;
         b.score = 10;
@@ -89,8 +89,8 @@ mod tests {
         assert_eq!(b.genome(), [1, 0]);
         assert_eq!(c.genome(), [1, 0]);
 
-        assert_eq!(a.fitness(), 10);
-        assert_eq!(b.fitness(), 10);
-        assert_eq!(c.fitness(), 10);
+        assert_eq!(*a.fitness(), 10);
+        assert_eq!(*b.fitness(), 10);
+        assert_eq!(*c.fitness(), 10);
     }
 }

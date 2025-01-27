@@ -33,7 +33,7 @@ impl Evolver<(u64, Vec<Scored<Image, u64>>)> for ImageEvolver {
     {
         let mut population = self.selector.select(generation.population(), rng)?;
 
-        population.sort_by_key(|individual| individual.fitness());
+        population.sort_by_key(|individual| *individual.fitness());
 
         generation.0 += 1;
         generation.1 = population;

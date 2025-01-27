@@ -10,6 +10,7 @@ edition = "2021"
 
 [dependencies]
 array-util = "1.0.2"
+bytemuck = { version = "1.21.0", features = ["transparentwrapper_extra"] }
 ghost = "0.1.18"
 itertools = "0.14.0"
 num-traits = "0.2.19"

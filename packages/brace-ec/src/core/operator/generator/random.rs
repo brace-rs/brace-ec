@@ -2,9 +2,9 @@ use std::convert::Infallible;
 use std::marker::PhantomData;
 use std::ops::{Range, RangeInclusive};
 
-use rand::distributions::uniform::SampleUniform;
-use rand::distributions::{
-    Alphanumeric, Bernoulli, BernoulliError, Distribution, Standard, Uniform,
+use rand::distr::uniform::{Error as UniformError, SampleUniform};
+use rand::distr::{
+    Alphanumeric, Bernoulli, BernoulliError, Distribution, StandardUniform, Uniform,
 };
 
 use crate::core::individual::Individual;
@@ -33,13 +33,13 @@ where
     }
 }
 
-impl<T> Random<T, Standard>
+impl<T> Random<T, StandardUniform>
 where
     T: Individual<Genome: Sized> + From<T::Genome>,
-    Standard: Distribution<T::Genome>,
+    StandardUniform: Distribution<T::Genome>,
 {
     pub fn standard() -> Self {
-        Self::new(Standard)
+        Self::new(StandardUniform)
     }
 }
 
@@ -53,17 +53,23 @@ where
     }
 }
 
-impl<T> Random<T, Uniform<T::Genome>>
+impl<T> Random<T, Uniform<T::Genome>, UniformError>
 where
     T: Individual<Genome: SampleUniform> + From<T::Genome>,
     Uniform<T::Genome>: Distribution<T::Genome>,
 {
     pub fn uniform(range: Range<T::Genome>) -> Self {
-        Self::new(Uniform::from(range))
+        Self {
+            distribution: Uniform::try_from(range),
+            marker: PhantomData,
+        }
     }
 
     pub fn uniform_inclusive(range: RangeInclusive<T::Genome>) -> Self {
-        Self::new(Uniform::from(range))
+        Self {
+            distribution: Uniform::try_from(range),
+            marker: PhantomData,
+        }
     }
 }
 
@@ -99,7 +105,7 @@ where
     }
 }
 
-impl<T> From<Range<T::Genome>> for Random<T, Uniform<T::Genome>>
+impl<T> From<Range<T::Genome>> for Random<T, Uniform<T::Genome>, UniformError>
 where
     T: Individual<Genome: SampleUniform> + From<T::Genome>,
     Uniform<T::Genome>: Distribution<T::Genome>,
@@ -109,7 +115,7 @@ where
     }
 }
 
-impl<T> From<RangeInclusive<T::Genome>> for Random<T, Uniform<T::Genome>>
+impl<T> From<RangeInclusive<T::Genome>> for Random<T, Uniform<T::Genome>, UniformError>
 where
     T: Individual<Genome: SampleUniform> + From<T::Genome>,
     Uniform<T::Genome>: Distribution<T::Genome>,
@@ -121,7 +127,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use rand::distributions::BernoulliError;
+    use rand::distr::BernoulliError;
 
     use crate::core::individual::scored::Scored;
     use crate::core::operator::generator::Generator;
@@ -130,7 +136,7 @@ mod tests {
 
     #[test]
     fn test_generate() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let _: u8 = Random::standard().generate(&mut rng).unwrap();
         let _: u8 = Random::alphanumeric().generate(&mut rng).unwrap();

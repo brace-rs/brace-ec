@@ -1,8 +1,6 @@
 pub mod reversed;
 pub mod scored;
 
-use rand::thread_rng;
-
 use self::reversed::Reversed;
 use self::scored::Scored;
 
@@ -21,7 +19,7 @@ pub trait Individual {
         M: Mutator<Self>,
         Self: Sized,
     {
-        mutator.mutate(self, &mut thread_rng())
+        mutator.mutate(self, &mut rand::rng())
     }
 
     fn scored<S>(self) -> Scored<Self, S>

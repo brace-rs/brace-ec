@@ -61,7 +61,7 @@ mod tests {
 
     #[test]
     fn test_score() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let a = [false, false, true, false, true, true, true, true].scored::<usize>();
         let b = [false, false, false, false, true, false, false, true].scored::<usize>();

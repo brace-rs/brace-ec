@@ -25,8 +25,6 @@ where
 
 #[cfg(test)]
 mod tests {
-    use rand::thread_rng;
-
     use crate::core::individual::scored::Scored;
     use crate::core::operator::mutator::Mutator;
 
@@ -34,7 +32,7 @@ mod tests {
 
     #[test]
     fn test_mutate() {
-        let mut rng = thread_rng();
+        let mut rng = rand::rng();
 
         let a = Invert.mutate(true, &mut rng).unwrap();
         let b = Invert.mutate(false, &mut rng).unwrap();

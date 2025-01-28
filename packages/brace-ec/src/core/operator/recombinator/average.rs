@@ -52,8 +52,6 @@ pub enum AverageError {
 
 #[cfg(test)]
 mod tests {
-    use rand::thread_rng;
-
     use crate::core::individual::scored::Scored;
     use crate::core::operator::recombinator::Recombinator;
 
@@ -61,7 +59,7 @@ mod tests {
 
     #[test]
     fn test_recombine() {
-        let mut rng = thread_rng();
+        let mut rng = rand::rng();
 
         let a = Average.recombine([0, 0], &mut rng);
         let b = Average.recombine([1, 1, 1], &mut rng);

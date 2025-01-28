@@ -194,7 +194,7 @@ mod tests {
 
     #[test]
     fn test_evolve() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let a = Select::fill(Best)
             .then(Select::fill(First))

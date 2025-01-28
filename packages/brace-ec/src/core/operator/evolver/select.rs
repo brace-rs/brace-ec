@@ -68,7 +68,7 @@ mod tests {
 
     #[test]
     fn test_evolve() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let evolver = Select::fill(Random);
         let population = [0, 1, 2, 3, 4];

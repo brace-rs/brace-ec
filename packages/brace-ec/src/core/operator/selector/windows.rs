@@ -109,9 +109,7 @@ where
         population
             .as_ref()
             .par_windows(self.size)
-            .map_init(rand::thread_rng, |rng, window| {
-                self.selector.select(window, rng)
-            })
+            .map_init(rand::rng, |rng, window| self.selector.select(window, rng))
             .flat_map_iter(|result| std::iter::once(result).flatten_ok())
             .collect::<Result<Vec<_>, _>>()
             .map_err(WindowsError::Select)
@@ -216,7 +214,7 @@ where
         population
             .as_ref()
             .par_windows(N)
-            .map_init(rand::thread_rng, |rng, window| {
+            .map_init(rand::rng, |rng, window| {
                 self.selector
                     .select(window.try_into().expect("window"), rng)
             })

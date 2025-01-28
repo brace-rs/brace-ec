@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use rand::seq::SliceRandom;
+use rand::seq::IndexedRandom;
 
 use crate::core::generation::Generation;
 use crate::core::individual::Individual;
@@ -285,7 +285,7 @@ mod tests {
 
     #[test]
     fn test_select() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         for _ in 0..10 {
             let a = Weighted::selector(Best, 1)
@@ -309,7 +309,7 @@ mod tests {
 
     #[test]
     fn test_mutate() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         for _ in 0..10 {
             let a = Weighted::mutator(Add(1), 1)
@@ -333,7 +333,7 @@ mod tests {
 
     #[test]
     fn test_recombine() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let a = Weighted::recombinator(Sum, 1)
             .with_recombinator(Sum, 1)
@@ -345,7 +345,7 @@ mod tests {
 
     #[test]
     fn test_evolve() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         for _ in 0..10 {
             let a = Weighted::evolver(Select::fill(Best), 1)
@@ -369,7 +369,7 @@ mod tests {
 
     #[test]
     fn test_score() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         fn one(_: &i32) -> Result<i32, Infallible> {
             Ok(1)
@@ -401,7 +401,7 @@ mod tests {
 
     #[test]
     fn test_generate() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         for _ in 0..10 {
             let a: u8 = Weighted::generator(Random::uniform(0..1), 1)

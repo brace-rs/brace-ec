@@ -33,8 +33,6 @@ where
 mod tests {
     use std::convert::Infallible;
 
-    use rand::thread_rng;
-
     use crate::core::operator::scorer::Scorer;
 
     use super::Function;
@@ -45,7 +43,7 @@ mod tests {
 
     #[test]
     fn test_score() {
-        let mut rng = thread_rng();
+        let mut rng = rand::rng();
 
         let individual = [10, 20];
 

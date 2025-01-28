@@ -287,7 +287,7 @@ mod tests {
 
     #[test]
     fn test_evolve() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let a = Select::fill(First)
             .score(Function::new(double))
@@ -311,7 +311,7 @@ mod tests {
 
     #[test]
     fn test_generate() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let a = Make
             .score(Function::new(double))

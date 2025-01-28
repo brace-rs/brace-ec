@@ -1,11 +1,12 @@
+pub mod reversed;
 pub mod scored;
-
-use std::cmp::Reverse;
 
 use rand::thread_rng;
 
+use self::reversed::Reversed;
 use self::scored::Scored;
 
+use super::fitness::Fitness;
 use super::operator::mutator::Mutator;
 
 pub trait Individual {
@@ -30,6 +31,13 @@ pub trait Individual {
     {
         Scored::from(self)
     }
+
+    fn reversed(self) -> Reversed<Self>
+    where
+        Self: Fitness + Sized,
+    {
+        Reversed::new(self)
+    }
 }
 
 impl<T, const N: usize> Individual for [T; N] {
@@ -53,21 +61,6 @@ impl<T> Individual for Vec<T> {
 
     fn genome_mut(&mut self) -> &mut Self::Genome {
         self
-    }
-}
-
-impl<T> Individual for Reverse<T>
-where
-    T: Individual,
-{
-    type Genome = T::Genome;
-
-    fn genome(&self) -> &Self::Genome {
-        self.0.genome()
-    }
-
-    fn genome_mut(&mut self) -> &mut Self::Genome {
-        self.0.genome_mut()
     }
 }
 

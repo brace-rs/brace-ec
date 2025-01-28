@@ -1,6 +1,3 @@
-use std::cmp::Reverse;
-
-use bytemuck::TransparentWrapper;
 use ordered_float::OrderedFloat;
 
 use super::individual::Individual;
@@ -9,17 +6,6 @@ pub trait Fitness: Individual {
     type Value: Ord;
 
     fn fitness(&self) -> &Self::Value;
-}
-
-impl<T> Fitness for Reverse<T>
-where
-    T: Fitness,
-{
-    type Value = Reverse<T::Value>;
-
-    fn fitness(&self) -> &Self::Value {
-        Reverse::wrap_ref(self.0.fitness())
-    }
 }
 
 impl Fitness for f32 {
@@ -71,8 +57,6 @@ pub trait FitnessMut: Fitness {
 
 #[cfg(test)]
 mod tests {
-    use std::cmp::Reverse;
-
     use ordered_float::OrderedFloat;
 
     use super::Fitness;
@@ -81,12 +65,10 @@ mod tests {
     fn test_fitness() {
         let a = 10_u8;
         let b = 100_i32;
-        let c = Reverse(50_u64);
-        let d = 1.5;
+        let c = 1.5;
 
         assert_eq!(*a.fitness(), 10);
         assert_eq!(*b.fitness(), 100);
-        assert_eq!(*c.fitness(), Reverse(50));
-        assert_eq!(*d.fitness(), OrderedFloat(1.5));
+        assert_eq!(*c.fitness(), OrderedFloat(1.5));
     }
 }

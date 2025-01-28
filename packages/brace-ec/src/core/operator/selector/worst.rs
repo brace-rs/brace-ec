@@ -36,9 +36,9 @@ pub enum WorstError {
 
 #[cfg(test)]
 mod tests {
-    use std::cmp::Reverse;
-
+    use crate::core::individual::reversed::Reversed;
     use crate::core::individual::scored::Scored;
+    use crate::core::individual::Individual;
     use crate::core::population::Population;
 
     use super::Worst;
@@ -50,10 +50,16 @@ mod tests {
 
         assert_eq!(individual, 0);
 
-        let population = [Reverse(0), Reverse(1), Reverse(2), Reverse(3), Reverse(4)];
+        let population = [
+            Reversed::new(0),
+            Reversed::new(1),
+            Reversed::new(2),
+            Reversed::new(3),
+            Reversed::new(4),
+        ];
         let individual = population.select(Worst).unwrap()[0];
 
-        assert_eq!(individual, Reverse(4));
+        assert_eq!(individual, Reversed::new(4));
 
         let population = [Scored::new(0, 0), Scored::new(10, 10), Scored::new(20, 5)];
         let individual = population.select(Worst).unwrap()[0];
@@ -61,12 +67,12 @@ mod tests {
         assert_eq!(individual, Scored::new(0, 0));
 
         let population = [
-            Reverse(Scored::new(30, 3)),
-            Reverse(Scored::new(10, 10)),
-            Reverse(Scored::new(20, 5)),
+            Scored::new(30, 3).reversed(),
+            Scored::new(10, 10).reversed(),
+            Scored::new(20, 5).reversed(),
         ];
         let individual = population.select(Worst).unwrap()[0];
 
-        assert_eq!(individual, Reverse(Scored::new(10, 10)));
+        assert_eq!(individual, Reversed::new(Scored::new(10, 10)));
     }
 }

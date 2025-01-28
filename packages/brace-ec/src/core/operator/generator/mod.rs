@@ -100,7 +100,7 @@ mod tests {
 
     #[test]
     fn test_generate() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let count = Count(Cell::new(0));
 

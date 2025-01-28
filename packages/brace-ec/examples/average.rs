@@ -24,7 +24,7 @@ pub fn main() {
         .inspect(print_generation)
         .repeat(10)
         .inspect(print_best)
-        .evolve(generation, &mut rand::thread_rng())
+        .evolve(generation, &mut rand::rng())
         .unwrap();
 }
 

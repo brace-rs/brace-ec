@@ -46,8 +46,6 @@ pub enum AddError {
 
 #[cfg(test)]
 mod tests {
-    use rand::thread_rng;
-
     use crate::core::individual::scored::Scored;
     use crate::core::operator::mutator::Mutator;
 
@@ -55,7 +53,7 @@ mod tests {
 
     #[test]
     fn test_mutate() {
-        let mut rng = thread_rng();
+        let mut rng = rand::rng();
 
         let a = Add(1).mutate(1, &mut rng);
         let b = Add(2).mutate(3, &mut rng);

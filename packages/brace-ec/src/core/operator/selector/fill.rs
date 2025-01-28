@@ -94,7 +94,7 @@ where
 
         selection
             .par_iter_mut()
-            .try_for_each_init(rand::thread_rng, |rng, individual| {
+            .try_for_each_init(rand::rng, |rng, individual| {
                 let [item] = self.selector.select(population, rng)?;
 
                 *individual = item;

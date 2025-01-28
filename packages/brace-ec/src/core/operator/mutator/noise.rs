@@ -2,7 +2,7 @@ use std::convert::Infallible;
 use std::ops::{Add, Range, RangeBounds};
 
 use num_traits::{Bounded, One, SaturatingAdd, SaturatingSub};
-use rand::distributions::uniform::SampleUniform;
+use rand::distr::uniform::SampleUniform;
 
 use crate::core::individual::Individual;
 use crate::util::range::get_range;
@@ -38,13 +38,13 @@ where
     where
         Rng: rand::Rng + ?Sized,
     {
-        let genome = match rng.gen_bool(0.5) {
+        let genome = match rng.random_bool(0.5) {
             true => individual
                 .genome()
-                .saturating_add(&rng.gen_range(self.0.clone())),
+                .saturating_add(&rng.random_range(self.0.clone())),
             false => individual
                 .genome()
-                .saturating_sub(&rng.gen_range(self.0.clone())),
+                .saturating_sub(&rng.random_range(self.0.clone())),
         };
 
         *individual.genome_mut() = genome;

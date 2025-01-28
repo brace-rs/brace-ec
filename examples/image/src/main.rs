@@ -28,7 +28,7 @@ fn main() -> Result<(), Error> {
         .resize(args.width, args.height, FilterType::Nearest)
         .into_luma8();
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     let scorer = ImageScorer::new(Image::new(image.clone()));
     let generator = ImageGenerator::new(image.width(), image.height())

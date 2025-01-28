@@ -36,7 +36,7 @@ where
             return Err(PointCrossoverError::TooManySegments);
         }
 
-        let point = rng.gen_range(0..lhs.genome().len());
+        let point = rng.random_range(0..lhs.genome().len());
 
         lhs.genome_mut()
             .crossover_segment(rhs.genome_mut(), point..);
@@ -72,8 +72,8 @@ where
             return Err(PointCrossoverError::TooManySegments);
         }
 
-        let a = rng.gen_range(0..lhs.genome().len());
-        let b = rng.gen_range(0..lhs.genome().len());
+        let a = rng.random_range(0..lhs.genome().len());
+        let b = rng.random_range(0..lhs.genome().len());
 
         lhs.genome_mut()
             .crossover_segment(rhs.genome_mut(), a.min(b)..b.max(a));
@@ -156,7 +156,7 @@ mod tests {
 
     #[test]
     fn test_recombine_one_point() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let lhs = [true, true, true, true, true];
         let rhs = [false, false, false, false, false];
@@ -173,7 +173,7 @@ mod tests {
 
     #[test]
     fn test_recombine_one_point_mixed_length() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let lhs = vec![true, true];
         let rhs = vec![false, false, false];
@@ -184,7 +184,7 @@ mod tests {
 
     #[test]
     fn test_recombine_one_point_too_many_segments() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let lhs = Vec::<i32>::new();
         let rhs = Vec::<i32>::new();
@@ -195,7 +195,7 @@ mod tests {
 
     #[test]
     fn test_recombine_two_point() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let lhs = [true, true, true, true, true];
         let rhs = [false, false, false, false, false];
@@ -212,7 +212,7 @@ mod tests {
 
     #[test]
     fn test_recombine_two_point_mixed_length() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let lhs = vec![true, true];
         let rhs = vec![false, false, false];
@@ -223,7 +223,7 @@ mod tests {
 
     #[test]
     fn test_recombine_two_point_too_many_segments() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let lhs = vec![1];
         let rhs = vec![1];
@@ -234,7 +234,7 @@ mod tests {
 
     #[test]
     fn test_recombine_multi_point() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let lhs = [true, true, true, true, true, true, true];
         let rhs = [false, false, false, false, false, false, false];
@@ -253,7 +253,7 @@ mod tests {
 
     #[test]
     fn test_recombine_multi_point_mixed_length() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let lhs = vec![true, true, true, true];
         let rhs = vec![false, false, false, false, false];
@@ -264,7 +264,7 @@ mod tests {
 
     #[test]
     fn test_recombine_multi_point_too_many_segments() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let lhs = [true, true, true, true, true];
         let rhs = [false, false, false, false, false];
@@ -275,7 +275,7 @@ mod tests {
 
     #[test]
     fn test_recombine_multi_point_uniform() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let lhs = [true, true, true, true, true, true];
         let rhs = [false, false, false, false, false, false];

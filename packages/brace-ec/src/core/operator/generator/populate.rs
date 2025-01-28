@@ -58,7 +58,7 @@ mod tests {
 
     #[test]
     fn test_generate() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let a: Vec<u8> = Random::from(1..2).populate(5).generate(&mut rng).unwrap();
         let b: [u8; 5] = Random::from(1..2).populate(5).generate(&mut rng).unwrap();

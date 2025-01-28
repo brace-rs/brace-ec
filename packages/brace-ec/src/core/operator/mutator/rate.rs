@@ -24,7 +24,7 @@ where
     where
         Rng: rand::Rng + ?Sized,
     {
-        if rng.gen_bool(self.rate) {
+        if rng.random_bool(self.rate) {
             self.mutator.mutate(individual, rng)
         } else {
             Ok(individual)

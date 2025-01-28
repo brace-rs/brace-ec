@@ -45,7 +45,7 @@ where
         }
 
         for index in 0..lhs.genome().len() {
-            if rng.gen_bool(self.probability) {
+            if rng.random_bool(self.probability) {
                 lhs.genome_mut().crossover_gene(rhs.genome_mut(), index);
             }
         }
@@ -80,7 +80,7 @@ mod tests {
 
     #[test]
     fn test_recombine() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let lhs = [true, true, true, true, true];
         let rhs = [false, false, false, false, false];
@@ -98,7 +98,7 @@ mod tests {
 
     #[test]
     fn test_recombine_mixed() {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
 
         let lhs = vec![true, true];
         let rhs = vec![false, false, false];

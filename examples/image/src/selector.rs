@@ -103,7 +103,7 @@ impl Selector<[Scored<Image, u64>; 2]> for ImageWindowsSelector {
         let mut image = b.clone();
 
         for (lhs, &rhs) in image.genome_mut().iter_mut().zip(a.genome().iter()) {
-            if rng.gen_bool(self.rate) {
+            if rng.random_bool(self.rate) {
                 *lhs = rhs;
             }
         }

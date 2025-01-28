@@ -11,6 +11,6 @@ edition = "2021"
 [dependencies]
 brace-ec = { path = "../brace-ec" }
 crossterm = "0.28.1"
-rand = "0.8.5"
+rand = "0.9.0"
 ratatui = "0.29.0"
 thiserror = "2.0.9"

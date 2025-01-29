@@ -1,8 +1,8 @@
 pub mod limit;
 pub mod select;
 
-use crate::core::fitness::{Fitness, FitnessMut};
 use crate::core::generation::Generation;
+use crate::core::individual::Individual;
 use crate::core::population::Population;
 
 use self::limit::Limit;
@@ -28,9 +28,8 @@ where
     where
         S: Scorer<
             <G::Population as Population>::Individual,
-            Score = <<G::Population as Population>::Individual as Fitness>::Fitness,
+            Score = <<G::Population as Population>::Individual as Individual>::Fitness,
         >,
-        <G::Population as Population>::Individual: FitnessMut,
     {
         Score::new(self, scorer)
     }
@@ -39,8 +38,8 @@ where
     where
         F: Fn(
             &<G::Population as Population>::Individual,
-        ) -> Result<<<G::Population as Population>::Individual as Fitness>::Fitness, E>,
-        <G::Population as Population>::Individual: FitnessMut,
+        )
+            -> Result<<<G::Population as Population>::Individual as Individual>::Fitness, E>,
         Self: Sized,
     {
         self.score(Function::new(scorer))

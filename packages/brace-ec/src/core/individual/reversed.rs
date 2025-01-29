@@ -2,8 +2,6 @@ use std::cmp::Reverse;
 
 use bytemuck::TransparentWrapper;
 
-use crate::core::fitness::{Fitness, FitnessMut};
-
 use super::Individual;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -22,6 +20,7 @@ where
     T: Individual,
 {
     type Genome = T::Genome;
+    type Fitness = Reverse<T::Fitness>;
 
     fn genome(&self) -> &Self::Genome {
         self.individual.genome()
@@ -30,23 +29,11 @@ where
     fn genome_mut(&mut self) -> &mut Self::Genome {
         self.individual.genome_mut()
     }
-}
-
-impl<T> Fitness for Reversed<T>
-where
-    T: Fitness,
-{
-    type Fitness = Reverse<T::Fitness>;
 
     fn fitness(&self) -> &Self::Fitness {
         Reverse::wrap_ref(self.individual.fitness())
     }
-}
 
-impl<T> FitnessMut for Reversed<T>
-where
-    T: FitnessMut,
-{
     fn fitness_mut(&mut self) -> &mut Self::Fitness {
         Reverse::wrap_mut(self.individual.fitness_mut())
     }
@@ -60,7 +47,6 @@ impl<T> From<T> for Reversed<T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::fitness::Fitness;
     use crate::core::individual::scored::Scored;
     use crate::core::individual::Individual;
 

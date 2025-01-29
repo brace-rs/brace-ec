@@ -1,7 +1,7 @@
 use thiserror::Error;
 
-use crate::core::fitness::FitnessMut;
 use crate::core::generation::Generation;
+use crate::core::individual::Individual;
 use crate::core::population::Population;
 use crate::util::iter::IterableMut;
 use crate::util::map::TryMap;
@@ -29,7 +29,7 @@ where
     P: Population<Individual = I> + ?Sized,
     T: Selector<P, Output: TryMap<Item = I>>,
     S: Scorer<I, Score = I::Fitness>,
-    I: FitnessMut,
+    I: Individual,
 {
     type Output = T::Output;
     type Error = ScoreError<T::Error, S::Error>;
@@ -54,7 +54,7 @@ impl<T, S, I> Mutator<I> for Score<T, S>
 where
     T: Mutator<I>,
     S: Scorer<I, Score = I::Fitness>,
-    I: FitnessMut,
+    I: Individual,
 {
     type Error = ScoreError<T::Error, S::Error>;
 
@@ -81,7 +81,7 @@ where
     P: Population<Individual = I>,
     T: Recombinator<P, Output: TryMap<Item = I>>,
     S: Scorer<I, Score = I::Fitness>,
-    I: FitnessMut,
+    I: Individual,
 {
     type Output = T::Output;
     type Error = ScoreError<T::Error, S::Error>;
@@ -108,7 +108,7 @@ where
     T: Evolver<G>,
     S: Scorer<I, Score = I::Fitness>,
     P: Population<Individual = I> + IterableMut<Item = I>,
-    I: FitnessMut,
+    I: Individual,
 {
     type Error = ScoreError<T::Error, S::Error>;
 
@@ -139,7 +139,7 @@ where
 
 impl<T, G, S> Generator<T> for Score<G, S>
 where
-    T: FitnessMut,
+    T: Individual,
     G: Generator<T>,
     S: Scorer<T, Score = T::Fitness>,
 {

@@ -3,7 +3,6 @@ pub mod invert;
 pub mod noise;
 pub mod rate;
 
-use crate::core::fitness::FitnessMut;
 use crate::core::individual::Individual;
 
 use self::rate::Rate;
@@ -28,7 +27,7 @@ where
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
         S: Scorer<T, Score = T::Fitness>,
-        T: FitnessMut,
+        T: Individual,
     {
         Score::new(self, scorer)
     }
@@ -36,7 +35,7 @@ where
     fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
     where
         F: Fn(&T) -> Result<T::Fitness, E>,
-        T: FitnessMut,
+        T: Individual,
     {
         self.score(Function::new(scorer))
     }

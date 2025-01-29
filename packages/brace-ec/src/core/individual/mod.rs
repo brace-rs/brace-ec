@@ -1,18 +1,36 @@
 pub mod reversed;
 pub mod scored;
 
+use ordered_float::OrderedFloat;
+
 use self::reversed::Reversed;
 use self::scored::Scored;
 
-use super::fitness::Fitness;
 use super::operator::mutator::Mutator;
 
 pub trait Individual {
     type Genome: ?Sized;
+    type Fitness: Ord;
 
     fn genome(&self) -> &Self::Genome;
 
     fn genome_mut(&mut self) -> &mut Self::Genome;
+
+    fn fitness(&self) -> &Self::Fitness;
+
+    fn fitness_mut(&mut self) -> &mut Self::Fitness;
+
+    fn set_fitness(&mut self, fitness: Self::Fitness) {
+        *self.fitness_mut() = fitness;
+    }
+
+    fn with_fitness(mut self, fitness: Self::Fitness) -> Self
+    where
+        Self: Sized,
+    {
+        self.set_fitness(fitness);
+        self
+    }
 
     fn mutate<M>(self, mutator: M) -> Result<Self, M::Error>
     where
@@ -32,7 +50,7 @@ pub trait Individual {
 
     fn reversed(self) -> Reversed<Self>
     where
-        Self: Fitness + Sized,
+        Self: Sized,
     {
         Reversed::new(self)
     }
@@ -40,6 +58,7 @@ pub trait Individual {
 
 impl<T, const N: usize> Individual for [T; N] {
     type Genome = [T];
+    type Fitness = [u8; 0];
 
     fn genome(&self) -> &Self::Genome {
         self
@@ -47,11 +66,20 @@ impl<T, const N: usize> Individual for [T; N] {
 
     fn genome_mut(&mut self) -> &mut Self::Genome {
         self
+    }
+
+    fn fitness(&self) -> &Self::Fitness {
+        &[]
+    }
+
+    fn fitness_mut(&mut self) -> &mut Self::Fitness {
+        &mut []
     }
 }
 
 impl<T> Individual for Vec<T> {
     type Genome = [T];
+    type Fitness = [u8; 0];
 
     fn genome(&self) -> &Self::Genome {
         self
@@ -59,6 +87,56 @@ impl<T> Individual for Vec<T> {
 
     fn genome_mut(&mut self) -> &mut Self::Genome {
         self
+    }
+
+    fn fitness(&self) -> &Self::Fitness {
+        &[]
+    }
+
+    fn fitness_mut(&mut self) -> &mut Self::Fitness {
+        &mut []
+    }
+}
+
+impl Individual for f32 {
+    type Genome = Self;
+    type Fitness = OrderedFloat<Self>;
+
+    fn genome(&self) -> &Self::Genome {
+        self
+    }
+
+    fn genome_mut(&mut self) -> &mut Self::Genome {
+        self
+    }
+
+    fn fitness(&self) -> &Self::Fitness {
+        self.into()
+    }
+
+    fn fitness_mut(&mut self) -> &mut Self::Fitness {
+        self.into()
+    }
+}
+
+impl Individual for f64 {
+    type Genome = Self;
+    type Fitness = OrderedFloat<Self>;
+
+    fn genome(&self) -> &Self::Genome {
+        self
+    }
+
+    fn genome_mut(&mut self) -> &mut Self::Genome {
+        self
+    }
+
+    fn fitness(&self) -> &Self::Fitness {
+        self.into()
+    }
+
+    fn fitness_mut(&mut self) -> &mut Self::Fitness {
+        self.into()
     }
 }
 
@@ -66,6 +144,7 @@ macro_rules! impl_individual {
     ($($type:path),+) => {
         $(impl Individual for $type {
             type Genome = Self;
+            type Fitness = Self;
 
             fn genome(&self) -> &Self::Genome {
                 self
@@ -74,13 +153,21 @@ macro_rules! impl_individual {
             fn genome_mut(&mut self) -> &mut Self::Genome {
                 self
             }
+
+            fn fitness(&self) -> &Self::Fitness {
+                self
+            }
+
+            fn fitness_mut(&mut self) -> &mut Self::Fitness {
+                self
+            }
         })+
     };
 }
 
 impl_individual!(u8, u16, u32, u64, u128, usize);
 impl_individual!(i8, i16, i32, i64, i128, isize);
-impl_individual!(f32, f64, char, bool);
+impl_individual!(char, bool);
 
 #[cfg(test)]
 mod tests {

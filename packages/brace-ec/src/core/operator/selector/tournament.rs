@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 use rand::seq::IteratorRandom;
 use thiserror::Error;
 
-use crate::core::fitness::Fitness;
+use crate::core::individual::Individual;
 use crate::core::population::{IterablePopulation, Population};
 
 use super::Selector;
@@ -31,7 +31,7 @@ where
 
 impl<P> Selector<P> for Tournament<P>
 where
-    P: IterablePopulation<Individual: Clone + Fitness> + ?Sized,
+    P: IterablePopulation<Individual: Clone> + ?Sized,
 {
     type Output = [P::Individual; 1];
     type Error = TournamentError;

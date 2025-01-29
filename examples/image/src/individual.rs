@@ -1,4 +1,4 @@
-use brace_ec::core::individual::Individual;
+use brace_ec::core::individual::{Individual, Nil};
 use image::GrayImage;
 
 #[derive(Clone)]
@@ -12,6 +12,7 @@ impl Image {
 
 impl Individual for Image {
     type Genome = GrayImage;
+    type Fitness = Nil;
 
     fn genome(&self) -> &Self::Genome {
         &self.0
@@ -19,5 +20,13 @@ impl Individual for Image {
 
     fn genome_mut(&mut self) -> &mut Self::Genome {
         &mut self.0
+    }
+
+    fn fitness(&self) -> &Self::Fitness {
+        Nil::r#ref()
+    }
+
+    fn fitness_mut(&mut self) -> &mut Self::Fitness {
+        Nil::r#mut()
     }
 }

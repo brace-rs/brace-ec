@@ -1,5 +1,3 @@
-use crate::core::fitness::{Fitness, FitnessMut};
-
 use super::Individual;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -17,8 +15,10 @@ impl<T, S> Scored<T, S> {
 impl<T, S> Individual for Scored<T, S>
 where
     T: Individual,
+    S: Ord,
 {
     type Genome = T::Genome;
+    type Fitness = S;
 
     fn genome(&self) -> &Self::Genome {
         self.individual.genome()
@@ -27,26 +27,12 @@ where
     fn genome_mut(&mut self) -> &mut Self::Genome {
         self.individual.genome_mut()
     }
-}
 
-impl<T, S> Fitness for Scored<T, S>
-where
-    T: Individual,
-    S: Ord,
-{
-    type Value = S;
-
-    fn fitness(&self) -> &Self::Value {
+    fn fitness(&self) -> &Self::Fitness {
         &self.score
     }
-}
 
-impl<T, S> FitnessMut for Scored<T, S>
-where
-    T: Individual,
-    S: Ord,
-{
-    fn fitness_mut(&mut self) -> &mut Self::Value {
+    fn fitness_mut(&mut self) -> &mut Self::Fitness {
         &mut self.score
     }
 }
@@ -62,7 +48,6 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::core::fitness::Fitness;
     use crate::core::individual::Individual;
 
     use super::Scored;

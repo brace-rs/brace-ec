@@ -3,18 +3,18 @@ use std::ops::AddAssign;
 
 use num_traits::Zero;
 
-use crate::core::fitness::Fitness;
+use crate::core::individual::Individual;
 use crate::core::operator::scorer::Scorer;
 
 #[ghost::phantom]
 #[derive(Clone, Copy, Debug)]
-pub struct Hiff<T: Fitness>;
+pub struct Hiff<T: Individual>;
 
 impl<T> Hiff<T>
 where
-    T: Fitness<Value: AddAssign<usize>>,
+    T: Individual<Fitness: AddAssign<usize>>,
 {
-    fn hiff(bits: &[bool], score: &mut T::Value) -> bool {
+    fn hiff(bits: &[bool], score: &mut T::Fitness) -> bool {
         let len = bits.len();
 
         if len < 2 {
@@ -35,16 +35,16 @@ where
 
 impl<T> Scorer<T> for Hiff<T>
 where
-    T: Fitness<Genome: AsRef<[bool]>, Value: AddAssign<usize> + Zero>,
+    T: Individual<Genome: AsRef<[bool]>, Fitness: AddAssign<usize> + Zero>,
 {
-    type Score = T::Value;
+    type Score = T::Fitness;
     type Error = Infallible;
 
     fn score<Rng>(&self, individual: &T, _: &mut Rng) -> Result<Self::Score, Self::Error>
     where
         Rng: rand::Rng + ?Sized,
     {
-        let mut score = T::Value::zero();
+        let mut score = T::Fitness::zero();
 
         Self::hiff(individual.genome().as_ref(), &mut score);
 

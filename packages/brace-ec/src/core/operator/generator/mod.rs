@@ -1,7 +1,7 @@
 pub mod populate;
 pub mod random;
 
-use crate::core::fitness::FitnessMut;
+use crate::core::individual::Individual;
 use crate::core::population::Population;
 use crate::util::iter::TryFromIterator;
 
@@ -28,16 +28,16 @@ pub trait Generator<T>: Sized {
 
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
-        S: Scorer<T, Score = T::Value>,
-        T: FitnessMut,
+        S: Scorer<T, Score = T::Fitness>,
+        T: Individual,
     {
         Score::new(self, scorer)
     }
 
     fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
     where
-        F: Fn(&T) -> Result<T::Value, E>,
-        T: FitnessMut,
+        F: Fn(&T) -> Result<T::Fitness, E>,
+        T: Individual,
     {
         self.score(Function::new(scorer))
     }

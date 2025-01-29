@@ -11,8 +11,8 @@ pub mod tournament;
 pub mod windows;
 pub mod worst;
 
-use crate::core::fitness::{Fitness, FitnessMut};
 use crate::core::generation::Generation;
+use crate::core::individual::Individual;
 use crate::core::population::Population;
 
 use self::and::And;
@@ -59,16 +59,14 @@ where
 
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
-        S: Scorer<P::Individual, Score = <P::Individual as Fitness>::Value>,
-        P::Individual: FitnessMut,
+        S: Scorer<P::Individual, Score = <P::Individual as Individual>::Fitness>,
     {
         Score::new(self, scorer)
     }
 
     fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
     where
-        F: Fn(&P::Individual) -> Result<<P::Individual as Fitness>::Value, E>,
-        P::Individual: FitnessMut,
+        F: Fn(&P::Individual) -> Result<<P::Individual as Individual>::Fitness, E>,
     {
         self.score(Function::new(scorer))
     }

@@ -12,9 +12,9 @@ pub struct Hiff<T: Fitness>;
 
 impl<T> Hiff<T>
 where
-    T: Fitness<Value: AddAssign<usize>>,
+    T: Fitness<Fitness: AddAssign<usize>>,
 {
-    fn hiff(bits: &[bool], score: &mut T::Value) -> bool {
+    fn hiff(bits: &[bool], score: &mut T::Fitness) -> bool {
         let len = bits.len();
 
         if len < 2 {
@@ -35,16 +35,16 @@ where
 
 impl<T> Scorer<T> for Hiff<T>
 where
-    T: Fitness<Genome: AsRef<[bool]>, Value: AddAssign<usize> + Zero>,
+    T: Fitness<Genome: AsRef<[bool]>, Fitness: AddAssign<usize> + Zero>,
 {
-    type Score = T::Value;
+    type Score = T::Fitness;
     type Error = Infallible;
 
     fn score<Rng>(&self, individual: &T, _: &mut Rng) -> Result<Self::Score, Self::Error>
     where
         Rng: rand::Rng + ?Sized,
     {
-        let mut score = T::Value::zero();
+        let mut score = T::Fitness::zero();
 
         Self::hiff(individual.genome().as_ref(), &mut score);
 

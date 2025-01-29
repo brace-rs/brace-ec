@@ -34,9 +34,9 @@ where
     T: Individual,
     S: Ord,
 {
-    type Value = S;
+    type Fitness = S;
 
-    fn fitness(&self) -> &Self::Value {
+    fn fitness(&self) -> &Self::Fitness {
         &self.score
     }
 }
@@ -46,7 +46,7 @@ where
     T: Individual,
     S: Ord,
 {
-    fn fitness_mut(&mut self) -> &mut Self::Value {
+    fn fitness_mut(&mut self) -> &mut Self::Fitness {
         &mut self.score
     }
 }

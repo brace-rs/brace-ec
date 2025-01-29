@@ -3,23 +3,23 @@ use ordered_float::OrderedFloat;
 use super::individual::Individual;
 
 pub trait Fitness: Individual {
-    type Value: Ord;
+    type Fitness: Ord;
 
-    fn fitness(&self) -> &Self::Value;
+    fn fitness(&self) -> &Self::Fitness;
 }
 
 impl Fitness for f32 {
-    type Value = OrderedFloat<Self>;
+    type Fitness = OrderedFloat<Self>;
 
-    fn fitness(&self) -> &Self::Value {
+    fn fitness(&self) -> &Self::Fitness {
         self.into()
     }
 }
 
 impl Fitness for f64 {
-    type Value = OrderedFloat<Self>;
+    type Fitness = OrderedFloat<Self>;
 
-    fn fitness(&self) -> &Self::Value {
+    fn fitness(&self) -> &Self::Fitness {
         self.into()
     }
 }
@@ -27,9 +27,9 @@ impl Fitness for f64 {
 macro_rules! impl_fitness {
     ($($type:path),+) => {
         $(impl Fitness for $type {
-            type Value = Self;
+            type Fitness = Self;
 
-            fn fitness(&self) -> &Self::Value {
+            fn fitness(&self) -> &Self::Fitness {
                 self
             }
         })+
@@ -40,13 +40,13 @@ impl_fitness!(u8, u16, u32, u64, u128, usize);
 impl_fitness!(i8, i16, i32, i64, i128, isize);
 
 pub trait FitnessMut: Fitness {
-    fn fitness_mut(&mut self) -> &mut Self::Value;
+    fn fitness_mut(&mut self) -> &mut Self::Fitness;
 
-    fn set_fitness(&mut self, fitness: Self::Value) {
+    fn set_fitness(&mut self, fitness: Self::Fitness) {
         *self.fitness_mut() = fitness;
     }
 
-    fn with_fitness(mut self, fitness: Self::Value) -> Self
+    fn with_fitness(mut self, fitness: Self::Fitness) -> Self
     where
         Self: Sized,
     {

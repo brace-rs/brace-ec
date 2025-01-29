@@ -28,7 +28,7 @@ where
     where
         S: Scorer<
             <G::Population as Population>::Individual,
-            Score = <<G::Population as Population>::Individual as Fitness>::Value,
+            Score = <<G::Population as Population>::Individual as Fitness>::Fitness,
         >,
         <G::Population as Population>::Individual: FitnessMut,
     {
@@ -39,7 +39,7 @@ where
     where
         F: Fn(
             &<G::Population as Population>::Individual,
-        ) -> Result<<<G::Population as Population>::Individual as Fitness>::Value, E>,
+        ) -> Result<<<G::Population as Population>::Individual as Fitness>::Fitness, E>,
         <G::Population as Population>::Individual: FitnessMut,
         Self: Sized,
     {

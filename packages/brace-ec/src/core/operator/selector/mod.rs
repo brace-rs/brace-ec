@@ -59,7 +59,7 @@ where
 
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
-        S: Scorer<P::Individual, Score = <P::Individual as Fitness>::Value>,
+        S: Scorer<P::Individual, Score = <P::Individual as Fitness>::Fitness>,
         P::Individual: FitnessMut,
     {
         Score::new(self, scorer)
@@ -67,7 +67,7 @@ where
 
     fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
     where
-        F: Fn(&P::Individual) -> Result<<P::Individual as Fitness>::Value, E>,
+        F: Fn(&P::Individual) -> Result<<P::Individual as Fitness>::Fitness, E>,
         P::Individual: FitnessMut,
     {
         self.score(Function::new(scorer))

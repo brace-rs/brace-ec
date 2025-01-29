@@ -27,7 +27,7 @@ where
 
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
-        S: Scorer<T, Score = T::Value>,
+        S: Scorer<T, Score = T::Fitness>,
         T: FitnessMut,
     {
         Score::new(self, scorer)
@@ -35,7 +35,7 @@ where
 
     fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
     where
-        F: Fn(&T) -> Result<T::Value, E>,
+        F: Fn(&T) -> Result<T::Fitness, E>,
         T: FitnessMut,
     {
         self.score(Function::new(scorer))

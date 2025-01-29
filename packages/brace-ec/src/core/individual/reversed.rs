@@ -36,9 +36,9 @@ impl<T> Fitness for Reversed<T>
 where
     T: Fitness,
 {
-    type Value = Reverse<T::Value>;
+    type Fitness = Reverse<T::Fitness>;
 
-    fn fitness(&self) -> &Self::Value {
+    fn fitness(&self) -> &Self::Fitness {
         Reverse::wrap_ref(self.individual.fitness())
     }
 }
@@ -47,7 +47,7 @@ impl<T> FitnessMut for Reversed<T>
 where
     T: FitnessMut,
 {
-    fn fitness_mut(&mut self) -> &mut Self::Value {
+    fn fitness_mut(&mut self) -> &mut Self::Fitness {
         Reverse::wrap_mut(self.individual.fitness_mut())
     }
 }

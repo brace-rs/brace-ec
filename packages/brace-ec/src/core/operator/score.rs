@@ -28,7 +28,7 @@ impl<P, T, S, I> Selector<P> for Score<T, S>
 where
     P: Population<Individual = I> + ?Sized,
     T: Selector<P, Output: TryMap<Item = I>>,
-    S: Scorer<I, Score = I::Value>,
+    S: Scorer<I, Score = I::Fitness>,
     I: FitnessMut,
 {
     type Output = T::Output;
@@ -53,7 +53,7 @@ where
 impl<T, S, I> Mutator<I> for Score<T, S>
 where
     T: Mutator<I>,
-    S: Scorer<I, Score = I::Value>,
+    S: Scorer<I, Score = I::Fitness>,
     I: FitnessMut,
 {
     type Error = ScoreError<T::Error, S::Error>;
@@ -80,7 +80,7 @@ impl<P, T, S, I> Recombinator<P> for Score<T, S>
 where
     P: Population<Individual = I>,
     T: Recombinator<P, Output: TryMap<Item = I>>,
-    S: Scorer<I, Score = I::Value>,
+    S: Scorer<I, Score = I::Fitness>,
     I: FitnessMut,
 {
     type Output = T::Output;
@@ -106,7 +106,7 @@ impl<G, T, S, P, I> Evolver<G> for Score<T, S>
 where
     G: Generation<Population = P>,
     T: Evolver<G>,
-    S: Scorer<I, Score = I::Value>,
+    S: Scorer<I, Score = I::Fitness>,
     P: Population<Individual = I> + IterableMut<Item = I>,
     I: FitnessMut,
 {
@@ -141,7 +141,7 @@ impl<T, G, S> Generator<T> for Score<G, S>
 where
     T: FitnessMut,
     G: Generator<T>,
-    S: Scorer<T, Score = T::Value>,
+    S: Scorer<T, Score = T::Fitness>,
 {
     type Error = ScoreError<G::Error, S::Error>;
 

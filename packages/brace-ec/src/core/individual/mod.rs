@@ -1,6 +1,7 @@
 pub mod reversed;
 pub mod scored;
 
+use bytemuck::TransparentWrapper;
 use ordered_float::OrderedFloat;
 
 use self::reversed::Reversed;
@@ -58,7 +59,7 @@ pub trait Individual {
 
 impl<T, const N: usize> Individual for [T; N] {
     type Genome = [T];
-    type Fitness = [u8; 0];
+    type Fitness = Nil;
 
     fn genome(&self) -> &Self::Genome {
         self
@@ -69,17 +70,17 @@ impl<T, const N: usize> Individual for [T; N] {
     }
 
     fn fitness(&self) -> &Self::Fitness {
-        &[]
+        Nil::r#ref()
     }
 
     fn fitness_mut(&mut self) -> &mut Self::Fitness {
-        &mut []
+        Nil::r#mut()
     }
 }
 
 impl<T> Individual for Vec<T> {
     type Genome = [T];
-    type Fitness = [u8; 0];
+    type Fitness = Nil;
 
     fn genome(&self) -> &Self::Genome {
         self
@@ -90,11 +91,11 @@ impl<T> Individual for Vec<T> {
     }
 
     fn fitness(&self) -> &Self::Fitness {
-        &[]
+        Nil::r#ref()
     }
 
     fn fitness_mut(&mut self) -> &mut Self::Fitness {
-        &mut []
+        Nil::r#mut()
     }
 }
 
@@ -169,25 +170,52 @@ impl_individual!(u8, u16, u32, u64, u128, usize);
 impl_individual!(i8, i16, i32, i64, i128, isize);
 impl_individual!(char, bool);
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, TransparentWrapper)]
+#[repr(transparent)]
+pub struct Nil([(); 0]);
+
+impl Nil {
+    /// Creates a new `Nil` score.
+    pub fn new() -> Self {
+        Self([])
+    }
+
+    /// Creates a new `Nil` score shared reference
+    pub fn r#ref() -> &'static Self {
+        Self::wrap_ref(&[])
+    }
+
+    /// Creates a new `Nil` score exclusive reference.
+    pub fn r#mut() -> &'static mut Self {
+        Self::wrap_mut(&mut [])
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::Individual;
+    use super::{Individual, Nil};
 
-    fn erase<G: ?Sized, I: Individual<Genome = G>>(individual: I) -> impl Individual<Genome = G> {
+    fn erase<G: ?Sized, I: Individual<Genome = G>>(
+        individual: I,
+    ) -> impl Individual<Genome = G, Fitness = I::Fitness> {
         individual
     }
 
     #[test]
     fn test_individual_array() {
-        let individual = erase([0, 0]);
+        let mut individual = erase([0, 0]);
 
         assert_eq!(individual.genome(), [0, 0]);
+        assert_eq!(individual.fitness(), &Nil::new());
+        assert_eq!(individual.fitness_mut(), &Nil::new());
     }
 
     #[test]
     fn test_individual_vec() {
-        let individual = erase(vec![0, 0]);
+        let mut individual = erase(vec![0, 0]);
 
         assert_eq!(individual.genome(), [0, 0]);
+        assert_eq!(individual.fitness(), &Nil::new());
+        assert_eq!(individual.fitness_mut(), &Nil::new());
     }
 }

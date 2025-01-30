@@ -1,12 +1,12 @@
 pub mod reversed;
 pub mod scored;
 
-use bytemuck::TransparentWrapper;
 use ordered_float::OrderedFloat;
 
 use self::reversed::Reversed;
 use self::scored::Scored;
 
+use super::fitness::nil::Nil;
 use super::operator::mutator::Mutator;
 
 pub trait Individual {
@@ -170,30 +170,11 @@ impl_individual!(u8, u16, u32, u64, u128, usize);
 impl_individual!(i8, i16, i32, i64, i128, isize);
 impl_individual!(char, bool);
 
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, TransparentWrapper)]
-#[repr(transparent)]
-pub struct Nil([(); 0]);
-
-impl Nil {
-    /// Creates a new `Nil` score.
-    pub fn new() -> Self {
-        Self([])
-    }
-
-    /// Creates a new `Nil` score shared reference
-    pub fn r#ref() -> &'static Self {
-        Self::wrap_ref(&[])
-    }
-
-    /// Creates a new `Nil` score exclusive reference.
-    pub fn r#mut() -> &'static mut Self {
-        Self::wrap_mut(&mut [])
-    }
-}
-
 #[cfg(test)]
 mod tests {
-    use super::{Individual, Nil};
+    use crate::core::fitness::nil::Nil;
+
+    use super::Individual;
 
     fn erase<G: ?Sized, I: Individual<Genome = G>>(
         individual: I,

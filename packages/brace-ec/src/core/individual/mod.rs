@@ -7,11 +7,12 @@ use self::reversed::Reversed;
 use self::scored::Scored;
 
 use super::fitness::nil::Nil;
+use super::fitness::Fitness;
 use super::operator::mutator::Mutator;
 
 pub trait Individual {
     type Genome: ?Sized;
-    type Fitness: Ord;
+    type Fitness: Fitness;
 
     fn genome(&self) -> &Self::Genome;
 
@@ -43,7 +44,7 @@ pub trait Individual {
 
     fn scored<S>(self) -> Scored<Self, S>
     where
-        S: Default,
+        S: Fitness,
         Self: Sized,
     {
         Scored::from(self)

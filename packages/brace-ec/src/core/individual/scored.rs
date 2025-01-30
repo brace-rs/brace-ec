@@ -1,3 +1,5 @@
+use crate::core::fitness::Fitness;
+
 use super::Individual;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -15,7 +17,7 @@ impl<T, S> Scored<T, S> {
 impl<T, S> Individual for Scored<T, S>
 where
     T: Individual,
-    S: Ord,
+    S: Fitness,
 {
     type Genome = T::Genome;
     type Fitness = S;
@@ -39,10 +41,10 @@ where
 
 impl<T, S> From<T> for Scored<T, S>
 where
-    S: Default,
+    S: Fitness,
 {
     fn from(individual: T) -> Self {
-        Self::new(individual, S::default())
+        Self::new(individual, S::nil())
     }
 }
 

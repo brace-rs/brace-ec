@@ -1,4 +1,5 @@
 pub mod nil;
+pub mod summed;
 
 use std::cmp::Reverse;
 

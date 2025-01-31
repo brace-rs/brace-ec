@@ -1,8 +1,7 @@
 use std::convert::Infallible;
 use std::ops::AddAssign;
 
-use num_traits::Zero;
-
+use crate::core::fitness::Fitness;
 use crate::core::individual::Individual;
 use crate::core::operator::scorer::Scorer;
 
@@ -35,7 +34,7 @@ where
 
 impl<T> Scorer<T> for Hiff<T>
 where
-    T: Individual<Genome: AsRef<[bool]>, Fitness: AddAssign<usize> + Zero>,
+    T: Individual<Genome: AsRef<[bool]>, Fitness: AddAssign<usize>>,
 {
     type Score = T::Fitness;
     type Error = Infallible;
@@ -44,7 +43,7 @@ where
     where
         Rng: rand::Rng + ?Sized,
     {
-        let mut score = T::Fitness::zero();
+        let mut score = T::Fitness::nil();
 
         Self::hiff(individual.genome().as_ref(), &mut score);
 
@@ -54,6 +53,7 @@ where
 
 #[cfg(test)]
 mod tests {
+    use crate::core::fitness::summed::Summed;
     use crate::core::individual::Individual;
     use crate::core::operator::scorer::Scorer;
 
@@ -74,5 +74,50 @@ mod tests {
         assert_eq!(Hiff.score(&c, &mut rng).unwrap(), 32);
         assert_eq!(Hiff.score(&d, &mut rng).unwrap(), 32);
         assert_eq!(Hiff.score(&e, &mut rng).unwrap(), 8);
+    }
+
+    #[test]
+    fn test_score_summed() {
+        let mut rng = rand::rng();
+
+        let a = [false, false, true, false, true, true, true, true];
+        let a = Hiff
+            .score(&a.scored::<Summed<Vec<usize>>>(), &mut rng)
+            .unwrap();
+
+        assert_eq!(a.total(), &18);
+        assert_eq!(a.value(), &[1, 1, 2, 1, 1, 0, 0, 1, 1, 2, 1, 1, 2, 4, 0]);
+
+        let b = [false, false, false, false, true, false, false, true];
+        let b = Hiff
+            .score(&b.scored::<Summed<Vec<usize>>>(), &mut rng)
+            .unwrap();
+
+        assert_eq!(b.total(), &16);
+        assert_eq!(b.value(), &[1, 1, 2, 1, 1, 2, 4, 1, 1, 0, 1, 1, 0, 0, 0]);
+
+        let c = [false, false, false, false, false, false, false, false];
+        let c = Hiff
+            .score(&c.scored::<Summed<Vec<usize>>>(), &mut rng)
+            .unwrap();
+
+        assert_eq!(c.total(), &32);
+        assert_eq!(c.value(), &[1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8]);
+
+        let d = [true, true, true, true, true, true, true, true];
+        let d = Hiff
+            .score(&d.scored::<Summed<Vec<usize>>>(), &mut rng)
+            .unwrap();
+
+        assert_eq!(d.total(), &32);
+        assert_eq!(d.value(), &[1, 1, 2, 1, 1, 2, 4, 1, 1, 2, 1, 1, 2, 4, 8]);
+
+        let e = [true, false, true, false, true, false, true, false];
+        let e = Hiff
+            .score(&e.scored::<Summed<Vec<usize>>>(), &mut rng)
+            .unwrap();
+
+        assert_eq!(e.total(), &8);
+        assert_eq!(e.value(), &[1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0]);
     }
 }

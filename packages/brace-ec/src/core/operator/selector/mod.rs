@@ -3,6 +3,7 @@ pub mod best;
 pub mod fill;
 pub mod first;
 pub mod generate;
+pub mod lexicase;
 pub mod mutate;
 pub mod random;
 pub mod recombine;

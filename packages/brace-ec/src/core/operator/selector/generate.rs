@@ -5,12 +5,18 @@ use crate::core::population::Population;
 
 use super::Selector;
 
-pub struct Generate<T, P> {
+pub struct Generate<T, P>
+where
+    P: ?Sized,
+{
     generator: T,
     marker: PhantomData<fn() -> P>,
 }
 
-impl<T, P> Generate<T, P> {
+impl<T, P> Generate<T, P>
+where
+    P: ?Sized,
+{
     pub fn new(generator: T) -> Self {
         Self {
             generator,
@@ -21,7 +27,7 @@ impl<T, P> Generate<T, P> {
 
 impl<P, T> Selector<P> for Generate<T, P>
 where
-    P: Population,
+    P: Population + ?Sized,
     T: Generator<P::Individual>,
 {
     type Output = [P::Individual; 1];
@@ -47,8 +53,13 @@ mod tests {
 
         let a = population.select(Random::from(6..10).selector()).unwrap();
         let b = population.select(Random::from(1..2).selector()).unwrap();
+        let c = population
+            .as_slice()
+            .select(Random::from(1..2).selector())
+            .unwrap();
 
         assert!(a[0] >= 6 && a[0] < 10);
         assert_eq!(b, [1]);
+        assert_eq!(c, [1]);
     }
 }

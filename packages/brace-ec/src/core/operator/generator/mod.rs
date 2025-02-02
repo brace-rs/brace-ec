@@ -44,7 +44,7 @@ pub trait Generator<T>: Sized {
 
     fn selector<P>(self) -> Generate<Self, P>
     where
-        P: Population<Individual = T>,
+        P: Population<Individual = T> + ?Sized,
     {
         Generate::new(self)
     }

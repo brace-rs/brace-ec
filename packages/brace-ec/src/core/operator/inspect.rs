@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn test_mutate() {
-        1.mutate(Add(1).inspect(|individual| assert_eq!(individual, &2)))
+        1.mutated(Add(1).inspect(|individual| assert_eq!(individual, &2)))
             .unwrap();
     }
 

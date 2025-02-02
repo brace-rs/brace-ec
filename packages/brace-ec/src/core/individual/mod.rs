@@ -34,7 +34,7 @@ pub trait Individual {
         self
     }
 
-    fn mutate<M>(self, mutator: M) -> Result<Self, M::Error>
+    fn mutated<M>(self, mutator: M) -> Result<Self, M::Error>
     where
         M: Mutator<Self>,
         Self: Sized,

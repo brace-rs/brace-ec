@@ -248,13 +248,13 @@ mod tests {
     #[test]
     fn test_mutate() {
         let a = Scored::new(10, 0)
-            .mutate(Add(5).score(Function::new(double)))
+            .mutated(Add(5).score(Function::new(double)))
             .unwrap();
         let b = Scored::new(10, 0)
-            .mutate(Add(5).score(Function::new(triple)))
+            .mutated(Add(5).score(Function::new(triple)))
             .unwrap();
         let c = Scored::new(10, 0)
-            .mutate(Add(5).score_with(|individual: &Scored<i32, i32>| {
+            .mutated(Add(5).score_with(|individual: &Scored<i32, i32>| {
                 Ok::<_, Infallible>(individual.individual * 4)
             }))
             .unwrap();

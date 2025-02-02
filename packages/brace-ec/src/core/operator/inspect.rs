@@ -124,7 +124,7 @@ mod tests {
     #[test]
     fn test_recombine() {
         [2, 2]
-            .recombine(Sum.inspect(|output| assert_eq!(output, &[4])))
+            .recombined(Sum.inspect(|output| assert_eq!(output, &[4])))
             .unwrap();
     }
 

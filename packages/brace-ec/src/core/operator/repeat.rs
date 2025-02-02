@@ -154,11 +154,11 @@ mod tests {
     fn test_recombine() {
         let population = [0, 1];
 
-        let a = population.recombine(Swap).unwrap();
-        let b = population.recombine(Swap.repeat(0)).unwrap();
-        let c = population.recombine(Swap.repeat(1)).unwrap();
-        let d = population.recombine(Swap.repeat(2)).unwrap();
-        let e = population.recombine(Swap.repeat(2).repeat(2)).unwrap();
+        let a = population.recombined(Swap).unwrap();
+        let b = population.recombined(Swap.repeat(0)).unwrap();
+        let c = population.recombined(Swap.repeat(1)).unwrap();
+        let d = population.recombined(Swap.repeat(2)).unwrap();
+        let e = population.recombined(Swap.repeat(2).repeat(2)).unwrap();
 
         assert_eq!(a, [1, 0]);
         assert_eq!(b, [0, 1]);

@@ -269,13 +269,13 @@ mod tests {
         let population = [Scored::new(10, 0), Scored::new(20, 0)];
 
         let a = population
-            .recombine(Noop.score(Function::new(double)))
+            .recombined(Noop.score(Function::new(double)))
             .unwrap();
         let b = population
-            .recombine(Noop.score(Function::new(triple)))
+            .recombined(Noop.score(Function::new(triple)))
             .unwrap();
         let c = population
-            .recombine(Noop.score_with(|individual: &Scored<i32, i32>| {
+            .recombined(Noop.score_with(|individual: &Scored<i32, i32>| {
                 Ok::<_, Infallible>(individual.individual * 4)
             }))
             .unwrap();

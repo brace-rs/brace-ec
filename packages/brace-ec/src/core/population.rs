@@ -20,7 +20,7 @@ pub trait Population {
         selector.select(self, &mut rand::rng())
     }
 
-    fn recombine<R>(self, recombinator: R) -> Result<R::Output, R::Error>
+    fn recombined<R>(self, recombinator: R) -> Result<R::Output, R::Error>
     where
         R: Recombinator<Self>,
         Self: Sized,

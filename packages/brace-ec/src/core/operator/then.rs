@@ -73,13 +73,12 @@ where
     where
         Rng: rand::Rng + ?Sized,
     {
-        // Note: Using this form because rust-analyzer gets confused.
-        Recombinator::recombine(
-            &self.rhs,
-            Recombinator::recombine(&self.lhs, parents, rng).map_err(ThenError::Left)?,
-            rng,
-        )
-        .map_err(ThenError::Right)
+        self.rhs
+            .recombine(
+                self.lhs.recombine(parents, rng).map_err(ThenError::Left)?,
+                rng,
+            )
+            .map_err(ThenError::Right)
     }
 }
 
@@ -183,9 +182,9 @@ mod tests {
     fn test_recombine() {
         let population = [0, 1];
 
-        let a = population.recombine(Swap).unwrap();
-        let b = population.recombine(Swap.then(Swap)).unwrap();
-        let c = population.recombine(Swap.then(Swap).then(Swap)).unwrap();
+        let a = population.recombined(Swap).unwrap();
+        let b = population.recombined(Swap.then(Swap)).unwrap();
+        let c = population.recombined(Swap.then(Swap).then(Swap)).unwrap();
 
         assert_eq!(a, [1, 0]);
         assert_eq!(b, [0, 1]);

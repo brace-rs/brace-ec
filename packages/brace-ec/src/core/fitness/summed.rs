@@ -133,6 +133,18 @@ where
     }
 }
 
+impl<T> Sum<T::Item> for Summed<T>
+where
+    T: FromIterator<T::Item> + Iterable<Item: for<'a> Sum<&'a T::Item>>,
+{
+    fn sum<I>(iter: I) -> Self
+    where
+        I: Iterator<Item = T::Item>,
+    {
+        Self::from_iter(iter)
+    }
+}
+
 impl<I, T> Index<I> for Summed<T>
 where
     T: Iterable + Index<I>,

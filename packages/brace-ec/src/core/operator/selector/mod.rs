@@ -3,6 +3,7 @@ pub mod best;
 pub mod fill;
 pub mod first;
 pub mod generate;
+pub mod hill_climb;
 pub mod lexicase;
 pub mod mutate;
 pub mod random;
@@ -18,6 +19,7 @@ use crate::core::population::Population;
 
 use self::and::And;
 use self::fill::{Fill, ParFill};
+use self::hill_climb::HillClimb;
 use self::mutate::Mutate;
 use self::recombine::Recombine;
 use self::take::Take;
@@ -70,6 +72,15 @@ where
         F: Fn(&P::Individual) -> Result<<P::Individual as Individual>::Fitness, E>,
     {
         self.score(Function::new(scorer))
+    }
+
+    fn hill_climb<M>(self, mutator: M, iterations: usize) -> HillClimb<Self, M>
+    where
+        M: Mutator<P::Individual>,
+        Self: Selector<P, Output = [P::Individual; 1]>,
+        P::Individual: Clone,
+    {
+        HillClimb::new(self, mutator, iterations)
     }
 
     fn evolver<G>(self) -> Select<Self, G>

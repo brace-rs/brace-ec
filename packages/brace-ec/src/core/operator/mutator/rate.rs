@@ -40,8 +40,8 @@ mod tests {
 
     #[test]
     fn test_mutate() {
-        let a = 1.mutate(Add(1).rate(1.0)).unwrap();
-        let b = 1.mutate(Add(1).rate(0.0)).unwrap();
+        let a = 1.mutated(Add(1).rate(1.0)).unwrap();
+        let b = 1.mutated(Add(1).rate(0.0)).unwrap();
 
         assert_eq!(a, 2);
         assert_eq!(b, 1);

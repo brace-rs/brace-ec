@@ -72,13 +72,13 @@ mod tests {
     #[test]
     fn test_mutate() {
         for _ in 0..1_000 {
-            let a = 150.mutate(Noise(1..11)).unwrap();
+            let a = 150.mutated(Noise(1..11)).unwrap();
 
             assert!(a != 150);
             assert!(a <= 160);
             assert!(a >= 140);
 
-            let b = 250.mutate(Noise::new(1..=10)).unwrap();
+            let b = 250.mutated(Noise::new(1..=10)).unwrap();
 
             assert!(b != 250);
             assert!(b <= 260);
@@ -86,7 +86,7 @@ mod tests {
         }
 
         for _ in 0..10 {
-            let c = 350.mutate(Noise::default()).unwrap();
+            let c = 350.mutated(Noise::default()).unwrap();
 
             assert!(c == 349 || c == 351);
         }

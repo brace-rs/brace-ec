@@ -141,9 +141,9 @@ mod tests {
 
     #[test]
     fn test_mutate() {
-        let a = 0.mutate(Add(1).repeat(0)).unwrap();
-        let b = 1.mutate(Add(1).repeat(2)).unwrap();
-        let c = 2.mutate(Add(3).repeat(3)).unwrap();
+        let a = 0.mutated(Add(1).repeat(0)).unwrap();
+        let b = 1.mutated(Add(1).repeat(2)).unwrap();
+        let c = 2.mutated(Add(3).repeat(3)).unwrap();
 
         assert_eq!(a, 0);
         assert_eq!(b, 3);

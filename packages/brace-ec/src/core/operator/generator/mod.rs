@@ -1,12 +1,14 @@
 pub mod counter;
 pub mod populate;
 pub mod random;
+pub mod search;
 
 use crate::core::individual::Individual;
 use crate::core::population::Population;
 use crate::util::iter::TryFromIterator;
 
 use self::populate::Populate;
+use self::search::Search;
 
 use super::score::Score;
 use super::scorer::function::Function;
@@ -41,6 +43,13 @@ pub trait Generator<T>: Sized {
         T: Individual,
     {
         self.score(Function::new(scorer))
+    }
+
+    fn search(self, iterations: usize) -> Search<Self>
+    where
+        T: Individual,
+    {
+        Search::new(self, iterations)
     }
 
     fn selector<P>(self) -> Generate<Self, P>

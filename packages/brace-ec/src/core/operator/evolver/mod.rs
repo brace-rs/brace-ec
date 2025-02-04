@@ -26,10 +26,7 @@ where
 
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
-        S: Scorer<
-            <G::Population as Population>::Individual,
-            Score = <<G::Population as Population>::Individual as Individual>::Fitness,
-        >,
+        S: Scorer<<G::Population as Population>::Individual>,
     {
         Score::new(self, scorer)
     }

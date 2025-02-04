@@ -36,10 +36,9 @@ impl<T> Scorer<T> for Hiff<T>
 where
     T: Individual<Genome: AsRef<[bool]>, Fitness: AddAssign<usize>>,
 {
-    type Score = T::Fitness;
     type Error = Infallible;
 
-    fn score<Rng>(&self, individual: &T, _: &mut Rng) -> Result<Self::Score, Self::Error>
+    fn score<Rng>(&self, individual: &T, _: &mut Rng) -> Result<T::Fitness, Self::Error>
     where
         Rng: rand::Rng + ?Sized,
     {

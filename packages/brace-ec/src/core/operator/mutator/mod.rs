@@ -26,7 +26,7 @@ where
 
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
-        S: Scorer<T, Score = T::Fitness>,
+        S: Scorer<T>,
         T: Individual,
     {
         Score::new(self, scorer)

@@ -18,14 +18,9 @@ impl ImageScorer {
 }
 
 impl Scorer<Scored<Image, u64>> for ImageScorer {
-    type Score = u64;
     type Error = Infallible;
 
-    fn score<Rng>(
-        &self,
-        input: &Scored<Image, u64>,
-        _: &mut Rng,
-    ) -> Result<Self::Score, Self::Error>
+    fn score<Rng>(&self, input: &Scored<Image, u64>, _: &mut Rng) -> Result<u64, Self::Error>
     where
         Rng: rand::Rng + ?Sized,
     {

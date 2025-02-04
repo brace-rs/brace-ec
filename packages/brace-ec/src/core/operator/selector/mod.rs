@@ -62,7 +62,7 @@ where
 
     fn score<S>(self, scorer: S) -> Score<Self, S>
     where
-        S: Scorer<P::Individual, Score = <P::Individual as Individual>::Fitness>,
+        S: Scorer<P::Individual>,
     {
         Score::new(self, scorer)
     }

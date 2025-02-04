@@ -33,10 +33,9 @@ where
     T: Individual<Genome: Iterable<Item: PartialEq>, Fitness: Sum<U>>,
     U: Zero + One,
 {
-    type Score = T::Fitness;
     type Error = Infallible;
 
-    fn score<Rng>(&self, individual: &T, _: &mut Rng) -> Result<Self::Score, Self::Error>
+    fn score<Rng>(&self, individual: &T, _: &mut Rng) -> Result<T::Fitness, Self::Error>
     where
         Rng: rand::Rng + ?Sized,
     {

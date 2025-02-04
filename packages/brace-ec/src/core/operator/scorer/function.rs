@@ -12,16 +12,14 @@ impl<F> Function<F> {
     }
 }
 
-impl<F, I, S, E> Scorer<I> for Function<F>
+impl<F, I, E> Scorer<I> for Function<F>
 where
-    F: Fn(&I) -> Result<S, E>,
+    F: Fn(&I) -> Result<I::Fitness, E>,
     I: Individual,
-    S: Ord,
 {
-    type Score = S;
     type Error = E;
 
-    fn score<Rng>(&self, individual: &I, _: &mut Rng) -> Result<Self::Score, Self::Error>
+    fn score<Rng>(&self, individual: &I, _: &mut Rng) -> Result<I::Fitness, Self::Error>
     where
         Rng: rand::Rng + ?Sized,
     {
@@ -33,24 +31,27 @@ where
 mod tests {
     use std::convert::Infallible;
 
+    use crate::core::individual::scored::Scored;
     use crate::core::operator::scorer::Scorer;
 
     use super::Function;
 
-    fn sum([a, b]: &[i32; 2]) -> Result<i32, Infallible> {
-        Ok(a + b)
+    fn double(x: &Scored<i32, i32>) -> Result<i32, Infallible> {
+        Ok(x.individual * 2)
     }
 
     #[test]
     fn test_score() {
         let mut rng = rand::rng();
 
-        let individual = [10, 20];
+        let a = Function::new(|x: &Scored<i32, i32>| Ok::<_, Infallible>(x.individual * 2))
+            .score(&Scored::new(15, 0), &mut rng)
+            .unwrap();
+        let b = Function::new(double)
+            .score(&Scored::new(15, 0), &mut rng)
+            .unwrap();
 
-        let a = Function::new(|[a, b]: &[i32; 2]| Ok::<_, Infallible>(a + b));
-        let b = Function::new(sum);
-
-        assert_eq!(a.score(&individual, &mut rng).unwrap(), 30);
-        assert_eq!(b.score(&individual, &mut rng).unwrap(), 30);
+        assert_eq!(a, 30);
+        assert_eq!(b, 30);
     }
 }

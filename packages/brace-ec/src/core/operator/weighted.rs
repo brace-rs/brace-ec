@@ -186,14 +186,13 @@ where
     }
 }
 
-impl<I, O> Weighted<dyn DynScorer<I, O>>
+impl<I> Weighted<dyn DynScorer<I>>
 where
     I: Individual,
-    O: Ord,
 {
     pub fn scorer<S>(scorer: S, weight: u64) -> Self
     where
-        S: Scorer<I, Score = O, Error: Error + 'static> + 'static,
+        S: Scorer<I, Error: Error + 'static> + 'static,
     {
         Self {
             operators: vec![(Box::new(scorer), weight)],
@@ -202,22 +201,20 @@ where
 
     pub fn with_scorer<S>(mut self, scorer: S, weight: u64) -> Self
     where
-        S: Scorer<I, Score: Into<O>, Error: Error + 'static> + 'static,
+        S: Scorer<I, Error: Error + 'static> + 'static,
     {
         self.operators.push((Box::new(scorer), weight));
         self
     }
 }
 
-impl<I, O, E> Scorer<I> for Weighted<dyn DynScorer<I, O, E>>
+impl<I, E> Scorer<I> for Weighted<dyn DynScorer<I, E>>
 where
     I: Individual,
-    O: Ord,
 {
-    type Score = O;
     type Error = E;
 
-    fn score<Rng>(&self, individual: &I, rng: &mut Rng) -> Result<Self::Score, Self::Error>
+    fn score<Rng>(&self, individual: &I, rng: &mut Rng) -> Result<I::Fitness, Self::Error>
     where
         Rng: rand::Rng + ?Sized,
     {

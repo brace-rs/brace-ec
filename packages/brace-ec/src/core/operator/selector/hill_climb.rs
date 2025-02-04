@@ -79,10 +79,9 @@ mod tests {
     struct HillScorer;
 
     impl Scorer<i32> for HillScorer {
-        type Score = i32;
         type Error = Infallible;
 
-        fn score<Rng>(&self, input: &i32, _: &mut Rng) -> Result<Self::Score, Self::Error>
+        fn score<Rng>(&self, input: &i32, _: &mut Rng) -> Result<i32, Self::Error>
         where
             Rng: rand::Rng + ?Sized,
         {

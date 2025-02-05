@@ -1,10 +1,13 @@
 pub mod add;
+pub mod each;
 pub mod invert;
 pub mod noise;
 pub mod rate;
 
 use crate::individual::Individual;
+use crate::util::iter::IterableMut;
 
+use self::each::Each;
 use self::rate::Rate;
 
 use super::evaluate::Evaluate;
@@ -53,6 +56,14 @@ where
 
     fn repeat(self, count: usize) -> Repeat<Self> {
         Repeat::new(self, count)
+    }
+
+    fn each<I>(self) -> Each<Self, I>
+    where
+        I: Individual<Genome: IterableMut<Item = T>>,
+        T: Clone,
+    {
+        Each::new(self)
     }
 
     fn inspect<F>(self, inspector: F) -> Inspect<Self, F>

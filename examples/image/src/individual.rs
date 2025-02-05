@@ -1,5 +1,5 @@
-use brace_ec::core::fitness::nil::Nil;
-use brace_ec::core::individual::Individual;
+use brace_ec::fitness::nil::Nil;
+use brace_ec::individual::Individual;
 use image::GrayImage;
 
 #[derive(Clone)]

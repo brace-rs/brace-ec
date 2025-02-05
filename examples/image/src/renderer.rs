@@ -1,6 +1,6 @@
-use brace_ec::core::generation::Generation;
-use brace_ec::core::individual::scored::Scored;
-use brace_ec::core::individual::Individual;
+use brace_ec::generation::Generation;
+use brace_ec::individual::scored::Scored;
+use brace_ec::individual::Individual;
 use brace_ec_tui::renderer::Renderer;
 use image::GrayImage;
 use ratatui::buffer::Buffer;

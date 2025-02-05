@@ -1,8 +1,8 @@
 use std::convert::Infallible;
 
-use brace_ec::core::individual::scored::Scored;
-use brace_ec::core::operator::generator::random::Random;
-use brace_ec::core::operator::generator::Generator;
+use brace_ec::individual::scored::Scored;
+use brace_ec::operator::generator::random::Random;
+use brace_ec::operator::generator::Generator;
 use image::GrayImage;
 
 use crate::individual::Image;

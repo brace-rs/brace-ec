@@ -7,8 +7,8 @@ mod scorer;
 mod selector;
 
 use anyhow::Error;
-use brace_ec::core::operator::evolver::Evolver;
-use brace_ec::core::operator::generator::Generator;
+use brace_ec::operator::evolver::Evolver;
+use brace_ec::operator::generator::Generator;
 use brace_ec_tui::evolver::Terminal;
 use clap::Parser;
 use image::imageops::FilterType;

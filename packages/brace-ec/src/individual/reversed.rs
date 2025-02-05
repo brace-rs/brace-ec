@@ -47,7 +47,7 @@ impl<T> From<T> for Reversed<T> {
 
 #[cfg(test)]
 mod tests {
-    use crate::individual::scored::Scored;
+    use crate::individual::evaluated::Evaluated;
     use crate::individual::Individual;
 
     use super::Reversed;
@@ -57,8 +57,8 @@ mod tests {
         assert!(0.fitness() < 100.fitness());
         assert!(0.reversed().fitness() > 100.reversed().fitness());
 
-        let a = Reversed::new(Scored::new([1, 2, 3], 3));
-        let b = Reversed::new(Scored::new([4, 5, 6], 6));
+        let a = Reversed::new(Evaluated::new([1, 2, 3], 3));
+        let b = Reversed::new(Evaluated::new([4, 5, 6], 6));
 
         assert!(a.fitness() > b.fitness());
     }

@@ -6,11 +6,11 @@ pub mod uniform;
 use crate::individual::Individual;
 use crate::population::Population;
 
+use super::evaluate::Evaluate;
+use super::evaluator::function::Function;
+use super::evaluator::Evaluator;
 use super::inspect::Inspect;
 use super::repeat::Repeat;
-use super::score::Score;
-use super::scorer::function::Function;
-use super::scorer::Scorer;
 use super::then::Then;
 
 pub trait Recombinator<P>: Sized
@@ -24,18 +24,18 @@ where
     where
         Rng: rand::Rng + ?Sized;
 
-    fn score<S>(self, scorer: S) -> Score<Self, S>
+    fn evaluate<S>(self, evaluator: S) -> Evaluate<Self, S>
     where
-        S: Scorer<P::Individual>,
+        S: Evaluator<P::Individual>,
     {
-        Score::new(self, scorer)
+        Evaluate::new(self, evaluator)
     }
 
-    fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
+    fn evaluate_with<F, E>(self, evaluator: F) -> Evaluate<Self, Function<F>>
     where
         F: Fn(&P::Individual) -> Result<<P::Individual as Individual>::Fitness, E>,
     {
-        self.score(Function::new(scorer))
+        self.evaluate(Function::new(evaluator))
     }
 
     fn then<R>(self, recombinator: R) -> Then<Self, R>

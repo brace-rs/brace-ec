@@ -36,7 +36,7 @@ pub enum SumError {
 
 #[cfg(test)]
 mod tests {
-    use crate::individual::scored::Scored;
+    use crate::individual::evaluated::Evaluated;
     use crate::operator::recombinator::Recombinator;
 
     use super::{Sum, SumError};
@@ -48,11 +48,11 @@ mod tests {
         let a = Sum.recombine([0, 0], &mut rng);
         let b = Sum.recombine([1, 2], &mut rng);
         let c = Sum.recombine([1, i32::MAX], &mut rng);
-        let d = Sum.recombine([Scored::new(3, 0), Scored::new(4, 0)], &mut rng);
+        let d = Sum.recombine([Evaluated::new(3, 0), Evaluated::new(4, 0)], &mut rng);
 
         assert_eq!(a, Ok([0]));
         assert_eq!(b, Ok([3]));
         assert_eq!(c, Err(SumError::Overflow));
-        assert_eq!(d, Ok([Scored::new(7, 0)]));
+        assert_eq!(d, Ok([Evaluated::new(7, 0)]));
     }
 }

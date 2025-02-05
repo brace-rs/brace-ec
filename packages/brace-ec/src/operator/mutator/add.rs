@@ -46,7 +46,7 @@ pub enum AddError {
 
 #[cfg(test)]
 mod tests {
-    use crate::individual::scored::Scored;
+    use crate::individual::evaluated::Evaluated;
     use crate::operator::mutator::Mutator;
 
     use super::{Add, AddError};
@@ -59,12 +59,12 @@ mod tests {
         let b = Add(2).mutate(3, &mut rng);
         let c = Add::default().mutate(5, &mut rng);
         let d = Add(1).mutate(i32::MAX, &mut rng);
-        let e = Add(5).mutate(Scored::new(10, 0), &mut rng);
+        let e = Add(5).mutate(Evaluated::new(10, 0), &mut rng);
 
         assert_eq!(a, Ok(2));
         assert_eq!(b, Ok(5));
         assert_eq!(c, Ok(6));
         assert_eq!(d, Err(AddError::Overflow));
-        assert_eq!(e, Ok(Scored::new(15, 0)));
+        assert_eq!(e, Ok(Evaluated::new(15, 0)));
     }
 }

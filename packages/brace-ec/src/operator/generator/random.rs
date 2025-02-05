@@ -129,7 +129,7 @@ where
 mod tests {
     use rand::distr::BernoulliError;
 
-    use crate::individual::scored::Scored;
+    use crate::individual::evaluated::Evaluated;
     use crate::operator::generator::Generator;
 
     use super::Random;
@@ -142,9 +142,9 @@ mod tests {
         let _: u8 = Random::alphanumeric().generate(&mut rng).unwrap();
         let _: bool = Random::bernoulli(0.5).generate(&mut rng).unwrap();
 
-        let _: Scored<u8, u8> = Random::standard().generate(&mut rng).unwrap();
-        let _: Scored<u8, usize> = Random::alphanumeric().generate(&mut rng).unwrap();
-        let _: Scored<bool, i32> = Random::bernoulli(0.5).generate(&mut rng).unwrap();
+        let _: Evaluated<u8, u8> = Random::standard().generate(&mut rng).unwrap();
+        let _: Evaluated<u8, usize> = Random::alphanumeric().generate(&mut rng).unwrap();
+        let _: Evaluated<bool, i32> = Random::bernoulli(0.5).generate(&mut rng).unwrap();
 
         let a = Random::bernoulli(0.0).generate(&mut rng);
         let b = Random::bernoulli(1.0).generate(&mut rng);

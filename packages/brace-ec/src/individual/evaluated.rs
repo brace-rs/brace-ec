@@ -3,18 +3,21 @@ use crate::fitness::Fitness;
 use super::Individual;
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
-pub struct Scored<T, S> {
+pub struct Evaluated<T, S> {
     pub individual: T,
-    pub score: S,
+    pub fitness: S,
 }
 
-impl<T, S> Scored<T, S> {
-    pub fn new(individual: T, score: S) -> Self {
-        Self { individual, score }
+impl<T, S> Evaluated<T, S> {
+    pub fn new(individual: T, fitness: S) -> Self {
+        Self {
+            individual,
+            fitness,
+        }
     }
 }
 
-impl<T, S> Individual for Scored<T, S>
+impl<T, S> Individual for Evaluated<T, S>
 where
     T: Individual,
     S: Fitness,
@@ -31,15 +34,15 @@ where
     }
 
     fn fitness(&self) -> &Self::Fitness {
-        &self.score
+        &self.fitness
     }
 
     fn fitness_mut(&mut self) -> &mut Self::Fitness {
-        &mut self.score
+        &mut self.fitness
     }
 }
 
-impl<T, S> From<T> for Scored<T, S>
+impl<T, S> From<T> for Evaluated<T, S>
 where
     S: Fitness,
 {
@@ -52,13 +55,13 @@ where
 mod tests {
     use crate::individual::Individual;
 
-    use super::Scored;
+    use super::Evaluated;
 
     #[test]
     fn test_individual() {
-        let mut a = Scored::<_, i32>::from([1, 0]);
-        let mut b = [1, 0].scored();
-        let mut c = [1, 0].scored::<u8>();
+        let mut a = Evaluated::<_, i32>::from([1, 0]);
+        let mut b = [1, 0].evaluated();
+        let mut c = [1, 0].evaluated::<u8>();
 
         assert_eq!(a.genome(), [1, 0]);
         assert_eq!(b.genome(), [1, 0]);
@@ -68,9 +71,9 @@ mod tests {
         assert_eq!(*b.fitness(), 0);
         assert_eq!(*c.fitness(), 0);
 
-        a.score = 10;
-        b.score = 10;
-        c.score = 10;
+        a.fitness = 10;
+        b.fitness = 10;
+        c.fitness = 10;
 
         assert_eq!(a.genome(), [1, 0]);
         assert_eq!(b.genome(), [1, 0]);

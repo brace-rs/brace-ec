@@ -25,7 +25,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use crate::individual::scored::Scored;
+    use crate::individual::evaluated::Evaluated;
     use crate::operator::mutator::Mutator;
 
     use super::Invert;
@@ -36,10 +36,10 @@ mod tests {
 
         let a = Invert.mutate(true, &mut rng).unwrap();
         let b = Invert.mutate(false, &mut rng).unwrap();
-        let c = Invert.mutate(Scored::new(true, 0), &mut rng).unwrap();
+        let c = Invert.mutate(Evaluated::new(true, 0), &mut rng).unwrap();
 
         assert!(!a);
         assert!(b);
-        assert_eq!(c, Scored::new(false, 0));
+        assert_eq!(c, Evaluated::new(false, 0));
     }
 }

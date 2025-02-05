@@ -36,8 +36,8 @@ pub enum BestError {
 
 #[cfg(test)]
 mod tests {
+    use crate::individual::evaluated::Evaluated;
     use crate::individual::reversed::Reversed;
-    use crate::individual::scored::Scored;
     use crate::individual::Individual;
     use crate::population::Population;
 
@@ -61,18 +61,22 @@ mod tests {
 
         assert_eq!(individual, Reversed::new(0));
 
-        let population = [Scored::new(0, 0), Scored::new(10, 10), Scored::new(20, 5)];
-        let individual = population.select(Best).unwrap()[0];
-
-        assert_eq!(individual, Scored::new(10, 10));
-
         let population = [
-            Scored::new(30, 3).reversed(),
-            Scored::new(10, 10).reversed(),
-            Scored::new(20, 5).reversed(),
+            Evaluated::new(0, 0),
+            Evaluated::new(10, 10),
+            Evaluated::new(20, 5),
         ];
         let individual = population.select(Best).unwrap()[0];
 
-        assert_eq!(individual, Reversed::new(Scored::new(30, 3)));
+        assert_eq!(individual, Evaluated::new(10, 10));
+
+        let population = [
+            Evaluated::new(30, 3).reversed(),
+            Evaluated::new(10, 10).reversed(),
+            Evaluated::new(20, 5).reversed(),
+        ];
+        let individual = population.select(Best).unwrap()[0];
+
+        assert_eq!(individual, Reversed::new(Evaluated::new(30, 3)));
     }
 }

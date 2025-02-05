@@ -81,7 +81,7 @@ pub enum LexicaseError {
 #[cfg(test)]
 mod tests {
     use crate::fitness::summed::Summed;
-    use crate::individual::scored::Scored;
+    use crate::individual::evaluated::Evaluated;
     use crate::operator::selector::Selector;
 
     use super::Lexicase;
@@ -93,10 +93,10 @@ mod tests {
         let a = Lexicase
             .select(
                 &[
-                    Scored::new(0, Summed::new([3])),
-                    Scored::new(1, Summed::new([6])),
-                    Scored::new(2, Summed::new([9])),
-                    Scored::new(3, Summed::new([1])),
+                    Evaluated::new(0, Summed::new([3])),
+                    Evaluated::new(1, Summed::new([6])),
+                    Evaluated::new(2, Summed::new([9])),
+                    Evaluated::new(3, Summed::new([1])),
                 ],
                 &mut rng,
             )
@@ -107,10 +107,10 @@ mod tests {
         let b = Lexicase
             .select(
                 &[
-                    Scored::new(0, Summed::new([1, 6])),
-                    Scored::new(1, Summed::new([3, 8])),
-                    Scored::new(2, Summed::new([7, 0])),
-                    Scored::new(3, Summed::new([9, 9])),
+                    Evaluated::new(0, Summed::new([1, 6])),
+                    Evaluated::new(1, Summed::new([3, 8])),
+                    Evaluated::new(2, Summed::new([7, 0])),
+                    Evaluated::new(3, Summed::new([9, 9])),
                 ],
                 &mut rng,
             )
@@ -121,10 +121,10 @@ mod tests {
         let c = Lexicase
             .select(
                 &[
-                    Scored::new(0, Summed::new([9])),
-                    Scored::new(1, Summed::new([6])),
-                    Scored::new(2, Summed::new([9])),
-                    Scored::new(3, Summed::new([1])),
+                    Evaluated::new(0, Summed::new([9])),
+                    Evaluated::new(1, Summed::new([6])),
+                    Evaluated::new(2, Summed::new([9])),
+                    Evaluated::new(3, Summed::new([1])),
                 ],
                 &mut rng,
             )
@@ -135,10 +135,10 @@ mod tests {
         let d = Lexicase
             .select(
                 &[
-                    Scored::new(0, Summed::new([1, 6])),
-                    Scored::new(1, Summed::new([3, 8])),
-                    Scored::new(2, Summed::new([7, 0])),
-                    Scored::new(3, Summed::new([1, 8])),
+                    Evaluated::new(0, Summed::new([1, 6])),
+                    Evaluated::new(1, Summed::new([3, 8])),
+                    Evaluated::new(2, Summed::new([7, 0])),
+                    Evaluated::new(3, Summed::new([1, 8])),
                 ],
                 &mut rng,
             )

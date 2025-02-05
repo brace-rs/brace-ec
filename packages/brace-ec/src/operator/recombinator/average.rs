@@ -52,7 +52,7 @@ pub enum AverageError {
 
 #[cfg(test)]
 mod tests {
-    use crate::individual::scored::Scored;
+    use crate::individual::evaluated::Evaluated;
     use crate::operator::recombinator::Recombinator;
 
     use super::{Average, AverageError};
@@ -64,7 +64,7 @@ mod tests {
         let a = Average.recombine([0, 0], &mut rng);
         let b = Average.recombine([1, 1, 1], &mut rng);
         let c = Average.recombine([1, i32::MAX], &mut rng);
-        let d = Average.recombine([Scored::new(3, 0), Scored::new(4, 0)], &mut rng);
+        let d = Average.recombine([Evaluated::new(3, 0), Evaluated::new(4, 0)], &mut rng);
         let e = Average.recombine([1, 2, 3, 4, 5], &mut rng);
         let f = Average.recombine([100, 200, 300], &mut rng);
         let g = Average.recombine([100, 200, 300, 450], &mut rng);
@@ -72,7 +72,7 @@ mod tests {
         assert_eq!(a, Ok([0]));
         assert_eq!(b, Ok([1]));
         assert_eq!(c, Err(AverageError::Wrap));
-        assert_eq!(d, Ok([Scored::new(3, 0)]));
+        assert_eq!(d, Ok([Evaluated::new(3, 0)]));
         assert_eq!(e, Ok([3]));
         assert_eq!(f, Ok([200]));
         assert_eq!(g, Ok([262]));

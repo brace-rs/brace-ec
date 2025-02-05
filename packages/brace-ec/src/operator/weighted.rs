@@ -6,11 +6,11 @@ use crate::generation::Generation;
 use crate::individual::Individual;
 use crate::population::Population;
 
+use super::evaluator::{DynEvaluator, Evaluator};
 use super::evolver::{DynEvolver, Evolver};
 use super::generator::{DynGenerator, Generator};
 use super::mutator::{DynMutator, Mutator};
 use super::recombinator::{DynRecombinator, Recombinator};
-use super::scorer::{DynScorer, Scorer};
 use super::selector::{DynSelector, Selector};
 
 pub struct Weighted<T>
@@ -186,35 +186,35 @@ where
     }
 }
 
-impl<I> Weighted<dyn DynScorer<I>>
+impl<I> Weighted<dyn DynEvaluator<I>>
 where
     I: Individual,
 {
-    pub fn scorer<S>(scorer: S, weight: u64) -> Self
+    pub fn evaluator<S>(evaluator: S, weight: u64) -> Self
     where
-        S: Scorer<I, Error: Error + 'static> + 'static,
+        S: Evaluator<I, Error: Error + 'static> + 'static,
     {
         Self {
-            operators: vec![(Box::new(scorer), weight)],
+            operators: vec![(Box::new(evaluator), weight)],
         }
     }
 
-    pub fn with_scorer<S>(mut self, scorer: S, weight: u64) -> Self
+    pub fn with_evaluator<S>(mut self, evaluator: S, weight: u64) -> Self
     where
-        S: Scorer<I, Error: Error + 'static> + 'static,
+        S: Evaluator<I, Error: Error + 'static> + 'static,
     {
-        self.operators.push((Box::new(scorer), weight));
+        self.operators.push((Box::new(evaluator), weight));
         self
     }
 }
 
-impl<I, E> Scorer<I> for Weighted<dyn DynScorer<I, E>>
+impl<I, E> Evaluator<I> for Weighted<dyn DynEvaluator<I, E>>
 where
     I: Individual,
 {
     type Error = E;
 
-    fn score<Rng>(&self, individual: &I, rng: &mut Rng) -> Result<I::Fitness, Self::Error>
+    fn evaluate<Rng>(&self, individual: &I, rng: &mut Rng) -> Result<I::Fitness, Self::Error>
     where
         Rng: rand::Rng + ?Sized,
     {
@@ -222,7 +222,7 @@ where
             .choose_weighted(rng, |(_, weight)| *weight)
             .expect("cannot construct without at least 1 operator")
             .0
-            .score(individual, rng)
+            .evaluate(individual, rng)
     }
 }
 
@@ -264,6 +264,8 @@ impl<T, E> Generator<T> for Weighted<dyn DynGenerator<T, E>> {
 mod tests {
     use std::convert::Infallible;
 
+    use crate::operator::evaluator::function::Function;
+    use crate::operator::evaluator::Evaluator;
     use crate::operator::evolver::select::Select;
     use crate::operator::evolver::Evolver;
     use crate::operator::generator::random::Random;
@@ -272,8 +274,6 @@ mod tests {
     use crate::operator::mutator::Mutator;
     use crate::operator::recombinator::sum::Sum;
     use crate::operator::recombinator::Recombinator;
-    use crate::operator::scorer::function::Function;
-    use crate::operator::scorer::Scorer;
     use crate::operator::selector::best::Best;
     use crate::operator::selector::worst::Worst;
     use crate::operator::selector::Selector;
@@ -365,7 +365,7 @@ mod tests {
     }
 
     #[test]
-    fn test_score() {
+    fn test_evaluate() {
         let mut rng = rand::rng();
 
         fn one(_: &i32) -> Result<i32, Infallible> {
@@ -377,17 +377,17 @@ mod tests {
         }
 
         for _ in 0..10 {
-            let a = Weighted::scorer(Function::new(one), 1)
-                .with_scorer(Function::new(two), 1)
-                .score(&10, &mut rng)
+            let a = Weighted::evaluator(Function::new(one), 1)
+                .with_evaluator(Function::new(two), 1)
+                .evaluate(&10, &mut rng)
                 .unwrap();
-            let b = Weighted::scorer(Function::new(one), 1)
-                .with_scorer(Function::new(two), 0)
-                .score(&10, &mut rng)
+            let b = Weighted::evaluator(Function::new(one), 1)
+                .with_evaluator(Function::new(two), 0)
+                .evaluate(&10, &mut rng)
                 .unwrap();
-            let c = Weighted::scorer(Function::new(one), 0)
-                .with_scorer(Function::new(two), 1)
-                .score(&10, &mut rng)
+            let c = Weighted::evaluator(Function::new(one), 0)
+                .with_evaluator(Function::new(two), 1)
+                .evaluate(&10, &mut rng)
                 .unwrap();
 
             assert!(a == 1 || a == 2);

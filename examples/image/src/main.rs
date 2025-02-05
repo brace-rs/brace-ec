@@ -1,9 +1,9 @@
 mod args;
+mod evaluator;
 mod evolver;
 mod generator;
 mod individual;
 mod renderer;
-mod scorer;
 mod selector;
 
 use anyhow::Error;
@@ -14,11 +14,11 @@ use clap::Parser;
 use image::imageops::FilterType;
 
 use self::args::Args;
+use self::evaluator::ImageEvaluator;
 use self::evolver::ImageEvolver;
 use self::generator::ImageGenerator;
 use self::individual::Image;
 use self::renderer::ImageRenderer;
-use self::scorer::ImageScorer;
 
 fn main() -> Result<(), Error> {
     let args = Args::parse();
@@ -30,15 +30,15 @@ fn main() -> Result<(), Error> {
 
     let mut rng = rand::rng();
 
-    let scorer = ImageScorer::new(Image::new(image.clone()));
+    let evaluator = ImageEvaluator::new(Image::new(image.clone()));
     let generator = ImageGenerator::new(image.width(), image.height())
-        .score(scorer.clone())
+        .evaluate(evaluator.clone())
         .populate::<Vec<_>>(args.population);
 
     let population = generator.generate(&mut rng)?;
 
     let evolver = Terminal::new(
-        ImageEvolver::new(scorer, args.rate, args.parallel),
+        ImageEvolver::new(evaluator, args.rate, args.parallel),
         ImageRenderer::new(Image::new(image)),
     );
 

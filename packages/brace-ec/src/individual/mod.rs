@@ -1,10 +1,10 @@
+pub mod evaluated;
 pub mod reversed;
-pub mod scored;
 
 use ordered_float::OrderedFloat;
 
+use self::evaluated::Evaluated;
 use self::reversed::Reversed;
-use self::scored::Scored;
 
 use super::fitness::nil::Nil;
 use super::fitness::Fitness;
@@ -42,12 +42,12 @@ pub trait Individual {
         mutator.mutate(self, &mut rand::rng())
     }
 
-    fn scored<S>(self) -> Scored<Self, S>
+    fn evaluated<S>(self) -> Evaluated<Self, S>
     where
         S: Fitness,
         Self: Sized,
     {
-        Scored::from(self)
+        Evaluated::from(self)
     }
 
     fn reversed(self) -> Reversed<Self>

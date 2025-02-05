@@ -3,7 +3,7 @@ use std::ops::AddAssign;
 
 use crate::fitness::Fitness;
 use crate::individual::Individual;
-use crate::operator::scorer::Scorer;
+use crate::operator::evaluator::Evaluator;
 
 #[ghost::phantom]
 #[derive(Clone, Copy, Debug)]
@@ -13,40 +13,40 @@ impl<T> Hiff<T>
 where
     T: Individual<Fitness: AddAssign<usize>>,
 {
-    fn hiff(bits: &[bool], score: &mut T::Fitness) -> bool {
+    fn hiff(bits: &[bool], fitness: &mut T::Fitness) -> bool {
         let len = bits.len();
 
         if len < 2 {
-            *score += len;
+            *fitness += len;
 
             true
         } else {
             let half = len / 2;
-            let same_lhs = Self::hiff(&bits[..half], score);
-            let same_rhs = Self::hiff(&bits[half..], score);
+            let same_lhs = Self::hiff(&bits[..half], fitness);
+            let same_rhs = Self::hiff(&bits[half..], fitness);
             let same = same_lhs && same_rhs && bits[0] == bits[half];
 
-            *score += same.then_some(len).unwrap_or_default();
+            *fitness += same.then_some(len).unwrap_or_default();
             same
         }
     }
 }
 
-impl<T> Scorer<T> for Hiff<T>
+impl<T> Evaluator<T> for Hiff<T>
 where
     T: Individual<Genome: AsRef<[bool]>, Fitness: AddAssign<usize>>,
 {
     type Error = Infallible;
 
-    fn score<Rng>(&self, individual: &T, _: &mut Rng) -> Result<T::Fitness, Self::Error>
+    fn evaluate<Rng>(&self, individual: &T, _: &mut Rng) -> Result<T::Fitness, Self::Error>
     where
         Rng: rand::Rng + ?Sized,
     {
-        let mut score = T::Fitness::nil();
+        let mut fitness = T::Fitness::nil();
 
-        Self::hiff(individual.genome().as_ref(), &mut score);
+        Self::hiff(individual.genome().as_ref(), &mut fitness);
 
-        Ok(score)
+        Ok(fitness)
     }
 }
 
@@ -54,34 +54,34 @@ where
 mod tests {
     use crate::fitness::summed::Summed;
     use crate::individual::Individual;
-    use crate::operator::scorer::Scorer;
+    use crate::operator::evaluator::Evaluator;
 
     use super::Hiff;
 
     #[test]
-    fn test_score() {
+    fn test_evaluate() {
         let mut rng = rand::rng();
 
-        let a = [false, false, true, false, true, true, true, true].scored::<usize>();
-        let b = [false, false, false, false, true, false, false, true].scored::<usize>();
-        let c = [false, false, false, false, false, false, false, false].scored::<usize>();
-        let d = [true, true, true, true, true, true, true, true].scored::<usize>();
-        let e = [true, false, true, false, true, false, true, false].scored::<usize>();
+        let a = [false, false, true, false, true, true, true, true].evaluated::<usize>();
+        let b = [false, false, false, false, true, false, false, true].evaluated::<usize>();
+        let c = [false, false, false, false, false, false, false, false].evaluated::<usize>();
+        let d = [true, true, true, true, true, true, true, true].evaluated::<usize>();
+        let e = [true, false, true, false, true, false, true, false].evaluated::<usize>();
 
-        assert_eq!(Hiff.score(&a, &mut rng).unwrap(), 18);
-        assert_eq!(Hiff.score(&b, &mut rng).unwrap(), 16);
-        assert_eq!(Hiff.score(&c, &mut rng).unwrap(), 32);
-        assert_eq!(Hiff.score(&d, &mut rng).unwrap(), 32);
-        assert_eq!(Hiff.score(&e, &mut rng).unwrap(), 8);
+        assert_eq!(Hiff.evaluate(&a, &mut rng).unwrap(), 18);
+        assert_eq!(Hiff.evaluate(&b, &mut rng).unwrap(), 16);
+        assert_eq!(Hiff.evaluate(&c, &mut rng).unwrap(), 32);
+        assert_eq!(Hiff.evaluate(&d, &mut rng).unwrap(), 32);
+        assert_eq!(Hiff.evaluate(&e, &mut rng).unwrap(), 8);
     }
 
     #[test]
-    fn test_score_summed() {
+    fn test_evaluate_summed() {
         let mut rng = rand::rng();
 
         let a = [false, false, true, false, true, true, true, true];
         let a = Hiff
-            .score(&a.scored::<Summed<Vec<usize>>>(), &mut rng)
+            .evaluate(&a.evaluated::<Summed<Vec<usize>>>(), &mut rng)
             .unwrap();
 
         assert_eq!(a.total(), &18);
@@ -89,7 +89,7 @@ mod tests {
 
         let b = [false, false, false, false, true, false, false, true];
         let b = Hiff
-            .score(&b.scored::<Summed<Vec<usize>>>(), &mut rng)
+            .evaluate(&b.evaluated::<Summed<Vec<usize>>>(), &mut rng)
             .unwrap();
 
         assert_eq!(b.total(), &16);
@@ -97,7 +97,7 @@ mod tests {
 
         let c = [false, false, false, false, false, false, false, false];
         let c = Hiff
-            .score(&c.scored::<Summed<Vec<usize>>>(), &mut rng)
+            .evaluate(&c.evaluated::<Summed<Vec<usize>>>(), &mut rng)
             .unwrap();
 
         assert_eq!(c.total(), &32);
@@ -105,7 +105,7 @@ mod tests {
 
         let d = [true, true, true, true, true, true, true, true];
         let d = Hiff
-            .score(&d.scored::<Summed<Vec<usize>>>(), &mut rng)
+            .evaluate(&d.evaluated::<Summed<Vec<usize>>>(), &mut rng)
             .unwrap();
 
         assert_eq!(d.total(), &32);
@@ -113,7 +113,7 @@ mod tests {
 
         let e = [true, false, true, false, true, false, true, false];
         let e = Hiff
-            .score(&e.scored::<Summed<Vec<usize>>>(), &mut rng)
+            .evaluate(&e.evaluated::<Summed<Vec<usize>>>(), &mut rng)
             .unwrap();
 
         assert_eq!(e.total(), &8);

@@ -68,20 +68,20 @@ pub enum HillClimbError<S, M> {
 mod tests {
     use std::convert::Infallible;
 
+    use crate::operator::evaluator::Evaluator;
     use crate::operator::mutator::add::Add;
     use crate::operator::mutator::Mutator;
-    use crate::operator::scorer::Scorer;
     use crate::operator::selector::best::Best;
     use crate::operator::selector::Selector;
 
     use super::HillClimb;
 
-    struct HillScorer;
+    struct HillEvaluator;
 
-    impl Scorer<i32> for HillScorer {
+    impl Evaluator<i32> for HillEvaluator {
         type Error = Infallible;
 
-        fn score<Rng>(&self, input: &i32, _: &mut Rng) -> Result<i32, Self::Error>
+        fn evaluate<Rng>(&self, input: &i32, _: &mut Rng) -> Result<i32, Self::Error>
         where
             Rng: rand::Rng + ?Sized,
         {
@@ -104,8 +104,8 @@ mod tests {
             .select(&[1, 2, 3, 4, 5], &mut rng)
             .unwrap();
         let c = Best
-            .score(HillScorer)
-            .hill_climb(Add(1).score(HillScorer), 10)
+            .evaluate(HillEvaluator)
+            .hill_climb(Add(1).evaluate(HillEvaluator), 10)
             .select(&[1, 2, 3, 4, 5], &mut rng)
             .unwrap();
 

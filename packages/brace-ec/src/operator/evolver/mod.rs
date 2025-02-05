@@ -7,11 +7,11 @@ use crate::population::Population;
 
 use self::limit::Limit;
 
+use super::evaluate::Evaluate;
+use super::evaluator::function::Function;
+use super::evaluator::Evaluator;
 use super::inspect::Inspect;
 use super::repeat::Repeat;
-use super::score::Score;
-use super::scorer::function::Function;
-use super::scorer::Scorer;
 use super::then::Then;
 
 pub trait Evolver<G>: Sized
@@ -24,14 +24,14 @@ where
     where
         Rng: rand::Rng + ?Sized;
 
-    fn score<S>(self, scorer: S) -> Score<Self, S>
+    fn evaluate<S>(self, evaluator: S) -> Evaluate<Self, S>
     where
-        S: Scorer<<G::Population as Population>::Individual>,
+        S: Evaluator<<G::Population as Population>::Individual>,
     {
-        Score::new(self, scorer)
+        Evaluate::new(self, evaluator)
     }
 
-    fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
+    fn evaluate_with<F, E>(self, evaluator: F) -> Evaluate<Self, Function<F>>
     where
         F: Fn(
             &<G::Population as Population>::Individual,
@@ -39,7 +39,7 @@ where
             -> Result<<<G::Population as Population>::Individual as Individual>::Fitness, E>,
         Self: Sized,
     {
-        self.score(Function::new(scorer))
+        self.evaluate(Function::new(evaluator))
     }
 
     fn then<E>(self, evolver: E) -> Then<Self, E>

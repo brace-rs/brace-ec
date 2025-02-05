@@ -7,11 +7,11 @@ use crate::individual::Individual;
 
 use self::rate::Rate;
 
+use super::evaluate::Evaluate;
+use super::evaluator::function::Function;
+use super::evaluator::Evaluator;
 use super::inspect::Inspect;
 use super::repeat::Repeat;
-use super::score::Score;
-use super::scorer::function::Function;
-use super::scorer::Scorer;
 use super::then::Then;
 
 pub trait Mutator<T>: Sized
@@ -24,20 +24,20 @@ where
     where
         Rng: rand::Rng + ?Sized;
 
-    fn score<S>(self, scorer: S) -> Score<Self, S>
+    fn evaluate<S>(self, evaluator: S) -> Evaluate<Self, S>
     where
-        S: Scorer<T>,
+        S: Evaluator<T>,
         T: Individual,
     {
-        Score::new(self, scorer)
+        Evaluate::new(self, evaluator)
     }
 
-    fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
+    fn evaluate_with<F, E>(self, evaluator: F) -> Evaluate<Self, Function<F>>
     where
         F: Fn(&T) -> Result<T::Fitness, E>,
         T: Individual,
     {
-        self.score(Function::new(scorer))
+        self.evaluate(Function::new(evaluator))
     }
 
     fn then<M>(self, mutator: M) -> Then<Self, M>

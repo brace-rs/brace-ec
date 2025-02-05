@@ -10,9 +10,9 @@ use crate::util::iter::TryFromIterator;
 use self::populate::Populate;
 use self::search::Search;
 
-use super::score::Score;
-use super::scorer::function::Function;
-use super::scorer::Scorer;
+use super::evaluate::Evaluate;
+use super::evaluator::function::Function;
+use super::evaluator::Evaluator;
 use super::selector::generate::Generate;
 
 pub trait Generator<T>: Sized {
@@ -29,20 +29,20 @@ pub trait Generator<T>: Sized {
         Populate::new(self, size)
     }
 
-    fn score<S>(self, scorer: S) -> Score<Self, S>
+    fn evaluate<S>(self, evaluator: S) -> Evaluate<Self, S>
     where
-        S: Scorer<T>,
+        S: Evaluator<T>,
         T: Individual,
     {
-        Score::new(self, scorer)
+        Evaluate::new(self, evaluator)
     }
 
-    fn score_with<F, E>(self, scorer: F) -> Score<Self, Function<F>>
+    fn evaluate_with<F, E>(self, evaluator: F) -> Evaluate<Self, Function<F>>
     where
         F: Fn(&T) -> Result<T::Fitness, E>,
         T: Individual,
     {
-        self.score(Function::new(scorer))
+        self.evaluate(Function::new(evaluator))
     }
 
     fn search(self, iterations: usize) -> Search<Self>

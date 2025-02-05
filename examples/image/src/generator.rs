@@ -1,6 +1,6 @@
 use std::convert::Infallible;
 
-use brace_ec::individual::scored::Scored;
+use brace_ec::individual::evaluated::Evaluated;
 use brace_ec::operator::generator::random::Random;
 use brace_ec::operator::generator::Generator;
 use image::GrayImage;
@@ -18,10 +18,10 @@ impl ImageGenerator {
     }
 }
 
-impl Generator<Scored<Image, u64>> for ImageGenerator {
+impl Generator<Evaluated<Image, u64>> for ImageGenerator {
     type Error = Infallible;
 
-    fn generate<Rng>(&self, rng: &mut Rng) -> Result<Scored<Image, u64>, Self::Error>
+    fn generate<Rng>(&self, rng: &mut Rng) -> Result<Evaluated<Image, u64>, Self::Error>
     where
         Rng: rand::Rng + ?Sized,
     {
@@ -32,6 +32,6 @@ impl Generator<Scored<Image, u64>> for ImageGenerator {
 
         let image = GrayImage::from_vec(self.width, self.height, pixels).expect("valid");
 
-        Ok(Scored::new(Image::new(image), 0))
+        Ok(Evaluated::new(Image::new(image), 0))
     }
 }

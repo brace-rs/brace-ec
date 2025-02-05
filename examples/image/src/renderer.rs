@@ -1,5 +1,5 @@
 use brace_ec::generation::Generation;
-use brace_ec::individual::scored::Scored;
+use brace_ec::individual::evaluated::Evaluated;
 use brace_ec::individual::Individual;
 use brace_ec_tui::renderer::Renderer;
 use image::GrayImage;
@@ -22,8 +22,8 @@ impl ImageRenderer {
     }
 }
 
-impl Renderer<(u64, Vec<Scored<Image, u64>>)> for ImageRenderer {
-    fn render(&self, generation: &(u64, Vec<Scored<Image, u64>>), frame: &mut Frame) {
+impl Renderer<(u64, Vec<Evaluated<Image, u64>>)> for ImageRenderer {
+    fn render(&self, generation: &(u64, Vec<Evaluated<Image, u64>>), frame: &mut Frame) {
         let vertical = Layout::default()
             .direction(Direction::Vertical)
             .constraints([Constraint::Length(1), Constraint::Fill(1)])

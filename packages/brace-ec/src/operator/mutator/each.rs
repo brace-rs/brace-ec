@@ -54,9 +54,18 @@ mod tests {
             .rate(0.0)
             .mutate([1, 2, 3], &mut rng)
             .unwrap();
+        let d = Add(1)
+            .rate(1.0)
+            .each()
+            .rate(1.0)
+            .each()
+            .rate(1.0)
+            .mutate([[1, 2], [2, 3], [3, 4]], &mut rng)
+            .unwrap();
 
         assert_eq!(a, [2, 3, 4]);
         assert_eq!(b, [1, 2, 3]);
         assert_eq!(c, [1, 2, 3]);
+        assert_eq!(d, [[2, 3], [3, 4], [4, 5]]);
     }
 }

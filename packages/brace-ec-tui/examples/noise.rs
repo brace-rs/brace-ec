@@ -1,10 +1,10 @@
-use brace_ec::core::generation::Generation;
-use brace_ec::core::operator::evolver::select::Select;
-use brace_ec::core::operator::evolver::Evolver;
-use brace_ec::core::operator::mutator::noise::Noise;
-use brace_ec::core::operator::mutator::Mutator;
-use brace_ec::core::operator::selector::tournament::Tournament;
-use brace_ec::core::operator::selector::Selector;
+use brace_ec::generation::Generation;
+use brace_ec::operator::evolver::select::Select;
+use brace_ec::operator::evolver::Evolver;
+use brace_ec::operator::mutator::noise::Noise;
+use brace_ec::operator::mutator::Mutator;
+use brace_ec::operator::selector::tournament::Tournament;
+use brace_ec::operator::selector::Selector;
 use brace_ec_tui::evolver::Terminal;
 use brace_ec_tui::renderer::Renderer;
 use ratatui::buffer::Buffer;

@@ -1,7 +1,7 @@
 use std::time::Duration;
 
-use brace_ec::core::generation::Generation;
-use brace_ec::core::operator::evolver::Evolver;
+use brace_ec::generation::Generation;
+use brace_ec::operator::evolver::Evolver;
 use crossterm::event::{self, Event, KeyCode};
 use thiserror::Error;
 

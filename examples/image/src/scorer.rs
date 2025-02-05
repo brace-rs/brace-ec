@@ -1,8 +1,8 @@
 use std::convert::Infallible;
 
-use brace_ec::core::individual::scored::Scored;
-use brace_ec::core::individual::Individual;
-use brace_ec::core::operator::scorer::Scorer;
+use brace_ec::individual::scored::Scored;
+use brace_ec::individual::Individual;
+use brace_ec::operator::scorer::Scorer;
 
 use crate::individual::Image;
 

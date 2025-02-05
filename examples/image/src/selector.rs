@@ -1,12 +1,12 @@
 use std::convert::Infallible;
 
-use brace_ec::core::individual::scored::Scored;
-use brace_ec::core::individual::Individual;
-use brace_ec::core::operator::score::{Score, ScoreError};
-use brace_ec::core::operator::selector::and::{And, AndError};
-use brace_ec::core::operator::selector::first::{First, FirstError};
-use brace_ec::core::operator::selector::windows::{ArrayWindows, ParArrayWindows, WindowsError};
-use brace_ec::core::operator::selector::Selector;
+use brace_ec::individual::scored::Scored;
+use brace_ec::individual::Individual;
+use brace_ec::operator::score::{Score, ScoreError};
+use brace_ec::operator::selector::and::{And, AndError};
+use brace_ec::operator::selector::first::{First, FirstError};
+use brace_ec::operator::selector::windows::{ArrayWindows, ParArrayWindows, WindowsError};
+use brace_ec::operator::selector::Selector;
 use thiserror::Error;
 
 use crate::individual::Image;

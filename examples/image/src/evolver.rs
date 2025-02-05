@@ -1,8 +1,8 @@
-use brace_ec::core::generation::Generation;
-use brace_ec::core::individual::scored::Scored;
-use brace_ec::core::individual::Individual;
-use brace_ec::core::operator::evolver::Evolver;
-use brace_ec::core::operator::selector::Selector;
+use brace_ec::generation::Generation;
+use brace_ec::individual::scored::Scored;
+use brace_ec::individual::Individual;
+use brace_ec::operator::evolver::Evolver;
+use brace_ec::operator::selector::Selector;
 
 use crate::individual::Image;
 use crate::scorer::ImageScorer;

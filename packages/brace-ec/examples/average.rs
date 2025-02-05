@@ -1,13 +1,13 @@
-use brace_ec::core::generation::Generation;
-use brace_ec::core::operator::evolver::select::Select;
-use brace_ec::core::operator::evolver::Evolver;
-use brace_ec::core::operator::mutator::noise::Noise;
-use brace_ec::core::operator::mutator::Mutator;
-use brace_ec::core::operator::recombinator::average::Average;
-use brace_ec::core::operator::selector::best::Best;
-use brace_ec::core::operator::selector::tournament::Tournament;
-use brace_ec::core::operator::selector::Selector;
-use brace_ec::core::population::Population;
+use brace_ec::generation::Generation;
+use brace_ec::operator::evolver::select::Select;
+use brace_ec::operator::evolver::Evolver;
+use brace_ec::operator::mutator::noise::Noise;
+use brace_ec::operator::mutator::Mutator;
+use brace_ec::operator::recombinator::average::Average;
+use brace_ec::operator::selector::best::Best;
+use brace_ec::operator::selector::tournament::Tournament;
+use brace_ec::operator::selector::Selector;
+use brace_ec::population::Population;
 
 pub fn main() {
     let generation = (0, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);

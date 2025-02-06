@@ -4,10 +4,11 @@ pub mod invert;
 pub mod noise;
 pub mod rate;
 
+use crate::chromosome::Chromosome;
 use crate::individual::Individual;
 use crate::util::iter::IterableMut;
 
-use self::each::Each;
+use self::each::{Each, EachReciprocalRate};
 use self::rate::Rate;
 
 use super::evaluate::Evaluate;
@@ -72,6 +73,14 @@ where
         T: Clone,
     {
         Each::new(Rate::new(self, rate))
+    }
+
+    fn each_reciprocal_rate<I>(self) -> EachReciprocalRate<Self, I>
+    where
+        I: Individual<Genome: Chromosome<Gene = T>>,
+        T: Clone,
+    {
+        EachReciprocalRate::new(self)
     }
 
     fn inspect<F>(self, inspector: F) -> Inspect<Self, F>

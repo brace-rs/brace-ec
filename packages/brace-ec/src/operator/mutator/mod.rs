@@ -66,6 +66,14 @@ where
         Each::new(self)
     }
 
+    fn each_rate<I>(self, rate: f64) -> Each<Rate<Self>, I>
+    where
+        I: Individual<Genome: IterableMut<Item = T>>,
+        T: Clone,
+    {
+        Each::new(Rate::new(self, rate))
+    }
+
     fn inspect<F>(self, inspector: F) -> Inspect<Self, F>
     where
         F: Fn(&T),

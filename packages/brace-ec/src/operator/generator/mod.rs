@@ -8,7 +8,7 @@ use crate::population::Population;
 use crate::util::iter::TryFromIterator;
 
 use self::populate::Populate;
-use self::search::Search;
+use self::search::{ParSearch, Search};
 
 use super::evaluate::Evaluate;
 use super::evaluator::function::Function;
@@ -50,6 +50,15 @@ pub trait Generator<T>: Sized {
         T: Individual,
     {
         Search::new(self, iterations)
+    }
+
+    fn par_search(self, iterations: usize) -> ParSearch<Self>
+    where
+        T: Individual + Send,
+        Self: Sync,
+        Self::Error: Send,
+    {
+        ParSearch::new(self, iterations)
     }
 
     fn selector<P>(self) -> Generate<Self, P>

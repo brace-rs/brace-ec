@@ -1,7 +1,7 @@
 use std::mem;
 use std::ops::RangeBounds;
 
-use crate::util::range::{get_range_to, get_slice_range_mut};
+use crate::util::range::{bound_range, get_range, get_slice_range_mut};
 
 use super::Chromosome;
 
@@ -12,7 +12,7 @@ pub trait Crossover: Chromosome {
     where
         R: RangeBounds<usize>,
     {
-        for index in get_range_to(range, self.len()) {
+        for index in bound_range(get_range(range), 0..self.len()) {
             self.crossover_gene(other, index);
         }
     }

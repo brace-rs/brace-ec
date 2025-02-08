@@ -43,13 +43,13 @@ where
     }
 }
 
-impl<P, O, E> Selector<P> for Weighted<dyn DynSelector<P, O, E>>
+impl<P, O> Selector<P> for Weighted<dyn DynSelector<P, O>>
 where
     P: Population,
     O: Population<Individual = P::Individual>,
 {
     type Output = O;
-    type Error = E;
+    type Error = WeightedError;
 
     fn select<Rng>(&self, population: &P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
@@ -60,6 +60,7 @@ where
             .expect("cannot construct without at least 1 operator")
             .0
             .select(population, rng)
+            .map_err(WeightedError)
     }
 }
 
@@ -85,11 +86,11 @@ where
     }
 }
 
-impl<I, E> Mutator<I> for Weighted<dyn DynMutator<I, E>>
+impl<I> Mutator<I> for Weighted<dyn DynMutator<I>>
 where
     I: Individual,
 {
-    type Error = E;
+    type Error = WeightedError;
 
     fn mutate<Rng>(&self, individual: I, rng: &mut Rng) -> Result<I, Self::Error>
     where
@@ -100,6 +101,7 @@ where
             .expect("cannot construct without at least 1 operator")
             .0
             .mutate(individual, rng)
+            .map_err(WeightedError)
     }
 }
 
@@ -126,13 +128,13 @@ where
     }
 }
 
-impl<P, O, E> Recombinator<P> for Weighted<dyn DynRecombinator<P, O, E>>
+impl<P, O> Recombinator<P> for Weighted<dyn DynRecombinator<P, O>>
 where
     P: Population,
     O: Population<Individual = P::Individual>,
 {
     type Output = O;
-    type Error = E;
+    type Error = WeightedError;
 
     fn recombine<Rng>(&self, population: P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
     where
@@ -143,6 +145,7 @@ where
             .expect("cannot construct without at least 1 operator")
             .0
             .recombine(population, rng)
+            .map_err(WeightedError)
     }
 }
 
@@ -168,11 +171,11 @@ where
     }
 }
 
-impl<G, E> Evolver<G> for Weighted<dyn DynEvolver<G, E>>
+impl<G> Evolver<G> for Weighted<dyn DynEvolver<G>>
 where
     G: Generation,
 {
-    type Error = E;
+    type Error = WeightedError;
 
     fn evolve<Rng>(&self, generation: G, rng: &mut Rng) -> Result<G, Self::Error>
     where
@@ -183,6 +186,7 @@ where
             .expect("cannot construct without at least 1 operator")
             .0
             .evolve(generation, rng)
+            .map_err(WeightedError)
     }
 }
 
@@ -208,11 +212,11 @@ where
     }
 }
 
-impl<I, E> Evaluator<I> for Weighted<dyn DynEvaluator<I, E>>
+impl<I> Evaluator<I> for Weighted<dyn DynEvaluator<I>>
 where
     I: Individual,
 {
-    type Error = E;
+    type Error = WeightedError;
 
     fn evaluate<Rng>(&self, individual: &I, rng: &mut Rng) -> Result<I::Fitness, Self::Error>
     where
@@ -223,6 +227,7 @@ where
             .expect("cannot construct without at least 1 operator")
             .0
             .evaluate(individual, rng)
+            .map_err(WeightedError)
     }
 }
 
@@ -245,8 +250,8 @@ impl<T> Weighted<dyn DynGenerator<T>> {
     }
 }
 
-impl<T, E> Generator<T> for Weighted<dyn DynGenerator<T, E>> {
-    type Error = E;
+impl<T> Generator<T> for Weighted<dyn DynGenerator<T>> {
+    type Error = WeightedError;
 
     fn generate<Rng>(&self, rng: &mut Rng) -> Result<T, Self::Error>
     where
@@ -257,8 +262,13 @@ impl<T, E> Generator<T> for Weighted<dyn DynGenerator<T, E>> {
             .expect("cannot construct without at least 1 operator")
             .0
             .generate(rng)
+            .map_err(WeightedError)
     }
 }
+
+#[derive(Debug, thiserror::Error)]
+#[error(transparent)]
+pub struct WeightedError(Box<dyn Error + Send + Sync>);
 
 #[cfg(test)]
 mod tests {

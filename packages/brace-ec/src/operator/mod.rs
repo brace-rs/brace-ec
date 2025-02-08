@@ -1,3 +1,4 @@
+pub mod either;
 pub mod evaluate;
 pub mod evaluator;
 pub mod evolver;

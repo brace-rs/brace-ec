@@ -1,6 +1,8 @@
 pub mod limit;
 pub mod select;
 
+use std::error::Error;
+
 use crate::generation::Generation;
 use crate::individual::Individual;
 use crate::population::Population;
@@ -65,7 +67,7 @@ where
     }
 }
 
-pub trait DynEvolver<G, E = Box<dyn std::error::Error>>
+pub trait DynEvolver<G, E = Box<dyn Error + Send + Sync>>
 where
     G: Generation,
 {

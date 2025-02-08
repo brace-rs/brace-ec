@@ -3,6 +3,8 @@ pub mod populate;
 pub mod random;
 pub mod search;
 
+use std::error::Error;
+
 use crate::individual::Individual;
 use crate::population::Population;
 use crate::util::iter::TryFromIterator;
@@ -69,7 +71,7 @@ pub trait Generator<T>: Sized {
     }
 }
 
-pub trait DynGenerator<T, E = Box<dyn std::error::Error>> {
+pub trait DynGenerator<T, E = Box<dyn Error + Send + Sync>> {
     fn dyn_generate(&self, rng: &mut dyn rand::RngCore) -> Result<T, E>;
 }
 

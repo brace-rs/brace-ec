@@ -1,6 +1,8 @@
 use thiserror::Error;
 
 use crate::individual::Individual;
+use crate::operator::evaluate::Evaluate;
+use crate::operator::evaluator::Evaluator;
 use crate::operator::mutator::Mutator;
 use crate::population::Population;
 
@@ -18,6 +20,39 @@ impl<S, M> HillClimb<S, M> {
             selector,
             mutator,
             iterations,
+        }
+    }
+}
+
+impl<S, M> HillClimb<S, M> {
+    pub fn evaluate_iterations<T, P>(
+        self,
+        evaluator: T,
+    ) -> HillClimb<Evaluate<S, T>, Evaluate<M, T>>
+    where
+        P: Population<Individual: Clone> + ?Sized,
+        T: Evaluator<P::Individual> + Clone,
+        S: Selector<P, Output = [P::Individual; 1]>,
+        M: Mutator<P::Individual>,
+    {
+        HillClimb {
+            selector: self.selector.evaluate(evaluator.clone()),
+            mutator: self.mutator.evaluate(evaluator),
+            iterations: self.iterations,
+        }
+    }
+
+    pub fn evaluate_mutations<T, P>(self, evaluator: T) -> HillClimb<S, Evaluate<M, T>>
+    where
+        P: Population<Individual: Clone> + ?Sized,
+        T: Evaluator<P::Individual>,
+        S: Selector<P, Output = [P::Individual; 1]>,
+        M: Mutator<P::Individual>,
+    {
+        HillClimb {
+            selector: self.selector,
+            mutator: self.mutator.evaluate(evaluator),
+            iterations: self.iterations,
         }
     }
 }
@@ -76,6 +111,7 @@ mod tests {
 
     use super::HillClimb;
 
+    #[derive(Clone)]
     struct HillEvaluator;
 
     impl Evaluator<i32> for HillEvaluator {
@@ -108,9 +144,21 @@ mod tests {
             .hill_climb(Add(1).evaluate(HillEvaluator), 10)
             .select(&[1, 2, 3, 4, 5], &mut rng)
             .unwrap();
+        let d = Best
+            .hill_climb(Add(1), 10)
+            .evaluate_iterations(HillEvaluator)
+            .select(&[1, 2, 3, 4, 5], &mut rng)
+            .unwrap();
+        let e = Best
+            .hill_climb(Add(1), 10)
+            .evaluate_mutations(HillEvaluator)
+            .select(&[1, 2, 3, 4, 5], &mut rng)
+            .unwrap();
 
         assert_eq!(a, [15]);
         assert_eq!(b, [15]);
         assert_eq!(c, [9]);
+        assert_eq!(d, [9]);
+        assert_eq!(e, [9]);
     }
 }

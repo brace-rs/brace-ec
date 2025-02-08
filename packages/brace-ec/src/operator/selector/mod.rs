@@ -34,7 +34,7 @@ use super::evolver::select::Select;
 use super::inspect::Inspect;
 use super::mutator::Mutator;
 use super::recombinator::Recombinator;
-use super::repeat::Repeat;
+use super::repeat::{Repeat, RepeatN};
 use super::then::Then;
 
 pub trait Selector<P>: Sized
@@ -158,6 +158,10 @@ where
         Self: Sized,
     {
         Repeat::new(self, count)
+    }
+
+    fn repeat_n<const N: usize>(self) -> RepeatN<N, Self> {
+        RepeatN::new(self)
     }
 
     fn inspect<F>(self, inspector: F) -> Inspect<Self, F>

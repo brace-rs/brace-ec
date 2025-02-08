@@ -41,6 +41,20 @@ impl<S, M> HillClimb<S, M> {
             iterations: self.iterations,
         }
     }
+
+    pub fn evaluate_mutations<T, P>(self, evaluator: T) -> HillClimb<S, Evaluate<M, T>>
+    where
+        P: Population<Individual: Clone> + ?Sized,
+        T: Evaluator<P::Individual>,
+        S: Selector<P, Output = [P::Individual; 1]>,
+        M: Mutator<P::Individual>,
+    {
+        HillClimb {
+            selector: self.selector,
+            mutator: self.mutator.evaluate(evaluator),
+            iterations: self.iterations,
+        }
+    }
 }
 
 impl<P, S, M> Selector<P> for HillClimb<S, M>
@@ -135,10 +149,16 @@ mod tests {
             .evaluate_iterations(HillEvaluator)
             .select(&[1, 2, 3, 4, 5], &mut rng)
             .unwrap();
+        let e = Best
+            .hill_climb(Add(1), 10)
+            .evaluate_mutations(HillEvaluator)
+            .select(&[1, 2, 3, 4, 5], &mut rng)
+            .unwrap();
 
         assert_eq!(a, [15]);
         assert_eq!(b, [15]);
         assert_eq!(c, [9]);
         assert_eq!(d, [9]);
+        assert_eq!(e, [9]);
     }
 }

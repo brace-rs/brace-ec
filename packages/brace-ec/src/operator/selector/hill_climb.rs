@@ -25,7 +25,10 @@ impl<S, M> HillClimb<S, M> {
 }
 
 impl<S, M> HillClimb<S, M> {
-    pub fn evaluate<T, P>(self, evaluator: T) -> HillClimb<Evaluate<S, T>, Evaluate<M, T>>
+    pub fn evaluate_iterations<T, P>(
+        self,
+        evaluator: T,
+    ) -> HillClimb<Evaluate<S, T>, Evaluate<M, T>>
     where
         P: Population<Individual: Clone> + ?Sized,
         T: Evaluator<P::Individual> + Clone,
@@ -129,7 +132,7 @@ mod tests {
             .unwrap();
         let d = Best
             .hill_climb(Add(1), 10)
-            .evaluate(HillEvaluator)
+            .evaluate_iterations(HillEvaluator)
             .select(&[1, 2, 3, 4, 5], &mut rng)
             .unwrap();
 

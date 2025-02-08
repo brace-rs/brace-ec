@@ -10,3 +10,18 @@ pub mod repeat;
 pub mod selector;
 pub mod then;
 pub mod weighted;
+
+use self::either::Either;
+
+pub trait IntoParallelOperator: Sized {
+    type Op;
+
+    fn parallel(self) -> Self::Op;
+
+    fn parallel_if(self, parallel: bool) -> Either<Self, Self::Op> {
+        match parallel {
+            false => Either::A(self),
+            true => Either::B(self.parallel()),
+        }
+    }
+}

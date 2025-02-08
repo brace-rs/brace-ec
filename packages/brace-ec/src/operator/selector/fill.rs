@@ -1,6 +1,7 @@
 use rayon::iter::ParallelIterator;
 use thiserror::Error;
 
+use crate::operator::IntoParallelOperator;
 use crate::population::{IterableMutPopulation, ParIterableMutPopulation, ToOwnedPopulation};
 use crate::util::iter::{IterableMut, ParIterableMut};
 
@@ -67,6 +68,16 @@ where
     }
 }
 
+impl<S> IntoParallelOperator for Fill<S> {
+    type Op = ParFill<S>;
+
+    fn parallel(self) -> Self::Op {
+        Self::Op {
+            selector: self.selector,
+        }
+    }
+}
+
 #[derive(Clone, Debug, Default)]
 pub struct ParFill<S> {
     selector: S,
@@ -119,6 +130,7 @@ mod tests {
     use crate::operator::selector::best::Best;
     use crate::operator::selector::worst::Worst;
     use crate::operator::selector::Selector;
+    use crate::operator::IntoParallelOperator;
     use crate::population::Population;
 
     #[test]
@@ -146,10 +158,12 @@ mod tests {
             .select(Best.and(Worst).take::<1>().par_fill())
             .unwrap();
         let d = population.as_slice().select(Best.par_fill()).unwrap();
+        let e = population.select(Best.fill().parallel()).unwrap();
 
         assert_eq!(a, [5; 5]);
         assert_eq!(b, [1; 5]);
         assert_eq!(c, [5; 5]);
         assert_eq!(d, [5; 5]);
+        assert_eq!(e, [5; 5]);
     }
 }

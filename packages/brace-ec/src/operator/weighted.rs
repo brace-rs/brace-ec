@@ -27,7 +27,7 @@ where
 {
     pub fn selector<S>(selector: S, weight: u64) -> Self
     where
-        S: Selector<P, Output = O, Error: Error + 'static> + 'static,
+        S: Selector<P, Output = O, Error: Error + Send + Sync + 'static> + 'static,
     {
         Self {
             operators: vec![(Box::new(selector), weight)],
@@ -36,7 +36,7 @@ where
 
     pub fn with_selector<S>(mut self, selector: S, weight: u64) -> Self
     where
-        S: Selector<P, Output: Into<O>, Error: Error + 'static> + 'static,
+        S: Selector<P, Output: Into<O>, Error: Error + Send + Sync + 'static> + 'static,
     {
         self.operators.push((Box::new(selector), weight));
         self
@@ -69,7 +69,7 @@ where
 {
     pub fn mutator<M>(mutator: M, weight: u64) -> Self
     where
-        M: Mutator<I, Error: Error + 'static> + 'static,
+        M: Mutator<I, Error: Error + Send + Sync + 'static> + 'static,
     {
         Self {
             operators: vec![(Box::new(mutator), weight)],
@@ -78,7 +78,7 @@ where
 
     pub fn with_mutator<M>(mut self, mutator: M, weight: u64) -> Self
     where
-        M: Mutator<I, Error: Error + 'static> + 'static,
+        M: Mutator<I, Error: Error + Send + Sync + 'static> + 'static,
     {
         self.operators.push((Box::new(mutator), weight));
         self
@@ -110,7 +110,7 @@ where
 {
     pub fn recombinator<R>(recombinator: R, weight: u64) -> Self
     where
-        R: Recombinator<P, Output = O, Error: Error + 'static> + 'static,
+        R: Recombinator<P, Output = O, Error: Error + Send + Sync + 'static> + 'static,
     {
         Self {
             operators: vec![(Box::new(recombinator), weight)],
@@ -119,7 +119,7 @@ where
 
     pub fn with_recombinator<R>(mut self, recombinator: R, weight: u64) -> Self
     where
-        R: Recombinator<P, Output: Into<O>, Error: Error + 'static> + 'static,
+        R: Recombinator<P, Output: Into<O>, Error: Error + Send + Sync + 'static> + 'static,
     {
         self.operators.push((Box::new(recombinator), weight));
         self
@@ -152,7 +152,7 @@ where
 {
     pub fn evolver<E>(evolver: E, weight: u64) -> Self
     where
-        E: Evolver<G, Error: Error + 'static> + 'static,
+        E: Evolver<G, Error: Error + Send + Sync + 'static> + 'static,
     {
         Self {
             operators: vec![(Box::new(evolver), weight)],
@@ -161,7 +161,7 @@ where
 
     pub fn with_evolver<M>(mut self, evolver: M, weight: u64) -> Self
     where
-        M: Evolver<G, Error: Error + 'static> + 'static,
+        M: Evolver<G, Error: Error + Send + Sync + 'static> + 'static,
     {
         self.operators.push((Box::new(evolver), weight));
         self
@@ -192,7 +192,7 @@ where
 {
     pub fn evaluator<S>(evaluator: S, weight: u64) -> Self
     where
-        S: Evaluator<I, Error: Error + 'static> + 'static,
+        S: Evaluator<I, Error: Error + Send + Sync + 'static> + 'static,
     {
         Self {
             operators: vec![(Box::new(evaluator), weight)],
@@ -201,7 +201,7 @@ where
 
     pub fn with_evaluator<S>(mut self, evaluator: S, weight: u64) -> Self
     where
-        S: Evaluator<I, Error: Error + 'static> + 'static,
+        S: Evaluator<I, Error: Error + Send + Sync + 'static> + 'static,
     {
         self.operators.push((Box::new(evaluator), weight));
         self
@@ -229,7 +229,7 @@ where
 impl<T> Weighted<dyn DynGenerator<T>> {
     pub fn generator<G>(generator: G, weight: u64) -> Self
     where
-        G: Generator<T, Error: Error + 'static> + 'static,
+        G: Generator<T, Error: Error + Send + Sync + 'static> + 'static,
     {
         Self {
             operators: vec![(Box::new(generator), weight)],
@@ -238,7 +238,7 @@ impl<T> Weighted<dyn DynGenerator<T>> {
 
     pub fn with_generator<G>(mut self, generator: G, weight: u64) -> Self
     where
-        G: Generator<T, Error: Error + 'static> + 'static,
+        G: Generator<T, Error: Error + Send + Sync + 'static> + 'static,
     {
         self.operators.push((Box::new(generator), weight));
         self

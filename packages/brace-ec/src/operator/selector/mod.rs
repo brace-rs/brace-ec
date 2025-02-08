@@ -13,6 +13,8 @@ pub mod tournament;
 pub mod windows;
 pub mod worst;
 
+use std::error::Error;
+
 use crate::generation::Generation;
 use crate::individual::Individual;
 use crate::population::Population;
@@ -167,7 +169,7 @@ where
     }
 }
 
-pub trait DynSelector<P, O = Vec<<P as Population>::Individual>, E = Box<dyn std::error::Error>>
+pub trait DynSelector<P, O = Vec<<P as Population>::Individual>, E = Box<dyn Error + Send + Sync>>
 where
     P: Population + ?Sized,
     O: Population<Individual = P::Individual>,

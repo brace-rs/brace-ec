@@ -4,6 +4,8 @@ pub mod invert;
 pub mod noise;
 pub mod rate;
 
+use std::error::Error;
+
 use crate::chromosome::Chromosome;
 use crate::individual::Individual;
 use crate::util::iter::IterableMut;
@@ -91,7 +93,7 @@ where
     }
 }
 
-pub trait DynMutator<I, E = Box<dyn std::error::Error>>
+pub trait DynMutator<I, E = Box<dyn Error + Send + Sync>>
 where
     I: Individual,
 {

@@ -3,6 +3,8 @@ pub mod point;
 pub mod sum;
 pub mod uniform;
 
+use std::error::Error;
+
 use crate::individual::Individual;
 use crate::population::Population;
 
@@ -57,8 +59,11 @@ where
     }
 }
 
-pub trait DynRecombinator<P, O = Vec<<P as Population>::Individual>, E = Box<dyn std::error::Error>>
-where
+pub trait DynRecombinator<
+    P,
+    O = Vec<<P as Population>::Individual>,
+    E = Box<dyn Error + Send + Sync>,
+> where
     P: Population,
     O: Population<Individual = P::Individual>,
 {

@@ -2,6 +2,8 @@ pub mod count;
 pub mod function;
 pub mod hiff;
 
+use std::error::Error;
+
 use crate::individual::Individual;
 
 pub trait Evaluator<T>
@@ -15,7 +17,7 @@ where
         Rng: rand::Rng + ?Sized;
 }
 
-pub trait DynEvaluator<I, E = Box<dyn std::error::Error>>
+pub trait DynEvaluator<I, E = Box<dyn Error + Send + Sync>>
 where
     I: Individual,
 {

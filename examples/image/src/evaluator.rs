@@ -20,11 +20,15 @@ impl ImageEvaluator {
 impl Evaluator<Evaluated<Image, u64>> for ImageEvaluator {
     type Error = Infallible;
 
-    fn evaluate<Rng>(&self, input: &Evaluated<Image, u64>, _: &mut Rng) -> Result<u64, Self::Error>
+    fn evaluate<Rng>(
+        &self,
+        individual: &Evaluated<Image, u64>,
+        _: &mut Rng,
+    ) -> Result<u64, Self::Error>
     where
         Rng: rand::Rng + ?Sized,
     {
-        let fitness = input
+        let fitness = individual
             .genome()
             .iter()
             .zip(self.image.genome().iter())

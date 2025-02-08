@@ -117,13 +117,13 @@ mod tests {
     impl Evaluator<i32> for HillEvaluator {
         type Error = Infallible;
 
-        fn evaluate<Rng>(&self, input: &i32, _: &mut Rng) -> Result<i32, Self::Error>
+        fn evaluate<Rng>(&self, individual: &i32, _: &mut Rng) -> Result<i32, Self::Error>
         where
             Rng: rand::Rng + ?Sized,
         {
-            match input {
+            match individual {
                 10 => Ok(0),
-                _ => Ok(*input),
+                _ => Ok(*individual),
             }
         }
     }

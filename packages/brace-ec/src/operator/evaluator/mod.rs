@@ -12,7 +12,7 @@ where
 {
     type Error;
 
-    fn evaluate<Rng>(&self, input: &T, rng: &mut Rng) -> Result<T::Fitness, Self::Error>
+    fn evaluate<Rng>(&self, individual: &T, rng: &mut Rng) -> Result<T::Fitness, Self::Error>
     where
         Rng: rand::Rng + ?Sized;
 }

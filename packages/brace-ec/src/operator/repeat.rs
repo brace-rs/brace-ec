@@ -98,6 +98,94 @@ where
     }
 }
 
+pub struct RepeatN<const N: usize, T> {
+    operator: T,
+}
+
+impl<T> RepeatN<0, T> {
+    pub fn new<const N: usize>(operator: T) -> RepeatN<N, T> {
+        RepeatN { operator }
+    }
+}
+
+impl<const N: usize, P, T> Selector<P> for RepeatN<N, T>
+where
+    P: Population + ?Sized,
+    T: Selector<P, Output = [P::Individual; 1]>,
+{
+    type Output = [P::Individual; N];
+    type Error = T::Error;
+
+    fn select<Rng>(&self, population: &P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        array_util::try_from_fn(|_| {
+            self.operator
+                .select(population, rng)
+                .map(|[individual]| individual)
+        })
+    }
+}
+
+impl<const N: usize, I, T> Mutator<I> for RepeatN<N, T>
+where
+    T: Mutator<I>,
+    I: Individual,
+{
+    type Error = T::Error;
+
+    fn mutate<Rng>(&self, mut individual: I, rng: &mut Rng) -> Result<I, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        for _ in 0..N {
+            individual = self.operator.mutate(individual, rng)?;
+        }
+
+        Ok(individual)
+    }
+}
+
+impl<const N: usize, T, P> Recombinator<P> for RepeatN<N, T>
+where
+    T: Recombinator<P, Output = P>,
+    P: Population,
+{
+    type Output = P;
+    type Error = T::Error;
+
+    fn recombine<Rng>(&self, mut parents: P, rng: &mut Rng) -> Result<Self::Output, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        for _ in 0..N {
+            parents = self.operator.recombine(parents, rng)?;
+        }
+
+        Ok(parents)
+    }
+}
+
+impl<const N: usize, G, T> Evolver<G> for RepeatN<N, T>
+where
+    G: Generation,
+    T: Evolver<G>,
+{
+    type Error = T::Error;
+
+    fn evolve<Rng>(&self, mut generation: G, rng: &mut Rng) -> Result<G, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        for _ in 0..N {
+            generation = self.operator.evolve(generation, rng)?;
+        }
+
+        Ok(generation)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::convert::Infallible;
@@ -137,6 +225,14 @@ mod tests {
         assert_eq!(a, []);
         assert_eq!(b, [0]);
         assert_eq!(c, [0, 0]);
+
+        let d = population.select(First.repeat_n::<0>()).unwrap();
+        let e = population.select(First.repeat_n::<1>()).unwrap();
+        let f = population.select(First.repeat_n::<2>()).unwrap();
+
+        assert_eq!(d, []);
+        assert_eq!(e, [0]);
+        assert_eq!(f, [0, 0]);
     }
 
     #[test]
@@ -148,6 +244,14 @@ mod tests {
         assert_eq!(a, 0);
         assert_eq!(b, 3);
         assert_eq!(c, 11);
+
+        let d = 0.mutated(Add(1).repeat_n::<0>()).unwrap();
+        let e = 1.mutated(Add(1).repeat_n::<2>()).unwrap();
+        let f = 2.mutated(Add(3).repeat_n::<3>()).unwrap();
+
+        assert_eq!(d, 0);
+        assert_eq!(e, 3);
+        assert_eq!(f, 11);
     }
 
     #[test]
@@ -165,6 +269,20 @@ mod tests {
         assert_eq!(c, [1, 0]);
         assert_eq!(d, [0, 1]);
         assert_eq!(e, [0, 1]);
+
+        let f = population.recombined(Swap).unwrap();
+        let g = population.recombined(Swap.repeat_n::<0>()).unwrap();
+        let h = population.recombined(Swap.repeat_n::<1>()).unwrap();
+        let i = population.recombined(Swap.repeat_n::<2>()).unwrap();
+        let j = population
+            .recombined(Swap.repeat_n::<2>().repeat_n::<2>())
+            .unwrap();
+
+        assert_eq!(f, [1, 0]);
+        assert_eq!(g, [0, 1]);
+        assert_eq!(h, [1, 0]);
+        assert_eq!(i, [0, 1]);
+        assert_eq!(j, [0, 1]);
     }
 
     #[test]
@@ -176,14 +294,27 @@ mod tests {
             .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
             .unwrap();
 
-        assert_eq!(a.0, 2);
-
         let b = Select::fill(First)
             .repeat(2)
             .repeat(3)
             .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
             .unwrap();
 
+        assert_eq!(a.0, 2);
         assert_eq!(b.0, 6);
+
+        let c = Select::fill(First)
+            .repeat_n::<2>()
+            .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
+            .unwrap();
+
+        let d = Select::fill(First)
+            .repeat_n::<2>()
+            .repeat_n::<3>()
+            .evolve((0, [0, 1, 2, 3, 4]), &mut rng)
+            .unwrap();
+
+        assert_eq!(c.0, 2);
+        assert_eq!(d.0, 6);
     }
 }

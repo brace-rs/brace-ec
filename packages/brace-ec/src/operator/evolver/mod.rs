@@ -13,7 +13,7 @@ use super::evaluate::Evaluate;
 use super::evaluator::function::Function;
 use super::evaluator::Evaluator;
 use super::inspect::Inspect;
-use super::repeat::Repeat;
+use super::repeat::{Repeat, RepeatN};
 use super::then::Then;
 
 pub trait Evolver<G>: Sized
@@ -53,6 +53,10 @@ where
 
     fn repeat(self, count: usize) -> Repeat<Self> {
         Repeat::new(self, count)
+    }
+
+    fn repeat_n<const N: usize>(self) -> RepeatN<N, Self> {
+        RepeatN::new(self)
     }
 
     fn limit(self, generation: G::Id) -> Limit<G, Self> {

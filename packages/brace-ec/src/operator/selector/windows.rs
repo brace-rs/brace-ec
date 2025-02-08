@@ -6,6 +6,7 @@ use rayon::slice::ParallelSlice;
 use thiserror::Error;
 
 use crate::individual::Individual;
+use crate::operator::IntoParallelOperator;
 use crate::population::Population;
 
 use super::Selector;
@@ -60,6 +61,18 @@ where
             .flatten_ok()
             .collect::<Result<Vec<_>, _>>()
             .map_err(WindowsError::Select)
+    }
+}
+
+impl<S, P> IntoParallelOperator for Windows<S, P> {
+    type Op = ParWindows<S, P>;
+
+    fn parallel(self) -> Self::Op {
+        Self::Op {
+            selector: self.selector,
+            size: self.size,
+            marker: PhantomData,
+        }
     }
 }
 
@@ -170,6 +183,17 @@ where
     }
 }
 
+impl<const N: usize, S, P> IntoParallelOperator for ArrayWindows<N, S, P> {
+    type Op = ParArrayWindows<N, S, P>;
+
+    fn parallel(self) -> Self::Op {
+        Self::Op {
+            selector: self.selector,
+            marker: PhantomData,
+        }
+    }
+}
+
 pub struct ParArrayWindows<const N: usize, S, P>
 where
     P: ?Sized,
@@ -243,6 +267,7 @@ mod tests {
     use crate::operator::selector::best::Best;
     use crate::operator::selector::worst::Worst;
     use crate::operator::selector::Selector;
+    use crate::operator::IntoParallelOperator;
     use crate::population::Population;
 
     use super::{ArrayWindows, ParArrayWindows, ParWindows, Windows, WindowsError};
@@ -331,6 +356,9 @@ mod tests {
             .unwrap();
         let i = population.select(ParWindows::new(Best, 0));
         let j = population.select(ParWindows::new(Best, 6));
+        let k = population
+            .select(Windows::new(Best, 2).parallel().mutate(Add(1)))
+            .unwrap();
 
         assert_eq!(a, [3, 4, 5, 6]);
         assert_eq!(b, [4, 5, 6]);
@@ -342,6 +370,7 @@ mod tests {
         assert_eq!(h, [6, 8]);
         assert_eq!(i, Err(WindowsError::Empty));
         assert_eq!(j, Err(WindowsError::TooLarge));
+        assert_eq!(k, [3, 4, 5, 6]);
     }
 
     #[test]
@@ -481,6 +510,9 @@ mod tests {
             .unwrap();
         let i = population.select(ParArrayWindows::<0, _, _>::new(Best));
         let j = population.select(ParArrayWindows::<6, _, _>::new(Best));
+        let k = population
+            .select(ArrayWindows::<2, _, _>::new(Best).parallel().mutate(Add(1)))
+            .unwrap();
 
         assert_eq!(a, [3, 4, 5, 6]);
         assert_eq!(b, [4, 5, 6]);
@@ -492,6 +524,7 @@ mod tests {
         assert_eq!(h, [6, 8]);
         assert_eq!(i, Err(WindowsError::Empty));
         assert_eq!(j, Err(WindowsError::TooLarge));
+        assert_eq!(k, [3, 4, 5, 6]);
     }
 
     #[test]

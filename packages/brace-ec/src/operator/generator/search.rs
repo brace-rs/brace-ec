@@ -5,6 +5,7 @@ use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use thiserror::Error;
 
 use crate::individual::Individual;
+use crate::operator::IntoParallelOperator;
 
 use super::Generator;
 
@@ -38,6 +39,17 @@ where
             .process_results(|iter| iter.max_by(|a, b| a.fitness().cmp(b.fitness())))
             .map_err(SearchError::Generate)?
             .ok_or(SearchError::Zero)
+    }
+}
+
+impl<G> IntoParallelOperator for Search<G> {
+    type Op = ParSearch<G>;
+
+    fn parallel(self) -> Self::Op {
+        Self::Op {
+            generator: self.generator,
+            iterations: self.iterations,
+        }
     }
 }
 
@@ -90,6 +102,7 @@ pub enum SearchError<G> {
 mod tests {
     use crate::operator::generator::counter::Counter;
     use crate::operator::generator::Generator;
+    use crate::operator::IntoParallelOperator;
 
     use super::{ParSearch, Search};
 
@@ -112,8 +125,14 @@ mod tests {
             .generate(&mut rng)
             .unwrap();
         let b = Counter::u64().par_search(11).generate(&mut rng).unwrap();
+        let c = Counter::u64()
+            .search(11)
+            .parallel()
+            .generate(&mut rng)
+            .unwrap();
 
         assert_eq!(a, 9);
         assert_eq!(b, 10);
+        assert_eq!(c, 10);
     }
 }

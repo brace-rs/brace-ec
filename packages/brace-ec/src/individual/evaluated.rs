@@ -55,15 +55,6 @@ where
     }
 }
 
-impl<U, T, S> AsRef<U> for Evaluated<T, S>
-where
-    T: AsRef<U>,
-{
-    fn as_ref(&self) -> &U {
-        self.individual.as_ref()
-    }
-}
-
 impl<U, T, S> TryFromIterator<U> for Evaluated<T, S>
 where
     T: TryFromIterator<U>,

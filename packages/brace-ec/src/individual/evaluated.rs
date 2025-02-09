@@ -46,12 +46,12 @@ where
 
 impl<T, S> Population for Evaluated<T, S>
 where
-    T: Population,
+    T: Individual<Genome: Population>,
 {
-    type Individual = T::Individual;
+    type Individual = <T::Genome as Population>::Individual;
 
     fn len(&self) -> usize {
-        self.individual.len()
+        self.individual.genome().len()
     }
 }
 

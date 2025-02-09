@@ -62,6 +62,13 @@ where
         Recombine::new(self, recombinator)
     }
 
+    fn reproduce<R>(self, recombinator: R) -> Take<Recombine<Self, R>, 1>
+    where
+        R: Recombinator<Self::Output>,
+    {
+        Take::new(Recombine::new(self, recombinator))
+    }
+
     fn evaluate<S>(self, evaluator: S) -> Evaluate<Self, S>
     where
         S: Evaluator<P::Individual>,

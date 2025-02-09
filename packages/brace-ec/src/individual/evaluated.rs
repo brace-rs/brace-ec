@@ -1,4 +1,6 @@
 use crate::fitness::Fitness;
+use crate::population::Population;
+use crate::util::iter::TryFromIterator;
 
 use super::Individual;
 
@@ -39,6 +41,32 @@ where
 
     fn fitness_mut(&mut self) -> &mut Self::Fitness {
         &mut self.fitness
+    }
+}
+
+impl<T, S> Population for Evaluated<T, S>
+where
+    T: Individual<Genome: Population>,
+{
+    type Individual = <T::Genome as Population>::Individual;
+
+    fn len(&self) -> usize {
+        self.individual.genome().len()
+    }
+}
+
+impl<U, T, S> TryFromIterator<U> for Evaluated<T, S>
+where
+    T: TryFromIterator<U>,
+    S: Fitness,
+{
+    type Error = T::Error;
+
+    fn try_from_iter<I>(iter: I) -> Result<Self, Self::Error>
+    where
+        I: IntoIterator<Item = U>,
+    {
+        T::try_from_iter(iter).map(Self::from)
     }
 }
 

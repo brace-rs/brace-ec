@@ -49,3 +49,17 @@ where
         (**self).dyn_evaluate(individual, &mut rng)
     }
 }
+
+impl<I, E> Evaluator<I> for Box<dyn DynEvaluator<I, E> + Send + Sync>
+where
+    I: Individual,
+{
+    type Error = E;
+
+    fn evaluate<Rng>(&self, individual: &I, mut rng: &mut Rng) -> Result<I::Fitness, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        (**self).dyn_evaluate(individual, &mut rng)
+    }
+}

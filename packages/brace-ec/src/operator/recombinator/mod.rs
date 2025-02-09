@@ -102,3 +102,19 @@ where
         (**self).dyn_recombine(population, &mut rng)
     }
 }
+
+impl<P, O, E> Recombinator<P> for Box<dyn DynRecombinator<P, O, E> + Send + Sync>
+where
+    P: Population,
+    O: Population<Individual = P::Individual>,
+{
+    type Output = O;
+    type Error = E;
+
+    fn recombine<Rng>(&self, population: P, mut rng: &mut Rng) -> Result<Self::Output, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        (**self).dyn_recombine(population, &mut rng)
+    }
+}

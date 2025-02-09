@@ -209,3 +209,19 @@ where
         (**self).dyn_select(population, &mut rng)
     }
 }
+
+impl<P, O, E> Selector<P> for Box<dyn DynSelector<P, O, E> + Send + Sync>
+where
+    P: Population + ?Sized,
+    O: Population<Individual = P::Individual>,
+{
+    type Output = O;
+    type Error = E;
+
+    fn select<Rng>(&self, population: &P, mut rng: &mut Rng) -> Result<Self::Output, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        (**self).dyn_select(population, &mut rng)
+    }
+}

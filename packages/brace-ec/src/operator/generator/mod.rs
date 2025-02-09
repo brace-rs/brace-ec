@@ -94,3 +94,14 @@ impl<T, E> Generator<T> for Box<dyn DynGenerator<T, E>> {
         (**self).dyn_generate(&mut rng)
     }
 }
+
+impl<T, E> Generator<T> for Box<dyn DynGenerator<T, E> + Send + Sync> {
+    type Error = E;
+
+    fn generate<Rng>(&self, mut rng: &mut Rng) -> Result<T, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        (**self).dyn_generate(&mut rng)
+    }
+}

@@ -127,3 +127,17 @@ where
         (**self).dyn_mutate(individual, &mut rng)
     }
 }
+
+impl<I, E> Mutator<I> for Box<dyn DynMutator<I, E> + Send + Sync>
+where
+    I: Individual,
+{
+    type Error = E;
+
+    fn mutate<Rng>(&self, individual: I, mut rng: &mut Rng) -> Result<I, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        (**self).dyn_mutate(individual, &mut rng)
+    }
+}

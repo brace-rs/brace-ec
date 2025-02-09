@@ -101,3 +101,17 @@ where
         (**self).dyn_evolve(individual, &mut rng)
     }
 }
+
+impl<G, E> Evolver<G> for Box<dyn DynEvolver<G, E> + Send + Sync>
+where
+    G: Generation,
+{
+    type Error = E;
+
+    fn evolve<Rng>(&self, individual: G, mut rng: &mut Rng) -> Result<G, Self::Error>
+    where
+        Rng: rand::Rng + ?Sized,
+    {
+        (**self).dyn_evolve(individual, &mut rng)
+    }
+}

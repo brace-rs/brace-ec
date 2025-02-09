@@ -55,6 +55,10 @@ where
         RepeatN::new(self)
     }
 
+    fn twice(self) -> RepeatN<2, Self> {
+        self.repeat_n()
+    }
+
     fn inspect<F>(self, inspector: F) -> Inspect<Self, F>
     where
         F: Fn(&Self::Output),

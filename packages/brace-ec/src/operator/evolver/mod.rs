@@ -59,6 +59,10 @@ where
         RepeatN::new(self)
     }
 
+    fn twice(self) -> RepeatN<2, Self> {
+        self.repeat_n()
+    }
+
     fn limit(self, generation: G::Id) -> Limit<G, Self> {
         Limit::new(self, generation)
     }

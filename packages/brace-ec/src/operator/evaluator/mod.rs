@@ -30,9 +30,7 @@ where
     T: Evaluator<I, Error: Into<E>>,
 {
     fn dyn_evaluate(&self, individual: &I, rng: &mut dyn rand::RngCore) -> Result<I::Fitness, E> {
-        self.evaluate(individual, rng)
-            .map(Into::into)
-            .map_err(Into::into)
+        self.evaluate(individual, rng).map_err(Into::into)
     }
 }
 

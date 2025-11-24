@@ -26,7 +26,7 @@ where
             let same_rhs = Self::hiff(&bits[half..], fitness);
             let same = same_lhs && same_rhs && bits[0] == bits[half];
 
-            *fitness += same.then_some(len).unwrap_or_default();
+            *fitness += if same { len } else { 0 };
             same
         }
     }

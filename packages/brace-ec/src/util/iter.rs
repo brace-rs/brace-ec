@@ -161,7 +161,7 @@ where
     where
         I: IntoIterator<Item = Result<T, E>>,
     {
-        Ok(match process_results(iter, |it: _| U::try_from_iter(it)) {
+        Ok(match process_results(iter, |it| U::try_from_iter(it)) {
             Ok(res) => Ok(res?),
             Err(err) => Err(err),
         })

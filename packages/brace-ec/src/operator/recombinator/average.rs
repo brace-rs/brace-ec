@@ -3,7 +3,7 @@ use thiserror::Error;
 
 use crate::individual::Individual;
 use crate::population::IterablePopulation;
-use crate::util::sum::CheckedSum;
+use crate::util::sum::{Check, TrySum};
 
 use super::Recombinator;
 
@@ -14,7 +14,7 @@ pub struct Average<P: IterablePopulation>;
 impl<P, G> Recombinator<P> for Average<P>
 where
     P: IterablePopulation<Individual: Individual<Genome = G> + From<G>>,
-    G: for<'a> CheckedSum<&'a G> + CheckedDiv + FromPrimitive,
+    G: Clone + CheckedDiv + FromPrimitive + TrySum<G, Check>,
 {
     type Output = [P::Individual; 1];
     type Error = AverageError;
@@ -31,7 +31,8 @@ where
             return Err(AverageError::Unrepresentable);
         };
 
-        let genome = G::checked_sum(parents.iter().map(Individual::genome))
+        let genome = G::try_sum(parents.iter().map(Individual::genome).cloned())
+            .ok()
             .ok_or(AverageError::Wrap)?
             .checked_div(&len)
             .ok_or(AverageError::Wrap)?;

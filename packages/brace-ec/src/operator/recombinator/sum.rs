@@ -2,7 +2,7 @@ use thiserror::Error;
 
 use crate::individual::Individual;
 use crate::population::IterablePopulation;
-use crate::util::sum::CheckedSum;
+use crate::util::sum::{Check, TrySum};
 
 use super::Recombinator;
 
@@ -13,7 +13,7 @@ pub struct Sum<P: IterablePopulation>;
 impl<P, G> Recombinator<P> for Sum<P>
 where
     P: IterablePopulation<Individual: Individual<Genome = G> + From<G>>,
-    G: for<'a> CheckedSum<&'a G>,
+    G: Clone + TrySum<G, Check>,
 {
     type Output = [P::Individual; 1];
     type Error = SumError;
@@ -22,7 +22,8 @@ where
     where
         Rng: rand::Rng + ?Sized,
     {
-        Ok([G::checked_sum(parents.iter().map(Individual::genome))
+        Ok([G::try_sum(parents.iter().map(Individual::genome).cloned())
+            .ok()
             .ok_or(SumError::Overflow)?
             .into()])
     }

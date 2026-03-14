@@ -93,7 +93,7 @@ mod tests {
         let a = Lexicase
             .select(
                 &[
-                    Evaluated::new(0, Summed::new([3])),
+                    Evaluated::new(0, Summed::<_>::new([3])),
                     Evaluated::new(1, Summed::new([6])),
                     Evaluated::new(2, Summed::new([9])),
                     Evaluated::new(3, Summed::new([1])),
@@ -107,7 +107,7 @@ mod tests {
         let b = Lexicase
             .select(
                 &[
-                    Evaluated::new(0, Summed::new([1, 6])),
+                    Evaluated::new(0, Summed::<_>::new([1, 6])),
                     Evaluated::new(1, Summed::new([3, 8])),
                     Evaluated::new(2, Summed::new([7, 0])),
                     Evaluated::new(3, Summed::new([9, 9])),
@@ -121,7 +121,7 @@ mod tests {
         let c = Lexicase
             .select(
                 &[
-                    Evaluated::new(0, Summed::new([9])),
+                    Evaluated::new(0, Summed::<_>::new([9])),
                     Evaluated::new(1, Summed::new([6])),
                     Evaluated::new(2, Summed::new([9])),
                     Evaluated::new(3, Summed::new([1])),
@@ -135,7 +135,7 @@ mod tests {
         let d = Lexicase
             .select(
                 &[
-                    Evaluated::new(0, Summed::new([1, 6])),
+                    Evaluated::new(0, Summed::<_>::new([1, 6])),
                     Evaluated::new(1, Summed::new([3, 8])),
                     Evaluated::new(2, Summed::new([7, 0])),
                     Evaluated::new(3, Summed::new([1, 8])),
